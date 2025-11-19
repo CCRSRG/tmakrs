@@ -22,7 +22,6 @@ export function BookmarkCardView({
   onToggleSelect,
 }: BookmarkCardViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [columns, setColumns] = useState(1)
   const [showEditHint, setShowEditHint] = useState(true)
 
   // 移动端10秒后隐藏编辑按钮提示
@@ -39,44 +38,6 @@ export function BookmarkCardView({
     } else {
       // PC端立即隐藏
       setShowEditHint(false)
-    }
-  }, [])
-
-  // 动态计算列数
-  useEffect(() => {
-    const updateColumns = () => {
-      if (!containerRef.current) return
-
-      const containerWidth = containerRef.current.offsetWidth
-      // 每列最小宽度280px，间距16px
-      const minColumnWidth = 280
-      const gap = 16
-
-      // 计算可以容纳的列数
-      let cols = 1
-      for (let i = 1; i <= 4; i++) {
-        const totalWidth = i * minColumnWidth + (i - 1) * gap
-        if (containerWidth >= totalWidth) {
-          cols = i
-        } else {
-          break
-        }
-      }
-
-      setColumns(cols)
-    }
-
-    // 初始计算
-    updateColumns()
-
-    // 监听窗口大小变化
-    const resizeObserver = new ResizeObserver(updateColumns)
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current)
-    }
-
-    return () => {
-      resizeObserver.disconnect()
     }
   }, [])
 
