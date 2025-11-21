@@ -1,7 +1,10 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTags, useCreateTag } from '@/hooks/useTags'
-import type { Bookmark, Tag } from '@/lib/types'
+import type { Bookmark } from '@/lib/types'
 import { TagManageModal } from './TagManageModal'
+import { TagControls } from './TagControls'
+import { TagItem } from './TagItem'
+import { useTagFiltering } from './useTagFiltering'
 import { logger } from '@/lib/logger'
 
 interface TagSidebarProps {
@@ -80,102 +83,13 @@ export function TagSidebar({
     }
   }, [searchQuery])
 
-  const coOccurrenceMap = useMemo(() => {
-    const map = new Map<string, Set<string>>()
-
-    for (const bookmark of bookmarks) {
-      if (!bookmark.tags || bookmark.tags.length < 2) continue
-
-      const ids = bookmark.tags.reduce<string[]>((acc, tag) => {
-        if (tag.id) {
-          acc.push(tag.id)
-        }
-        return acc
-      }, [])
-
-      if (ids.length < 2) continue
-
-      for (let i = 0; i < ids.length; i++) {
-        const sourceId = ids[i]!
-        if (!map.has(sourceId)) {
-          map.set(sourceId, new Set())
-        }
-
-        for (let j = 0; j < ids.length; j++) {
-          if (i === j) continue
-          const targetId = ids[j]!
-          map.get(sourceId)!.add(targetId)
-        }
-      }
-    }
-
-    return map
-  }, [bookmarks])
-
-  const relatedTagIds = useMemo(() => {
-    if (selectedTags.length === 0) {
-      return new Set<string>()
-    }
-
-    // 交集逻辑：只有与所有选中标签都共现的标签才算相关
-    if (selectedTags.length === 1) {
-      // 只选中一个标签时，返回其所有邻居
-      const neighbors = coOccurrenceMap.get(selectedTags[0]!)
-      if (!neighbors) return new Set<string>()
-      return new Set([...neighbors].filter(id => !selectedTags.includes(id)))
-    }
-
-    // 多个标签时，计算交集
-    const firstTagNeighbors = coOccurrenceMap.get(selectedTags[0]!)
-    if (!firstTagNeighbors) return new Set<string>()
-
-    const related = new Set<string>()
-
-    // 遍历第一个标签的邻居
-    firstTagNeighbors.forEach((neighborId) => {
-      if (selectedTags.includes(neighborId)) return
-
-      // 检查这个邻居是否与所有选中的标签都共现
-      const isRelatedToAll = selectedTags.every((tagId) => {
-        const neighbors = coOccurrenceMap.get(tagId)
-        return neighbors && neighbors.has(neighborId)
-      })
-
-      if (isRelatedToAll) {
-        related.add(neighborId)
-      }
-    })
-
-    return related
-  }, [selectedTags, coOccurrenceMap])
-
-  // 使用 useMemo 和防抖搜索优化筛选性能
-  const filteredTags = useMemo(() => {
-    if (!debouncedSearchQuery.trim()) return tags
-
-    const query = debouncedSearchQuery.toLowerCase()
-    return tags.filter((tag) => tag.name.toLowerCase().includes(query))
-  }, [tags, debouncedSearchQuery])
-
-  const orderedTags = useMemo(() => {
-    // 将标签分为三组：已选中、相关、其他
-    const selected: Tag[] = []
-    const related: Tag[] = []
-    const others: Tag[] = []
-
-    for (const tag of filteredTags) {
-      if (selectedTags.includes(tag.id)) {
-        selected.push(tag)
-      } else if (relatedTagIds.has(tag.id)) {
-        related.push(tag)
-      } else {
-        others.push(tag)
-      }
-    }
-
-    // 按优先级顺序合并，每组内保持原始排序
-    return [...selected, ...related, ...others]
-  }, [filteredTags, selectedTags, relatedTagIds])
+  // 使用自定义 Hook 处理标签筛选逻辑
+  const { orderedTags, relatedTagIds } = useTagFiltering(
+    tags,
+    bookmarks,
+    selectedTags,
+    debouncedSearchQuery
+  )
 
   const handleToggleTag = (tagId: string) => {
     let newSelectedTags: string[]
@@ -269,84 +183,15 @@ export function TagSidebar({
             />
           </div>
 
-          {/* 5个图标均匀排列 */}
-          <div className="inline-flex items-center justify-between w-full rounded-xl bg-muted p-1">
-            {/* 使用频率排序 */}
-            <button
-              onClick={() => setSortBy('usage')}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all flex items-center justify-center ${sortBy === 'usage'
-                ? 'bg-primary text-primary-content shadow-float'
-                : 'text-muted-foreground/70 hover:text-foreground'
-                }`}
-              title="使用频率排序"
-              aria-label="使用频率排序"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </button>
-
-            {/* 字母序排序 */}
-            <button
-              onClick={() => setSortBy('name')}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all flex items-center justify-center ${sortBy === 'name'
-                ? 'bg-primary text-primary-content shadow-float'
-                : 'text-muted-foreground/70 hover:text-foreground'
-                }`}
-              title="字母序排序"
-              aria-label="字母序排序"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-            </button>
-
-            {/* 标准网格 */}
-            <button
-              onClick={() => onTagLayoutChange('grid')}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all flex items-center justify-center ${tagLayout === 'grid'
-                ? 'bg-secondary text-secondary-content shadow-float'
-                : 'text-muted-foreground/70 hover:text-foreground'
-                }`}
-              title="标准网格"
-              aria-label="标准网格"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z" />
-              </svg>
-            </button>
-
-            {/* 标题横向瀑布 */}
-            <button
-              onClick={() => onTagLayoutChange('masonry')}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all flex items-center justify-center ${tagLayout === 'masonry'
-                ? 'bg-secondary text-secondary-content shadow-float'
-                : 'text-muted-foreground/70 hover:text-foreground'
-                }`}
-              title="标题横向瀑布"
-              aria-label="标题横向瀑布"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h5v16H4zM10 10h5v10h-5zM16 6h5v14h-5z" />
-              </svg>
-            </button>
-
-            {/* 清空选中标签 */}
-            <button
-              onClick={() => onTagsChange([])}
-              disabled={selectedTags.length === 0}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all flex items-center justify-center ${selectedTags.length === 0
-                ? 'text-muted-foreground/50 cursor-not-allowed'
-                : 'text-muted-foreground/80 hover:text-foreground hover:bg-base-200'
-                }`}
-              title="清空选中标签"
-              aria-label="清空选中标签"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+          {/* 标签控制：排序、布局、清空 */}
+          <TagControls
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            layout={tagLayout}
+            onLayoutChange={onTagLayoutChange}
+            selectedCount={selectedTags.length}
+            onClearSelection={() => onTagsChange([])}
+          />
         </div>
 
         {/* 标签列表 */}
@@ -410,134 +255,3 @@ export function TagSidebar({
   )
 }
 
-interface TagItemProps {
-  tag: Tag
-  isSelected: boolean
-  isRelated: boolean
-  hasSelection: boolean
-  layout: 'grid' | 'masonry'
-  onToggle: () => void
-}
-
-function TagItem({ tag, isSelected, isRelated, hasSelection, layout, onToggle }: TagItemProps) {
-  const stateClasses = isSelected
-    ? 'border border-transparent bg-primary text-primary-content shadow-inner ring-1 ring-primary/40'
-    : isRelated
-      ? 'border border-transparent bg-accent/5 text-accent'
-      : hasSelection
-        ? 'border border-transparent bg-base-200/80 text-muted-foreground opacity-70 ring-1 ring-transparent'
-        : 'border border-border bg-card hover:border-primary/50 ring-1 ring-transparent'
-
-  const indicatorClasses = isSelected
-    ? 'bg-primary-content/20 border-2 border-primary-content'
-    : isRelated
-      ? 'bg-accent/20 border-2 border-accent'
-      : 'bg-transparent border-2 border-border'
-
-  const countClasses = isSelected
-    ? 'bg-primary-content/25 text-primary-content'
-    : isRelated
-      ? 'bg-accent/20 text-accent'
-      : hasSelection
-        ? 'bg-base-300 text-muted-foreground'
-        : 'bg-muted text-muted-foreground'
-
-  const layoutClasses = layout === 'masonry'
-    ? 'inline-flex items-center gap-2 px-3 py-2 rounded-lg'
-    : 'flex w-full items-center justify-between px-2.5 py-2'
-
-  const showMarquee = isSelected || isRelated
-  const marqueeStroke = isSelected ? 'var(--accent)' : 'var(--primary)'
-  const marqueeOpacity = isSelected ? 0.9 : 0.65
-  const marqueeDuration = isSelected ? '1s' : '3s'
-
-  return (
-    <div
-      className={`relative overflow-hidden rounded-lg cursor-pointer transition-all ${stateClasses}`}
-      onClick={onToggle}
-    >
-      {showMarquee && (
-        <div className="pointer-events-none absolute inset-0 z-0 rounded-lg overflow-hidden">
-          {/* 上边框 - 从左到右 */}
-          <div
-            className="absolute top-0 left-0 right-0 h-0.5"
-            style={{
-              background: `repeating-linear-gradient(90deg,
-                ${marqueeStroke} 0px,
-                ${marqueeStroke} 8px,
-                transparent 8px,
-                transparent 12px)`,
-              opacity: marqueeOpacity,
-              animation: `tag-marquee-move-right ${marqueeDuration} linear infinite`
-            }}
-          />
-          {/* 右边框 - 从上到下 */}
-          <div
-            className="absolute top-0 right-0 bottom-0 w-0.5"
-            style={{
-              background: `repeating-linear-gradient(0deg,
-                ${marqueeStroke} 0px,
-                ${marqueeStroke} 8px,
-                transparent 8px,
-                transparent 12px)`,
-              opacity: marqueeOpacity,
-              animation: `tag-marquee-move-down ${marqueeDuration} linear infinite`
-            }}
-          />
-          {/* 下边框 - 从右到左 */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-0.5"
-            style={{
-              background: `repeating-linear-gradient(-90deg,
-                ${marqueeStroke} 0px,
-                ${marqueeStroke} 8px,
-                transparent 8px,
-                transparent 12px)`,
-              opacity: marqueeOpacity,
-              animation: `tag-marquee-move-left ${marqueeDuration} linear infinite`
-            }}
-          />
-          {/* 左边框 - 从下到上 */}
-          <div
-            className="absolute top-0 left-0 bottom-0 w-0.5"
-            style={{
-              background: `repeating-linear-gradient(180deg,
-                ${marqueeStroke} 0px,
-                ${marqueeStroke} 8px,
-                transparent 8px,
-                transparent 12px)`,
-              opacity: marqueeOpacity,
-              animation: `tag-marquee-move-up ${marqueeDuration} linear infinite`
-            }}
-          />
-        </div>
-      )}
-      <div className={`relative z-10 ${layoutClasses}`}>
-        <div className={`flex items-center gap-2 ${layout === 'masonry' ? '' : 'flex-1 min-w-0'}`}>
-          <div
-            className={`w-3.5 h-3.5 rounded flex-shrink-0 flex items-center justify-center ${indicatorClasses}`}
-          >
-            {isSelected && (
-              <svg className="w-2 h-2 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3.5} d="M5 13l4 4L19 7" />
-              </svg>
-            )}
-          </div>
-
-          <span
-            className={`text-xs ${layout === 'masonry' ? 'whitespace-nowrap' : 'truncate flex-1'} ${isSelected ? 'font-semibold' : 'font-medium'
-              }`}
-          >
-            {tag.name}
-          </span>
-
-          {tag.bookmark_count !== undefined && (
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${countClasses}`}>
-              {tag.bookmark_count}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
