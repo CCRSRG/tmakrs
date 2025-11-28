@@ -107,12 +107,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   setCurrentPage: (page) =>
     set((state) => {
       let includeThumbnail = false;
+      const defaultIncludeThumbnail = state.config?.preferences.defaultIncludeThumbnail ?? true;
 
       if (page) {
         if (state.currentPage && state.currentPage.url === page.url) {
+          // 同一页面，保持当前设置
           includeThumbnail = state.includeThumbnail && Boolean(page.thumbnail);
         } else {
-          includeThumbnail = Boolean(page.thumbnail);
+          // 新页面，使用默认设置
+          includeThumbnail = defaultIncludeThumbnail && Boolean(page.thumbnail);
         }
       }
 
@@ -153,7 +156,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           syncInterval: 24,
           maxSuggestedTags: 5,
           defaultVisibility,
-          enableAI: true
+          enableAI: true,
+          defaultIncludeThumbnail: true,
+          defaultCreateSnapshot: false
         };
 
     StorageService.saveConfig({
@@ -213,7 +218,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       const config = await StorageService.loadConfig();
       set({
         config,
-        isPublic: config.preferences.defaultVisibility === 'public'
+        isPublic: config.preferences.defaultVisibility === 'public',
+        createSnapshot: config.preferences.defaultCreateSnapshot ?? false
       });
     } catch (error) {
       set({ error: 'Failed to load configuration' });

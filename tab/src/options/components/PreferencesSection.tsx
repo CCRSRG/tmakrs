@@ -2,6 +2,8 @@ interface PreferencesSectionProps {
   formData: {
     defaultVisibility: 'public' | 'private';
     enableAI: boolean;
+    defaultIncludeThumbnail: boolean;
+    defaultCreateSnapshot: boolean;
   };
   setFormData: (data: any) => void;
 }
@@ -85,6 +87,64 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               选择保存书签时默认使用的可见性，可在保存前随时切换。
             </p>
+          </div>
+
+          {/* Default Include Thumbnail */}
+          <div>
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  默认包含封面图
+                </label>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  启用后，保存书签时默认包含页面封面图。
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={formData.defaultIncludeThumbnail}
+                onClick={() => setFormData({ ...formData, defaultIncludeThumbnail: !formData.defaultIncludeThumbnail })}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  formData.defaultIncludeThumbnail ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    formData.defaultIncludeThumbnail ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Default Create Snapshot */}
+          <div>
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  默认创建快照
+                </label>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  启用后，保存书签时默认创建网页快照。
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={formData.defaultCreateSnapshot}
+                onClick={() => setFormData({ ...formData, defaultCreateSnapshot: !formData.defaultCreateSnapshot })}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                  formData.defaultCreateSnapshot ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-700'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    formData.defaultCreateSnapshot ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>

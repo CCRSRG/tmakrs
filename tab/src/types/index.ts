@@ -69,6 +69,8 @@ export interface UserPreferences {
   maxSuggestedTags: number;
   defaultVisibility: 'public' | 'private';
   enableAI: boolean; // 是否启用 AI 标签推荐
+  defaultIncludeThumbnail: boolean; // 默认是否包含封面图
+  defaultCreateSnapshot: boolean; // 默认是否创建快照
 }
 
 export interface AIConnectionInfo {

@@ -4,7 +4,7 @@ import { TagList } from '@/components/TagList';
 import { PageInfoCard } from '@/components/PageInfoCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorMessage } from '@/components/ErrorMessage';
-import { SuccessMessage } from '@/components/SuccessMessage';
+// SuccessMessage 现在内联在 header 中显示
 import { LoadingMessage } from '@/components/LoadingMessage';
 import { BookmarkExistsDialog } from '@/components/BookmarkExistsDialog';
 import { ModeSelector } from './ModeSelector';
@@ -273,6 +273,7 @@ export function Popup() {
     <div className="relative h-[80vh] min-h-[620px] w-[380px] overflow-hidden rounded-2xl bg-white text-gray-900 shadow-2xl">
 
       <div className="relative flex h-full flex-col">
+        {/* 错误和加载消息 - 顶部显示 */}
         <div className="pointer-events-none absolute top-16 left-0 right-0 z-30 px-4 space-y-2">
           {error && (
             <div className="pointer-events-auto">
@@ -288,40 +289,49 @@ export function Popup() {
               <LoadingMessage message={loadingMessage} />
             </div>
           )}
-          {successMessage && (
-            <div className="pointer-events-auto">
-              <SuccessMessage message={successMessage} />
-            </div>
-          )}
         </div>
-
         <header className="fixed top-0 left-0 right-0 z-20 px-3 pt-2 pb-2.5 bg-white border-b border-gray-200 shadow-sm rounded-b-2xl">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleBackToSelector}
-              className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 active:scale-95"
-              title="返回"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          {/* 成功消息 - 在 header 内显示 */}
+          {successMessage ? (
+            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5 animate-in slide-in-from-top-2 fade-in duration-200">
+              <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-            </button>
-            {isAIEnabled ? (
-              <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-[10px] text-blue-600 font-medium">
-                推荐 {recommendedTags.length}
+              <span className="text-[11px] font-medium text-green-700 flex-1 truncate">{successMessage}</span>
+              <button
+                onClick={handleBackToSelector}
+                className="text-[10px] text-green-600 hover:text-green-800 font-medium"
+              >
+                返回
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBackToSelector}
+                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 active:scale-95"
+                title="返回"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              {isAIEnabled ? (
+                <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-[10px] text-blue-600 font-medium">
+                  推荐 {recommendedTags.length}
+                </span>
+              ) : (
+                <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] text-amber-600 font-medium">
+                  AI 关闭
+                </span>
+              )}
+              <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-[10px] text-indigo-600 font-medium">
+                已选 {selectedTags.length}
               </span>
-            ) : (
-              <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] text-amber-600 font-medium">
-                AI 关闭
+              <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-purple-50 px-2 py-1 text-[10px] text-purple-600 font-medium">
+                库 {existingTags.length}
               </span>
-            )}
-            <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-[10px] text-indigo-600 font-medium">
-              已选 {selectedTags.length}
-            </span>
-            <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-purple-50 px-2 py-1 text-[10px] text-purple-600 font-medium">
-              库 {existingTags.length}
-            </span>
-            <div className="ml-auto flex gap-1.5">
+              <div className="ml-auto flex gap-1.5">
               <button
                 onClick={() => window.close()}
                 className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 active:scale-95"
@@ -347,6 +357,7 @@ export function Popup() {
               </button>
             </div>
           </div>
+          )}
         </header>
 
         <main className="relative flex-1 space-y-2.5 overflow-y-auto px-4 pb-[70px] pt-[60px] bg-white">

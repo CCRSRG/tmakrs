@@ -25,7 +25,9 @@ export function Options() {
     customPrompt: DEFAULT_PROMPT_TEMPLATE,
     maxSuggestedTags: 5,
     defaultVisibility: 'public' as 'public' | 'private',
-    enableAI: true
+    enableAI: true,
+    defaultIncludeThumbnail: true,
+    defaultCreateSnapshot: false
   });
 
   const [stats, setStats] = useState({
@@ -243,7 +245,9 @@ export function Options() {
         customPrompt: config.aiConfig.customPrompt || formData.customPrompt,
         maxSuggestedTags: config.preferences.maxSuggestedTags,
         defaultVisibility: config.preferences.defaultVisibility,
-        enableAI: config.preferences.enableAI ?? true
+        enableAI: config.preferences.enableAI ?? true,
+        defaultIncludeThumbnail: config.preferences.defaultIncludeThumbnail ?? true,
+        defaultCreateSnapshot: config.preferences.defaultCreateSnapshot ?? false
       });
       const normalizedSaved = normalizeSavedConnections(config.aiConfig.savedConnections);
       setSavedConnections(normalizedSaved);
@@ -362,7 +366,9 @@ export function Options() {
           syncInterval: config?.preferences.syncInterval ?? 24,
           maxSuggestedTags: formData.maxSuggestedTags,
           defaultVisibility: formData.defaultVisibility,
-          enableAI: formData.enableAI
+          enableAI: formData.enableAI,
+          defaultIncludeThumbnail: formData.defaultIncludeThumbnail,
+          defaultCreateSnapshot: formData.defaultCreateSnapshot
         }
       });
 
@@ -446,7 +452,9 @@ export function Options() {
         customPrompt: DEFAULT_PROMPT_TEMPLATE,
         maxSuggestedTags: 5,
         defaultVisibility: 'public',
-        enableAI: true
+        enableAI: true,
+        defaultIncludeThumbnail: true,
+        defaultCreateSnapshot: false
       });
       setSuccessMessage('设置已重置');
       setTimeout(() => setSuccessMessage(null), 2000);

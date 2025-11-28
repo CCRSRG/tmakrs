@@ -20,7 +20,9 @@ const DEFAULT_CONFIG: StorageConfig = {
     syncInterval: 24,
     maxSuggestedTags: 5,
     defaultVisibility: 'public',
-    enableAI: true
+    enableAI: true,
+    defaultIncludeThumbnail: true,
+    defaultCreateSnapshot: false
   }
 };
 
@@ -98,7 +100,9 @@ export class StorageService {
         syncInterval: config.preferences?.syncInterval ?? defaults.preferences.syncInterval,
         maxSuggestedTags: config.preferences?.maxSuggestedTags ?? defaults.preferences.maxSuggestedTags,
         defaultVisibility: config.preferences?.defaultVisibility ?? defaults.preferences.defaultVisibility,
-        enableAI: config.preferences?.enableAI ?? defaults.preferences.enableAI
+        enableAI: config.preferences?.enableAI ?? defaults.preferences.enableAI,
+        defaultIncludeThumbnail: config.preferences?.defaultIncludeThumbnail ?? defaults.preferences.defaultIncludeThumbnail,
+        defaultCreateSnapshot: config.preferences?.defaultCreateSnapshot ?? defaults.preferences.defaultCreateSnapshot
       }
     };
   }
