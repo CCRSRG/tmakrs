@@ -8,6 +8,7 @@ import type { PagesFunction } from '@cloudflare/workers-types'
 import type { Env } from '../../../../lib/types'
 import { success, badRequest, notFound, internalError } from '../../../../lib/response'
 import { requireApiKeyAuth, ApiKeyAuthContext } from '../../../../middleware/api-key-auth-pages'
+import { checkR2Quota } from '../../../../lib/storage-quota'
 
 // 生成 nanoid 风格的短 ID（21 字符）
 function generateNanoId(): string {
@@ -169,9 +170,20 @@ export const onRequestPost: PagesFunction<Env, 'id', ApiKeyAuthContext>[] = [
       // 将 HTML 字符串转换为 UTF-8 编码的字节数组
       const encoder = new TextEncoder()
       const htmlBytes = encoder.encode(html_content)
-      
+
       console.log(`[Snapshot API] Encoded to UTF-8: ${(htmlBytes.length / 1024).toFixed(1)}KB`)
-      
+
+      // 存储配额检查
+      const quota = await checkR2Quota(db, context.env, htmlBytes.length)
+      if (!quota.allowed) {
+        const usedGB = quota.usedBytes / (1024 * 1024 * 1024)
+        const limitGB = quota.limitBytes / (1024 * 1024 * 1024)
+        return badRequest({
+          code: 'R2_STORAGE_LIMIT_EXCEEDED',
+          message: `Snapshot storage limit exceeded. Used ${usedGB.toFixed(2)}GB of ${limitGB.toFixed(2)}GB. Please delete some snapshots or images and try again.`,
+        })
+      }
+
       // 上传 UTF-8 编码的字节数组到 R2
       await bucket.put(r2Key, htmlBytes, {
         httpMetadata: {
@@ -186,7 +198,7 @@ export const onRequestPost: PagesFunction<Env, 'id', ApiKeyAuthContext>[] = [
           dataUrlCount: dataUrlCount.toString(),
         },
       })
-      
+
       console.log(`[Snapshot API] Uploaded to R2: ${r2Key}`)
       const snapshotId = generateNanoId()
       const now = new Date().toISOString()

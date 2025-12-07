@@ -10,8 +10,10 @@ import type {
   ImportFormat,
   ImportOptions,
   ImportResult,
+  ImportData,
   ParsedBookmark,
-  ParsedTag
+  ParsedTag,
+  ParsedTabGroup
 } from '../../../shared/import-export-types'
 
 import { createHtmlParser } from '../../lib/import-export/parsers/html-parser'
@@ -161,7 +163,10 @@ async function performImport(
     total: importData.bookmarks.length,
     errors: [],
     created_bookmarks: [],
-    created_tags: []
+    created_tags: [],
+    created_tab_groups: [],
+    tab_groups_success: 0,
+    tab_groups_failed: 0
   }
 
   try {
@@ -180,6 +185,11 @@ async function performImport(
     
     for (const batch of batches) {
       await processBatch(db, userId, batch, existingUrls, result, options)
+    }
+
+    // 4. 导入标签页组
+    if (importData.tab_groups && importData.tab_groups.length > 0) {
+      await importTabGroups(db, userId, importData.tab_groups, result, options)
     }
 
     return result
@@ -443,6 +453,115 @@ async function ensureUncategorizedTag(
   } catch (error) {
     console.error('Failed to add uncategorized tag:', error)
     // 不抛出错误,允许书签创建成功
+  }
+}
+
+/**
+ * 导入标签页组
+ */
+async function importTabGroups(
+  db: D1Database,
+  userId: string,
+  tabGroups: ParsedTabGroup[],
+  result: ImportResult,
+  options: ImportOptions
+) {
+  // 用于映射旧ID到新ID（处理父子关系）
+  const idMapping = new Map<string, string>()
+
+  // 先按层级排序，确保父组先创建
+  const sortedGroups = [...tabGroups].sort((a, b) => {
+    if (!a.parent_id && b.parent_id) return -1
+    if (a.parent_id && !b.parent_id) return 1
+    return a.position - b.position
+  })
+
+  for (const group of sortedGroups) {
+    try {
+      const now = new Date().toISOString()
+      const createdAt = options.preserve_timestamps && group.created_at
+        ? group.created_at
+        : now
+      const updatedAt = options.preserve_timestamps && group.updated_at
+        ? group.updated_at
+        : now
+
+      // 生成新ID
+      const newGroupId = crypto.randomUUID()
+      
+      // 如果有旧ID，记录映射
+      if (group.id) {
+        idMapping.set(group.id, newGroupId)
+      }
+
+      // 处理父ID映射
+      let parentId: string | null = null
+      if (group.parent_id) {
+        parentId = idMapping.get(group.parent_id) || null
+      }
+
+      // 创建标签页组
+      await db.prepare(`
+        INSERT INTO tab_groups (
+          id, user_id, title, parent_id, is_folder, position, color, tags,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        newGroupId,
+        userId,
+        group.title,
+        parentId,
+        group.is_folder ? 1 : 0,
+        group.position,
+        group.color || null,
+        group.tags || null,
+        createdAt,
+        updatedAt
+      ).run()
+
+      result.created_tab_groups.push(newGroupId)
+
+      // 导入标签页组项目
+      if (group.items && group.items.length > 0) {
+        for (const item of group.items) {
+          try {
+            const itemId = crypto.randomUUID()
+            const itemCreatedAt = options.preserve_timestamps && item.created_at
+              ? item.created_at
+              : now
+
+            await db.prepare(`
+              INSERT INTO tab_group_items (
+                id, group_id, user_id, title, url, favicon, position,
+                is_pinned, is_todo, is_archived, created_at, updated_at
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              itemId,
+              newGroupId,
+              userId,
+              item.title,
+              item.url,
+              item.favicon || null,
+              item.position,
+              item.is_pinned ? 1 : 0,
+              item.is_todo ? 1 : 0,
+              item.is_archived ? 1 : 0,
+              itemCreatedAt,
+              now
+            ).run()
+          } catch (itemError) {
+            console.error('Failed to create tab group item:', item.url, itemError)
+            // 继续处理其他项目
+          }
+        }
+      }
+
+      result.tab_groups_success++
+
+    } catch (error) {
+      console.error('Failed to create tab group:', group.title, error)
+      result.tab_groups_failed++
+    }
   }
 }
 

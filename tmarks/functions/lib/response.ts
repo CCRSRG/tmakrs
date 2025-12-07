@@ -16,9 +16,11 @@ export function noContent(): Response {
   return new Response(null, { status: 204 })
 }
 
-export function badRequest(message: string, code = 'BAD_REQUEST'): Response {
-  const error: ApiError = { code, message }
-  return Response.json({ error } as ApiResponse, { status: 400 })
+export function badRequest(error: string | ApiError | Partial<ApiError>, code = 'BAD_REQUEST'): Response {
+  const errorObj: ApiError = typeof error === 'string'
+    ? { code, message: error }
+    : { code: error.code || code, message: error.message || 'Bad request', ...error }
+  return Response.json({ error: errorObj } as ApiResponse, { status: 400 })
 }
 
 export function unauthorized(error: string | ApiError | Partial<ApiError>, code?: string): Response {

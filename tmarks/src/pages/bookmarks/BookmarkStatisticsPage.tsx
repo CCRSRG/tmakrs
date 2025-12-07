@@ -32,6 +32,13 @@ interface BookmarkStatistics {
     domain: string
     count: number
   }>
+  // 当前时间范围内，每个书签的点击次数（按点击次数降序）
+  bookmark_clicks: Array<{
+    id: string
+    title: string
+    url: string
+    click_count: number
+  }>
   recent_clicks: Array<{
     id: string
     title: string
@@ -55,7 +62,7 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
   const [statistics, setStatistics] = useState<BookmarkStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   // 时间粒度和范围控制
   const [granularity, setGranularity] = useState<Granularity>('day')
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -130,7 +137,7 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
   // 时间导航
   const navigateTime = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate)
-    
+
     switch (granularity) {
       case 'day':
         newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1))
@@ -145,7 +152,7 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
         newDate.setFullYear(newDate.getFullYear() + (direction === 'next' ? 1 : -1))
         break
     }
-    
+
     setCurrentDate(newDate)
   }
 
@@ -173,14 +180,42 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
   }
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+
+    // 根据当前粒度格式化日期，避免 week/month/year 下的字符串被当成无效日期
+    if (granularity === 'year') {
+      // 例如: "2025" → "2025 年"
+      return `${dateString} 年`
+    }
+
+    if (granularity === 'month') {
+      // 例如: "2025-02" → "2025 年 2 月"
+      const [year, month] = dateString.split('-')
+      if (!year || !month) return dateString
+      const monthNum = Number.parseInt(month, 10)
+      if (!Number.isFinite(monthNum)) return dateString
+      return `${year} 年 ${monthNum} 月`
+    }
+
+    if (granularity === 'week') {
+      // 例如: "2025-W08" → "2025 年第 8 周"
+      const [year, weekPart] = dateString.split('-W')
+      if (!year || !weekPart) return dateString
+      const weekNum = Number.parseInt(weekPart, 10)
+      if (!Number.isFinite(weekNum)) return dateString
+      return `${year} 年第 ${weekNum} 周`
+    }
+
+    // 默认按天处理: "YYYY-MM-DD"
     const date = new Date(dateString)
+    if (Number.isNaN(date.getTime())) return dateString
     return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
   }
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleString('zh-CN', { 
-      month: 'short', 
+    return date.toLocaleString('zh-CN', {
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -238,7 +273,7 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
               <span>返回书签</span>
             </Link>
           )}
-          
+
           <div className="flex items-center justify-between mb-4">
             {!isMobile && !embedded && (
               <div className="flex items-center gap-3">
@@ -246,7 +281,7 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
                 <h1 className="text-3xl font-bold text-foreground">书签统计</h1>
               </div>
             )}
-            
+
             {/* 粒度选择器 */}
             <select
               value={granularity}
@@ -375,6 +410,7 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
                           width: `${statistics.top_bookmarks[0] ? (bookmark.click_count / statistics.top_bookmarks[0].click_count) * 100 : 0}%`,
                         }}
                       ></div>
+
                     </div>
                   </div>
                 </div>
@@ -382,6 +418,44 @@ export function BookmarkStatisticsPage({ embedded = false }: BookmarkStatisticsP
             </div>
           )}
         </div>
+        {/* 当前时间范围内书签点击统计 */}
+        <div className="card p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            当前时间范围内书签点击统计
+          </h2>
+          {statistics.bookmark_clicks.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">当前时间范围内暂无点击数据</p>
+          ) : (
+            <div className="space-y-3">
+              {statistics.bookmark_clicks.slice(0, 10).map((bookmark, index) => (
+                <div key={bookmark.id} className="flex items-center gap-3 sm:gap-4">
+                  <span className="text-base sm:text-lg font-semibold text-muted-foreground/50 w-6 sm:w-8">
+                    {index + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <a
+                        href={bookmark.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm sm:text-base text-foreground font-medium hover:text-primary truncate flex items-center gap-1"
+                      >
+                        {bookmark.title}
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                      </a>
+                      <span className="text-xs sm:text-sm text-muted-foreground ml-2 flex-shrink-0">
+                        {bookmark.click_count} 次
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+
 
         {/* Top Tags and Domains */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">

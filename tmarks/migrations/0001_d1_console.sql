@@ -79,5 +79,9 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id, created_at
 CREATE INDEX IF NOT EXISTS idx_audit_logs_event ON audit_logs(event_type, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);
 CREATE TABLE IF NOT EXISTS registration_limits (date TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL DEFAULT (datetime('now')));
+CREATE TABLE IF NOT EXISTS bookmark_click_events (id INTEGER PRIMARY KEY AUTOINCREMENT, bookmark_id TEXT NOT NULL, user_id TEXT NOT NULL, clicked_at TEXT NOT NULL DEFAULT (datetime('now')), FOREIGN KEY (bookmark_id) REFERENCES bookmarks(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
+CREATE INDEX IF NOT EXISTS idx_bookmark_click_events_user_clicked_at ON bookmark_click_events(user_id, clicked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_bookmark_click_events_bookmark_clicked_at ON bookmark_click_events(bookmark_id, clicked_at DESC);
+
 CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT (datetime('now')));
 INSERT OR IGNORE INTO schema_migrations (version) VALUES ('0001');

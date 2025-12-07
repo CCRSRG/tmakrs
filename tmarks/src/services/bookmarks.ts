@@ -57,7 +57,7 @@ export const bookmarksService = {
   /**
    * 恢复已删除的书签
    */
-  async restoreBookmark(id: number) {
+  async restoreBookmark(id: string) {
     const response = await apiClient.put<{ bookmark: Bookmark }>(`/bookmarks/${id}`)
     return response.data!.bookmark
   },

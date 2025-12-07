@@ -299,7 +299,9 @@ export class CacheService {
   /**
    * 获取 KV Namespace（统一使用 TMARKS_KV）
    */
-  private getKVNamespace(_type: CacheStrategyType): KVNamespace | undefined {
+  private getKVNamespace(type: CacheStrategyType): KVNamespace | undefined {
+    // 参数目前未用于区分不同策略的 KV，但保留以便未来扩展
+    void type
     return this.env.TMARKS_KV
   }
 

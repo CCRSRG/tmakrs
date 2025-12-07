@@ -11,9 +11,10 @@ export const onRequestPost: PagesFunction<Env, 'id', AuthContext>[] = [
       const userId = context.data.user_id
       const bookmarkId = context.params.id as string
       const now = new Date().toISOString()
+      const db = context.env.DB
 
       // 检查书签是否存在且属于当前用户
-      const bookmark = await context.env.DB.prepare(
+      const bookmark = await db.prepare(
         'SELECT id FROM bookmarks WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
       )
         .bind(bookmarkId, userId)
@@ -23,12 +24,15 @@ export const onRequestPost: PagesFunction<Env, 'id', AuthContext>[] = [
         return notFound('Bookmark not found')
       }
 
-      // 更新点击次数和最后点击时间
-      await context.env.DB.prepare(
-        'UPDATE bookmarks SET click_count = click_count + 1, last_clicked_at = ? WHERE id = ?'
-      )
-        .bind(now, bookmarkId)
-        .run()
+      // 更新点击次数和最后点击时间，并记录点击事件
+      await db.batch([
+        db.prepare(
+          'UPDATE bookmarks SET click_count = click_count + 1, last_clicked_at = ? WHERE id = ?'
+        ).bind(now, bookmarkId),
+        db.prepare(
+          'INSERT INTO bookmark_click_events (bookmark_id, user_id, clicked_at) VALUES (?, ?, ?)'
+        ).bind(bookmarkId, userId, now),
+      ])
 
       return success({
         message: 'Click recorded successfully',

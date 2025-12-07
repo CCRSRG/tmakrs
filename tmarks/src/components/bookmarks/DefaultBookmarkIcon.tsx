@@ -9,6 +9,8 @@ export function DefaultBookmarkIconComponent({
   icon: _icon,
   className = 'w-10 h-10 sm:w-8 sm:h-8',
 }: DefaultBookmarkIconProps) {
+  // 参数目前未区分不同默认图标，保留接口以便未来扩展
+  void _icon
   // 简单的书签图标 - 线条风格
   return (
     <svg

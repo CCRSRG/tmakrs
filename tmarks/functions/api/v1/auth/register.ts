@@ -16,26 +16,36 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // 检查是否允许注册
     if (context.env.ALLOW_REGISTRATION !== 'true') {
-      return badRequest('Registration is currently disabled')
+      return badRequest('当前已关闭注册功能')
     }
 
     const body = await context.request.json() as RegisterRequest
 
     // 验证输入
     if (!body.username || !body.password) {
-      return badRequest('Username and password are required')
+      return badRequest('用户名和密码为必填项')
     }
 
     if (!isValidUsername(body.username)) {
-      return badRequest('Username must be 3-20 characters and contain only letters, numbers, and underscores')
+      return badRequest('用户名长度需为 3-20 个字符，只能包含字母、数字和下划线')
+    }
+
+
+    if (!isValidUsername(body.username)) {
+      return badRequest(' 3-20  ')
     }
 
     if (!isValidPassword(body.password)) {
-      return badRequest('Password must be at least 8 characters')
+      return badRequest('\u5bc6\u7801\u957f\u5ea6\u81f3\u5c11\u4e3a 8 \u4e2a\u5b57\u7b26')
+    }
+
+
+    if (!isValidPassword(body.password)) {
+      return badRequest(' 8 ')
     }
 
     if (body.email && !isValidEmail(body.email)) {
-      return badRequest('Invalid email format')
+      return badRequest('\u90ae\u7bb1\u683c\u5f0f\u4e0d\u6b63\u786e')
     }
 
     const username = sanitizeString(body.username, 20)
@@ -49,7 +59,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .first()
 
     if (existingUser) {
-      return conflict('Username already exists')
+      return conflict('\u8be5\u7528\u6237\u540d\u5df2\u88ab\u5360\u7528')
     }
 
     // 检查邮箱是否已存在
@@ -61,7 +71,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         .first()
 
       if (existingEmail) {
-        return conflict('Email already exists')
+        return conflict('\u8be5\u90ae\u7bb1\u5df2\u88ab\u5360\u7528')
       }
     }
 
@@ -135,6 +145,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   } catch (error) {
     console.error('Register error:', error)
-    return internalError('Registration failed')
+    return internalError('\u6ce8\u518c\u5931\u8d25')
   }
 }

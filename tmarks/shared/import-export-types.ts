@@ -35,6 +35,31 @@ export interface ExportUser {
   created_at: string
 }
 
+export interface ExportTabGroupItem {
+  id: string
+  title: string
+  url: string
+  favicon?: string
+  position: number
+  is_pinned: boolean
+  is_todo: boolean
+  is_archived: boolean
+  created_at: string
+}
+
+export interface ExportTabGroup {
+  id: string
+  title: string
+  parent_id?: string
+  is_folder: boolean
+  position: number
+  color?: string
+  tags?: string
+  created_at: string
+  updated_at: string
+  items: ExportTabGroupItem[]
+}
+
 // ============ 导出格式 ============
 
 export type ExportFormat = 'json' | 'html'
@@ -45,9 +70,11 @@ export interface TMarksExportData {
   user: ExportUser
   bookmarks: ExportBookmark[]
   tags: ExportTag[]
+  tab_groups?: ExportTabGroup[]
   metadata: {
     total_bookmarks: number
     total_tags: number
+    total_tab_groups?: number
     export_format: ExportFormat
   }
 }
@@ -71,12 +98,39 @@ export interface ParsedTag {
   color?: string
 }
 
+export interface ParsedTabGroupItem {
+  id?: string
+  title: string
+  url: string
+  favicon?: string
+  position: number
+  is_pinned: boolean
+  is_todo: boolean
+  is_archived: boolean
+  created_at?: string
+}
+
+export interface ParsedTabGroup {
+  id?: string
+  title: string
+  parent_id?: string
+  is_folder: boolean
+  position: number
+  color?: string
+  tags?: string
+  created_at?: string
+  updated_at?: string
+  items: ParsedTabGroupItem[]
+}
+
 export interface ImportData {
   bookmarks: ParsedBookmark[]
   tags: ParsedTag[]
+  tab_groups?: ParsedTabGroup[]
   metadata?: {
     source: ImportFormat
     total_items: number
+    total_tab_groups?: number
     parsed_at: string
   }
 }
@@ -91,6 +145,9 @@ export interface ImportResult {
   errors: ImportError[]
   created_bookmarks: string[]
   created_tags: string[]
+  created_tab_groups: string[]
+  tab_groups_success: number
+  tab_groups_failed: number
 }
 
 export interface ExportResult {

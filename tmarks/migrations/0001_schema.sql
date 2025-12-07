@@ -121,6 +121,23 @@ CREATE INDEX IF NOT EXISTS idx_bookmarks_user_deleted_created ON bookmarks(user_
 CREATE INDEX IF NOT EXISTS idx_bookmarks_has_snapshot ON bookmarks(user_id, has_snapshot, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_cover_image_id ON bookmarks(cover_image_id);
 
+-- 书签点击事件表
+CREATE TABLE IF NOT EXISTS bookmark_click_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bookmark_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    clicked_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (bookmark_id) REFERENCES bookmarks(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookmark_click_events_user_clicked_at
+    ON bookmark_click_events(user_id, clicked_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_bookmark_click_events_bookmark_clicked_at
+    ON bookmark_click_events(bookmark_id, clicked_at DESC);
+
+
 -- 标签表
 CREATE TABLE IF NOT EXISTS tags (
     id TEXT PRIMARY KEY,

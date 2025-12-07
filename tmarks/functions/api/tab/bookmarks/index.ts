@@ -215,17 +215,18 @@ export const onRequestPost: PagesFunction<Env, RouteParams, ApiKeyAuthContext>[]
 
       // 如果有封面图且配置了 R2 bucket，上传到 R2
       let coverImageId: string | null = null
-      if (coverImage && context.env.SNAPSHOTS_BUCKET) {
+      if (coverImage && context.env.SNAPSHOTS_BUCKET && context.env.R2_PUBLIC_URL) {
         // 生成临时 ID（如果是新书签）
         const tempBookmarkId = existing?.id || generateUUID()
-        
+
         const uploadResult = await uploadCoverImageToR2(
           coverImage,
           userId,
           tempBookmarkId,
           context.env.SNAPSHOTS_BUCKET,
           context.env.DB,
-          context.env.R2_PUBLIC_URL || ''
+          context.env.R2_PUBLIC_URL,
+          context.env
         )
 
         // 如果上传成功，使用 R2 URL 和 imageId

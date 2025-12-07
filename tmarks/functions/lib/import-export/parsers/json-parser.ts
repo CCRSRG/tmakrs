@@ -7,7 +7,9 @@ import type {
   ImportParser, 
   ImportData, 
   ParsedBookmark, 
-  ParsedTag, 
+  ParsedTag,
+  ParsedTabGroup,
+  ParsedTabGroupItem,
   ValidationResult,
   TMarksExportData 
 } from '../../../../shared/import-export-types'
@@ -165,12 +167,38 @@ export class JsonParser implements ImportParser {
       color: tag.color
     }))
 
+    // 解析标签页组
+    const tab_groups: ParsedTabGroup[] = (data.tab_groups || []).map(group => ({
+      id: group.id,
+      title: group.title,
+      parent_id: group.parent_id,
+      is_folder: group.is_folder,
+      position: group.position,
+      color: group.color,
+      tags: group.tags,
+      created_at: group.created_at,
+      updated_at: group.updated_at,
+      items: (group.items || []).map((item): ParsedTabGroupItem => ({
+        id: item.id,
+        title: item.title,
+        url: item.url,
+        favicon: item.favicon,
+        position: item.position,
+        is_pinned: item.is_pinned,
+        is_todo: item.is_todo,
+        is_archived: item.is_archived,
+        created_at: item.created_at
+      }))
+    }))
+
     return {
       bookmarks,
       tags,
+      tab_groups,
       metadata: {
         source: 'json',
         total_items: bookmarks.length,
+        total_tab_groups: tab_groups.length,
         parsed_at: new Date().toISOString()
       }
     }

@@ -5,12 +5,12 @@
  */
 
 import type { PagesFunction } from '@cloudflare/workers-types'
-import type { Env, BookmarkRow, RouteParams, SQLParam } from '../../lib/types'
-import { success, badRequest, notFound, noContent, internalError } from '../../lib/response'
-import { requireApiKeyAuth, ApiKeyAuthContext } from '../../middleware/api-key-auth-pages'
-import { isValidUrl, sanitizeString } from '../../lib/validation'
-import { normalizeBookmark } from '../../lib/bookmark-utils'
-import { invalidatePublicShareCache } from '../shared/cache'
+import type { Env, BookmarkRow, RouteParams, SQLParam } from '../../../lib/types'
+import { success, badRequest, notFound, noContent, internalError } from '../../../lib/response'
+import { requireApiKeyAuth, ApiKeyAuthContext } from '../../../middleware/api-key-auth-pages'
+import { isValidUrl, sanitizeString } from '../../../lib/validation'
+import { normalizeBookmark } from '../../../lib/bookmark-utils'
+import { invalidatePublicShareCache } from '../../shared/cache'
 
 interface UpdateBookmarkRequest {
   title?: string

@@ -68,33 +68,37 @@ export function requireApiKey(options: ApiKeyAuthOptions) {
       )
     }
 
-    // 4. 检查速率限制
-    const rateLimitResult = await checkRateLimit(keyData.id, c.env.RATE_LIMIT_KV)
+    // 4. 检查速率限制（如果未配置 KV，则跳过限流，但仍允许请求）
+    const kv = c.env.TMARKS_KV
 
-    if (!rateLimitResult.allowed) {
-      // 设置速率限制响应头
-      c.header('X-RateLimit-Limit', String(rateLimitResult.limit))
-      c.header('X-RateLimit-Remaining', String(rateLimitResult.remaining))
-      c.header('X-RateLimit-Reset', String(rateLimitResult.reset))
+    if (kv) {
+      const rateLimitResult = await checkRateLimit(keyData.id, kv)
 
-      if (rateLimitResult.retryAfter) {
-        c.header('Retry-After', String(rateLimitResult.retryAfter))
+      if (!rateLimitResult.allowed) {
+        // 设置速率限制响应头
+        c.header('X-RateLimit-Limit', String(rateLimitResult.limit))
+        c.header('X-RateLimit-Remaining', String(rateLimitResult.remaining))
+        c.header('X-RateLimit-Reset', String(rateLimitResult.reset))
+
+        if (rateLimitResult.retryAfter) {
+          c.header('Retry-After', String(rateLimitResult.retryAfter))
+        }
+
+        return c.json(
+          {
+            error: {
+              code: 'RATE_LIMIT_EXCEEDED',
+              message: 'Rate limit exceeded',
+              retry_after: rateLimitResult.retryAfter,
+            },
+          },
+          429
+        )
       }
 
-      return c.json(
-        {
-          error: {
-            code: 'RATE_LIMIT_EXCEEDED',
-            message: 'Rate limit exceeded',
-            retry_after: rateLimitResult.retryAfter,
-          },
-        },
-        429
-      )
+      // 5. 记录请求
+      await recordRequest(keyData.id, kv)
     }
-
-    // 5. 记录请求
-    await recordRequest(keyData.id, c.env.RATE_LIMIT_KV)
 
     // 6. 获取请求 IP
     const ip = c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || null

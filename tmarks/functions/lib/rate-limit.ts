@@ -120,7 +120,7 @@ export function createRateLimiter(
 ): PagesFunction<Env> {
   return async (context) => {
     const key = getKey(context)
-    const result = await checkRateLimit(context.env.RATE_LIMIT_KV, {
+    const result = await checkRateLimit(context.env.TMARKS_KV, {
       key,
       limit,
       window: windowSeconds,

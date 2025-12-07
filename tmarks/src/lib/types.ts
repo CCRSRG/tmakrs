@@ -239,6 +239,16 @@ export interface ShareSettingsResponse {
   share: ShareSettings
 }
 
+export interface R2StorageQuota {
+  used_bytes: number
+  limit_bytes: number | null
+  unlimited: boolean
+}
+
+export interface R2StorageQuotaResponse {
+  quota: R2StorageQuota
+}
+
 export interface UpdateShareSettingsRequest {
   enabled?: boolean
   slug?: string | null

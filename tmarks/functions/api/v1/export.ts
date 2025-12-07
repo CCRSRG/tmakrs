@@ -12,7 +12,9 @@ import type {
   ExportOptions,
   ExportBookmark,
   ExportTag,
-  ExportUser
+  ExportUser,
+  ExportTabGroup,
+  ExportTabGroupItem
 } from '../../../shared/import-export-types'
 
 import { createJsonExporter } from '../../lib/import-export/exporters/json-exporter'
@@ -199,6 +201,58 @@ async function collectUserData(db: D1Database, userId: string): Promise<TMarksEx
       created_at: user.created_at
     }
 
+    // 获取标签页组
+    const { results: tabGroups } = await db.prepare(`
+      SELECT id, title, parent_id, is_folder, position, color, tags, created_at, updated_at
+      FROM tab_groups
+      WHERE user_id = ? AND is_deleted = 0
+      ORDER BY position ASC
+    `).bind(userId).all()
+
+    // 获取标签页组项目
+    const { results: tabGroupItems } = await db.prepare(`
+      SELECT tgi.id, tgi.group_id, tgi.title, tgi.url, tgi.favicon, tgi.position, 
+             tgi.is_pinned, tgi.is_todo, tgi.is_archived, tgi.created_at
+      FROM tab_group_items tgi
+      JOIN tab_groups tg ON tgi.group_id = tg.id
+      WHERE tg.user_id = ? AND tg.is_deleted = 0
+      ORDER BY tgi.position ASC
+    `).bind(userId).all()
+
+    // 构建标签页组项目映射
+    const groupItemsMap = new Map<string, ExportTabGroupItem[]>()
+    tabGroupItems?.forEach((item: Record<string, unknown>) => {
+      const groupId = String(item.group_id)
+      if (!groupItemsMap.has(groupId)) {
+        groupItemsMap.set(groupId, [])
+      }
+      groupItemsMap.get(groupId)!.push({
+        id: String(item.id),
+        title: String(item.title),
+        url: String(item.url),
+        favicon: item.favicon ? String(item.favicon) : undefined,
+        position: Number(item.position),
+        is_pinned: Boolean(item.is_pinned),
+        is_todo: Boolean(item.is_todo),
+        is_archived: Boolean(item.is_archived),
+        created_at: String(item.created_at)
+      })
+    })
+
+    // 构建导出标签页组
+    const exportTabGroups: ExportTabGroup[] = (tabGroups || []).map((group: Record<string, unknown>) => ({
+      id: String(group.id),
+      title: String(group.title),
+      parent_id: group.parent_id ? String(group.parent_id) : undefined,
+      is_folder: Boolean(group.is_folder),
+      position: Number(group.position),
+      color: group.color ? String(group.color) : undefined,
+      tags: group.tags ? String(group.tags) : undefined,
+      created_at: String(group.created_at),
+      updated_at: String(group.updated_at),
+      items: groupItemsMap.get(String(group.id)) || []
+    }))
+
     const exportedAt = new Date().toISOString()
 
     return {
@@ -207,9 +261,11 @@ async function collectUserData(db: D1Database, userId: string): Promise<TMarksEx
       user: exportUser,
       bookmarks: exportBookmarks,
       tags: exportTags,
+      tab_groups: exportTabGroups,
       metadata: {
         total_bookmarks: exportBookmarks.length,
         total_tags: exportTags.length,
+        total_tab_groups: exportTabGroups.length,
         export_format: 'json'
       }
     }
@@ -264,27 +320,31 @@ async function getExportStats(db: D1Database, userId: string) {
     count: number
   }
   
-  const [bookmarkCount, tagCount, pinnedCount] = await Promise.all([
+  const [bookmarkCount, tagCount, pinnedCount, tabGroupCount] = await Promise.all([
     db.prepare('SELECT COUNT(*) as count FROM bookmarks WHERE user_id = ? AND deleted_at IS NULL')
       .bind(userId).first<CountRow>(),
     db.prepare('SELECT COUNT(*) as count FROM tags WHERE user_id = ? AND deleted_at IS NULL')
       .bind(userId).first<CountRow>(),
     db.prepare('SELECT COUNT(*) as count FROM bookmarks WHERE user_id = ? AND is_pinned = 1 AND deleted_at IS NULL')
+      .bind(userId).first<CountRow>(),
+    db.prepare('SELECT COUNT(*) as count FROM tab_groups WHERE user_id = ? AND is_deleted = 0')
       .bind(userId).first<CountRow>()
   ])
 
   return {
     total_bookmarks: bookmarkCount?.count || 0,
     total_tags: tagCount?.count || 0,
-    pinned_bookmarks: pinnedCount?.count || 0
+    pinned_bookmarks: pinnedCount?.count || 0,
+    total_tab_groups: tabGroupCount?.count || 0
   }
 }
 
-function estimateExportSize(stats: { total_bookmarks: number; total_tags: number; pinned_bookmarks: number }, format: ExportFormat): number {
+function estimateExportSize(stats: { total_bookmarks: number; total_tags: number; pinned_bookmarks: number; total_tab_groups: number }, format: ExportFormat): number {
   const avgBookmarkSize = format === 'json' ? 200 : 150 // bytes per bookmark
   const avgTagSize = format === 'json' ? 50 : 30 // bytes per tag
+  const avgTabGroupSize = format === 'json' ? 500 : 300 // bytes per tab group (including items)
   
-  return (stats.total_bookmarks * avgBookmarkSize) + (stats.total_tags * avgTagSize)
+  return (stats.total_bookmarks * avgBookmarkSize) + (stats.total_tags * avgTagSize) + (stats.total_tab_groups * avgTabGroupSize)
 }
 
 function generateFilename(format: ExportFormat): string {

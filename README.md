@@ -1,280 +1,171 @@
-# TMarks - 智能书签管理系统
+<div align="center">
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](VERSION.md)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-Pages-orange.svg)](https://pages.cloudflare.com/)
+# 🔖 TMarks
 
-> 一个现代化的书签管理系统，支持标签分类、标签页组管理、导入导出、公开分享等功能。
+**AI 驱动的智能书签管理系统**
 
-## ✨ 特性
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3%20%7C%2019-61dafb.svg)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-6.0%20%7C%207-646cff.svg)](https://vitejs.dev/)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-f38020.svg)](https://workers.cloudflare.com/)
+[![许可证](https://img.shields.io/badge/许可证-MIT-green.svg)](LICENSE)
 
-### 核心功能
+简体中文
 
-- 📚 **书签管理** - 创建、编辑、删除、搜索书签
-- 🏷️ **标签系统** - 灵活的标签分类和筛选
-- 📑 **标签页组** - 管理浏览器标签页组
-- 🔍 **强大搜索** - 全文搜索，支持标题、URL、描述
-- 📤 **导入导出** - 支持 JSON 格式导入导出
-- 🔗 **公开分享** - 生成公开分享链接
-- 🎨 **多视图模式** - 列表、卡片、极简、标题视图
-- 🌓 **主题切换** - 支持亮色/暗色主题
+[在线演示](https://tmarks.669696.xyz) | [视频教程](https://bushutmarks.pages.dev/course/tmarks) | [问题反馈](https://github.com/ai-tmarks/tmarks/issues) | [功能建议](https://github.com/ai-tmarks/tmarks/discussions)
 
-### v2.0 新功能 🎉
-
-- 🚀 **数据库迁移自动化** - 完整的迁移自动化系统
-- 🔄 **本地开发自动化** - Git Pull 自动提示，安装后自动检查
-- 📦 **一键部署** - 使用 `pnpm deploy` 一键部署
-- ⚙️ **通用设置** - 搜索和标签自动清空配置
-- 📝 **完整文档** - 10+ 篇详细文档和指南
-- 🤖 **GitHub Actions** - 可选的完全自动化部署
-
-## 🚀 快速开始
-
-### 前置要求
-
-- Node.js 18+
-- pnpm 8+
-- Cloudflare 账户
-- Wrangler CLI
-
-### 安装
-
-```bash
-# 克隆仓库
-git clone https://github.com/your-username/tmarks.git
-cd tmarks
-
-# 安装依赖
-pnpm install
-
-# 配置环境变量
-cp .env.example .env.local
-# 编辑 .env.local 填入你的配置
-
-# 启动开发服务器
-pnpm dev
-```
-
-### 数据库设置
-
-```bash
-# 创建 D1 数据库
-wrangler d1 create tmarks-prod-db
-
-# 执行初始化迁移
-pnpm db:auto-migrate:local
-```
-
-### 部署
-
-#### 方案 1：使用部署脚本（推荐）
-
-```bash
-pnpm deploy
-```
-
-#### 方案 2：手动部署
-
-```bash
-# 推送代码
-git push
-
-# 执行生产环境迁移
-pnpm db:auto-migrate
-
-# Cloudflare Pages 会自动部署
-```
-
-#### 方案 3：GitHub Actions 自动化
-
-配置 GitHub Secrets 后，推送代码即可自动部署和迁移。
-
-详见：[GitHub-Actions-自动迁移配置指南.md](GitHub-Actions-自动迁移配置指南.md)
-
-## 📚 文档
-
-### 快速开始
-
-- [README-数据库迁移完整方案.md](README-数据库迁移完整方案.md) - 迁移方案总览
-- [部署方案对比.md](部署方案对比.md) - 选择适合的部署方案
-- [升级指南-v1.x-to-v2.0.md](升级指南-v1.x-to-v2.0.md) - 从 v1.x 升级
-
-### 部署指南
-
-- [Cloudflare-Pages-部署说明.md](Cloudflare-Pages-部署说明.md) - 部署脚本使用
-- [GitHub-Actions-自动迁移配置指南.md](GitHub-Actions-自动迁移配置指南.md) - GitHub Actions 配置
-- [tmarks/DEPLOY_CHECKLIST.md](tmarks/DEPLOY_CHECKLIST.md) - 部署检查清单
-
-### 使用指南
-
-- [tmarks/migrations/数据库迁移自动化指南.md](tmarks/migrations/数据库迁移自动化指南.md) - 详细使用指南
-- [tmarks/MIGRATION_DEMO.md](tmarks/MIGRATION_DEMO.md) - 8个实际场景演示
-- [tmarks/Cloudflare-Pages-数据库迁移方案.md](tmarks/Cloudflare-Pages-数据库迁移方案.md) - 迁移方案对比
-
-### 技术文档
-
-- [数据库迁移自动化-实现总结.md](数据库迁移自动化-实现总结.md) - 技术实现细节
-- [CHANGELOG-v2.0.md](CHANGELOG-v2.0.md) - 版本更新日志
-- [VERSION.md](VERSION.md) - 版本信息
-
-## 🛠️ 技术栈
-
-### 前端
-
-- **框架**: React 18 + TypeScript
-- **构建工具**: Vite
-- **样式**: TailwindCSS
-- **路由**: React Router v7
-- **状态管理**: Zustand + React Query
-- **UI 组件**: 自定义组件 + Lucide Icons
-
-### 后端
-
-- **平台**: Cloudflare Pages Functions
-- **数据库**: Cloudflare D1 (SQLite)
-- **存储**: Cloudflare KV
-- **认证**: JWT
-
-### 自动化
-
-- **Git Hooks**: Husky
-- **CI/CD**: GitHub Actions
-- **迁移工具**: 自定义脚本 + Wrangler CLI
-- **API**: Cloudflare D1 API
-
-## 📦 项目结构
-
-```
-tmarks/
-├── .github/
-│   └── workflows/
-│       └── deploy-and-migrate.yml    # GitHub Actions 工作流
-├── .husky/
-│   └── post-merge                    # Git Hook
-├── functions/                        # Cloudflare Pages Functions
-│   ├── api/                          # API 路由
-│   ├── lib/                          # 工具函数
-│   └── middleware/                   # 中间件
-├── migrations/                       # 数据库迁移文件
-│   ├── 0001_*.sql
-│   ├── 0002_*.sql
-│   └── 0003_add_general_settings.sql
-├── scripts/                          # 自动化脚本
-│   ├── auto-migrate.js               # 自动迁移脚本
-│   ├── check-migrations.js           # 检查脚本
-│   ├── deploy.ps1                    # PowerShell 部署脚本
-│   └── deploy.sh                     # Bash 部署脚本
-├── src/                              # 前端源码
-│   ├── components/                   # React 组件
-│   ├── hooks/                        # 自定义 Hooks
-│   ├── pages/                        # 页面组件
-│   ├── services/                     # API 服务
-│   ├── stores/                       # Zustand 状态
-│   └── lib/                          # 工具函数
-└── public/                           # 静态资源
-```
-
-## 🎯 核心命令
-
-### 开发
-
-```bash
-pnpm dev              # 启动开发服务器
-pnpm build            # 构建生产版本
-pnpm preview          # 预览生产构建
-pnpm type-check       # TypeScript 类型检查
-pnpm lint             # ESLint 检查
-```
-
-### 数据库
-
-```bash
-pnpm db:auto-migrate:local    # 本地迁移
-pnpm db:auto-migrate          # 生产迁移
-pnpm db:migrate:local         # Wrangler 本地迁移
-pnpm db:migrate               # Wrangler 生产迁移
-```
-
-### 部署
-
-```bash
-pnpm deploy           # 一键部署（推荐）
-pnpm build:deploy     # 构建部署版本
-pnpm cf:deploy        # Cloudflare 部署
-```
-
-## 🔧 配置
-
-### 环境变量
-
-```bash
-# .env.local
-VITE_API_BASE_URL=http://localhost:8788
-```
-
-### Cloudflare 配置
-
-在 Cloudflare Pages Dashboard 中配置：
-
-**绑定：**
-- D1 数据库：`DB` → `tmarks-prod-db`
-- KV 命名空间：`RATE_LIMIT_KV`
-- KV 命名空间：`PUBLIC_SHARE_KV`
-
-**环境变量：**
-- `JWT_SECRET`
-- `ENCRYPTION_KEY`
-- `ALLOW_REGISTRATION`
-
-## 📊 版本信息
-
-**当前版本**: v2.0.0 - Migration Automation
-
-**发布日期**: 2024-11-19
-
-**主要更新**:
-- ✅ 完整的数据库迁移自动化
-- ✅ 本地开发自动化
-- ✅ 生产部署自动化
-- ✅ 通用设置功能
-- ✅ 完整的文档
-
-详见：[CHANGELOG-v2.0.md](CHANGELOG-v2.0.md)
-
-## 🤝 贡献
-
-欢迎贡献！请遵循以下步骤：
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
-
-## 📝 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
-
-## 🙏 致谢
-
-- [Cloudflare Pages](https://pages.cloudflare.com/) - 托管平台
-- [Cloudflare D1](https://developers.cloudflare.com/d1/) - 数据库
-- [React](https://react.dev/) - UI 框架
-- [Vite](https://vitejs.dev/) - 构建工具
-- [TailwindCSS](https://tailwindcss.com/) - CSS 框架
-
-## 📞 联系方式
-
-- **问题反馈**: [GitHub Issues](https://github.com/your-username/tmarks/issues)
-- **功能建议**: [GitHub Discussions](https://github.com/your-username/tmarks/discussions)
-- **文档**: 查看 `docs/` 目录
-
-## 🌟 Star History
-
-如果这个项目对你有帮助，请给它一个 ⭐️！
+</div>
 
 ---
 
-**Made with ❤️ by TMarks Team**
+## ✨ 项目简介
 
-**Version**: v2.0.0 | **License**: MIT | **Platform**: Cloudflare Pages
+TMarks 是一个现代化的智能书签管理系统，结合 AI 技术自动生成标签，让书签管理变得简单高效。
+
+### 核心特性
+
+- 📚 **智能书签管理** - AI自动标签、多维筛选、批量操作、拖拽排序
+- 🗂️ **标签页组管理** - 一键收纳标签页、智能分组、快速恢复
+- 🌐 **公开分享** - 创建个性化书签展示页、KV缓存加速
+- 🔌 **浏览器扩展** - 快速保存、AI推荐、离线支持、自动同步
+- 🔐 **安全可靠** - JWT认证、API Key管理、数据加密
+
+### 技术栈
+
+- **前端**: React 18/19 + TypeScript + Vite + TailwindCSS 4
+- **后端**: Cloudflare Workers + Pages Functions
+- **数据库**: Cloudflare D1 (SQLite)
+- **缓存**: Cloudflare KV
+- **快照存储**: Cloudflare R2（可选，用于存储网页快照 HTML 与图片，支持全局 7GB 配额限制）
+- **AI集成**: 支持 OpenAI、Anthropic、DeepSeek、智谱等 8+ 提供商
+
+---
+
+## 🚀 快速开始
+
+### 本地开发
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/ai-tmarks/tmarks.git
+cd tmarks
+
+# 2. 安装依赖
+cd tmarks
+pnpm install
+
+# 3. 创建数据库并迁移
+wrangler d1 create tmarks-prod-db --local
+pnpm db:migrate:local
+
+# 4. 启动开发服务器
+pnpm dev
+# 访问 http://localhost:5173
+```
+
+### 浏览器扩展开发
+
+```bash
+# 1. 安装依赖
+cd tab
+pnpm install
+
+# 2. 启动开发模式
+pnpm dev
+
+# 3. 加载扩展
+# Chrome: chrome://extensions/ → 开发者模式 → 加载已解压的扩展程序 → 选择 tab/dist
+# Firefox: about:debugging → 临时载入附加组件 → 选择 tab/dist/manifest.json
+```
+
+---
+
+## 🚀 部署
+
+### 📹 视频教程
+
+**完整部署教程视频**: [点击观看](https://bushutmarks.pages.dev/course/tmarks)
+
+跟随视频教程，3 分钟完成部署。
+
+---
+
+### 开源用户一页部署指南
+
+**前置条件**
+- 有 Cloudflare 账号
+- 有 GitHub 账号
+
+---
+
+#### 1. 连接仓库并配置构建
+1. 在 GitHub 上 Fork 本仓库
+2. 打开 Cloudflare Dashboard → **Workers & Pages** → **Pages** → **创建项目**
+3. 选择「连接到 Git」，选中你的 Fork
+4. 构建配置：
+   - 根目录：`tmarks`
+   - 构建命令：`pnpm install && pnpm build:deploy`
+   - 构建输出目录：`.deploy`
+5. 保存并触发一次部署（第一次失败没关系，后面会修好）
+
+#### 2. 创建 Cloudflare 资源
+1. **D1 数据库（必需）**
+   - Workers & Pages → **D1 SQL Database** → Create database
+   - 名称：`tmarks-prod-db`
+2. **KV 命名空间（推荐）**
+   - Workers & Pages → **KV** → Create a namespace
+   - 名称：`TMARKS_KV`
+   - 不创建也能运行，但会失去 KV 缓存和限流保护
+3. **R2 存储桶（可选，快照用）**
+   - R2 对象存储 → 创建存储桶
+   - 名称：`tmarks-snapshots`
+   - 不创建则快照功能不可用，但其他功能正常
+
+#### 3. 在 Pages 项目中绑定资源
+进入 Pages 项目 → **设置 → 函数**：
+
+- D1 绑定：
+  - 新建 D1 绑定，变量名：`DB` → 选择 `tmarks-prod-db`
+- KV 绑定（如果创建了 KV）：
+  - 新建 KV 绑定，变量名：`TMARKS_KV` → 选择 `TMARKS_KV`
+- R2 绑定（如果创建了 R2）：
+  - 新建 R2 绑定，变量名：`SNAPSHOTS_BUCKET` → 选择 `tmarks-snapshots`
+
+> 没有 KV / R2 时，可以跳过对应绑定，应用仍然可以启动。
+
+#### 4. 配置环境变量
+进入 Pages 项目 → **设置 → 环境变量（生产环境）**，建议配置：
+
+- 业务相关：
+  - `ALLOW_REGISTRATION`：是否允许新用户注册，推荐 "true"
+    （设为非 "true"——包括 "false" 或留空——都会关闭注册；推荐的关闭方式是 **直接删除该变量**）
+  - `ENVIRONMENT`：运行环境，生产环境设为 `production`
+  - `JWT_ACCESS_TOKEN_EXPIRES_IN`：访问 Token 有效期，推荐 `365d`
+  - `JWT_REFRESH_TOKEN_EXPIRES_IN`：刷新 Token 有效期，推荐 `365d`
+- R2 相关（如果启用快照 / 封面图走 R2）：
+  - `R2_PUBLIC_URL`：**可选**，封面图使用 R2 存储时的对外访问域名（例如 `https://pub-xxxxx.r2.dev`）；快照本身通过 API 访问，不依赖该值
+  - `R2_MAX_TOTAL_BYTES`：R2 总存储上限（字节），可选；不配置或设为 `0` / 负数 表示不限制（如需限制可手动设置，例如约 7GiB）
+- 敏感变量（**只在 Dashboard 里配置，千万不要写入仓库**）：
+  - `JWT_SECRET`：JWT 签名密钥（建议 ≥ 48 位随机字符串）
+  - `ENCRYPTION_KEY`：数据加密密钥（建议 ≥ 48 位随机字符串）
+
+> 本地 / 自托管部署时，可参考 `tmarks/wrangler.toml.example` 中的 `[vars]` 示例，业务配置可直接照抄，敏感密钥仅在 Dashboard 中填写真实值。
+
+#### 5. 初始化数据库
+1. 打开 **Workers & Pages → D1 SQL Database**
+2. 进入 `tmarks-prod-db` → **Console**
+3. 打开仓库中的 `tmarks/migrations/d1_console_pure.sql`
+4. 复制全部 SQL，粘贴到控制台，点击 **Execute** 执行
+
+#### 6. 重新部署
+1. 回到 Pages 项目 → 部署
+2. 对之前失败的部署点击「重试」，或推送任意提交重新触发
+3. 构建成功后，就可以访问你的 TMarks 站点了 🎉
+
+> 之后更新：只要往 GitHub 推代码，Cloudflare 会自动重新构建和部署，之前配置的数据库 / KV / R2 / 环境变量都不会丢。
+---
+
+
+## 📄 许可证
+
+本项目采用 [MIT License](LICENSE) 开源协议。

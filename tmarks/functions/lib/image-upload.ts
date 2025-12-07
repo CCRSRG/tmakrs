@@ -3,7 +3,9 @@
  */
 
 import type { R2Bucket, D1Database } from '@cloudflare/workers-types'
+import type { Env } from './types'
 import { generateUUID } from './crypto'
+import { checkR2Quota } from './storage-quota'
 
 interface UploadImageResult {
   success: boolean
@@ -32,6 +34,7 @@ interface ExistingImage {
  * @param bucket R2 Bucket
  * @param db D1 Database
  * @param r2PublicUrl R2 公开访问域名（如 https://r2.example.com）
+ * @param env Cloudflare 环境变量（用于存储配额检查）
  * @returns 上传结果
  */
 export async function uploadCoverImageToR2(
@@ -40,7 +43,8 @@ export async function uploadCoverImageToR2(
   bookmarkId: string,
   bucket: R2Bucket,
   db: D1Database,
-  r2PublicUrl: string
+  r2PublicUrl: string,
+  env: Env
 ): Promise<UploadImageResult> {
   try {
     // 1. 下载图片
@@ -118,7 +122,19 @@ export async function uploadCoverImageToR2(
     const ext = getExtensionFromContentType(contentType)
     r2Key = `images/${imageHash}${ext}`
 
-    // 8. 上传到 R2
+    // 8. 存储配额检查（仅对新图片生效）
+    const quota = await checkR2Quota(db, env, fileSize)
+    if (!quota.allowed) {
+      const usedGB = quota.usedBytes / (1024 * 1024 * 1024)
+      const limitGB = quota.limitBytes / (1024 * 1024 * 1024)
+      return {
+        success: false,
+        originalUrl: imageUrl,
+        error: `Image storage limit exceeded: used ${usedGB.toFixed(2)}GB / ${limitGB.toFixed(2)}GB`,
+      }
+    }
+
+    // 9. 上传到 R2
     await bucket.put(r2Key, imageData, {
       httpMetadata: {
         contentType: contentType,
@@ -130,20 +146,20 @@ export async function uploadCoverImageToR2(
       },
     })
 
-    // 9. 保存到数据库
+    // 10. 保存到数据库
     imageId = generateUUID()
     const now = new Date().toISOString()
 
     await db
       .prepare(
-        `INSERT INTO bookmark_images 
+        `INSERT INTO bookmark_images
          (id, bookmark_id, user_id, image_hash, r2_key, r2_bucket, file_size, mime_type, original_url, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, 'tmarks-snapshots', ?, ?, ?, ?, ?)`
       )
       .bind(imageId, bookmarkId, userId, imageHash, r2Key, fileSize, contentType, imageUrl, now, now)
       .run()
 
-    // 10. 生成公开访问 URL（使用传入的 R2 公开域名）
+    // 11. 生成公开访问 URL（使用传入的 R2 公开域名）
     const r2Url = `${r2PublicUrl.replace(/\/$/, '')}/${r2Key}`
 
     return {

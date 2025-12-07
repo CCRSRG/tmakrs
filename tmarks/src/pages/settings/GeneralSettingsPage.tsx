@@ -5,6 +5,7 @@ import { usePreferences, useUpdatePreferences } from '@/hooks/usePreferences'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 import type { UserPreferences } from '@/lib/types'
+import { ApiError } from '@/lib/api-client'
 import { SettingsTabs } from '@/components/settings/SettingsTabs'
 import { BasicSettingsTab } from '@/components/settings/tabs/BasicSettingsTab'
 import { AutomationSettingsTab } from '@/components/settings/tabs/AutomationSettingsTab'
@@ -41,7 +42,7 @@ export function GeneralSettingsPage() {
 
   const handleSave = async () => {
     if (!localPreferences) return
-    
+
     try {
       await updatePreferences.mutateAsync({
         theme: localPreferences.theme,
@@ -61,8 +62,12 @@ export function GeneralSettingsPage() {
         snapshot_auto_cleanup_days: localPreferences.snapshot_auto_cleanup_days,
       })
       addToast('success', '设置已保存')
-    } catch {
-      addToast('error', '保存失败')
+    } catch (error) {
+      let message = '保存失败'
+      if (error instanceof ApiError && error.message) {
+        message = `保存失败：${error.message}`
+      }
+      addToast('error', message)
     }
   }
 

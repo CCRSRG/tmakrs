@@ -120,7 +120,7 @@ export function useRestoreBookmark() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: number) => bookmarksService.restoreBookmark(id),
+    mutationFn: (id: string) => bookmarksService.restoreBookmark(id),
     onSuccess: async () => {
       try {
         await queryClient.invalidateQueries({ queryKey: [BOOKMARKS_QUERY_KEY] })

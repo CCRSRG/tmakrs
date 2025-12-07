@@ -7,12 +7,14 @@ import { BOOKMARKS_QUERY_KEY } from '@/hooks/useBookmarks'
 import { TAGS_QUERY_KEY } from '@/hooks/useTags'
 import { useToastStore } from '@/stores/toastStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useR2StorageQuota } from '@/hooks/useStorage'
 import type { ExportFormat, ExportOptions, ImportResult } from '@shared/import-export-types'
 
 export function DataSettingsTab() {
   const queryClient = useQueryClient()
   const { addToast } = useToastStore()
   const { accessToken } = useAuthStore()
+  const { data: r2Quota, isLoading: isLoadingR2Quota } = useR2StorageQuota()
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export')
   const [lastOperation, setLastOperation] = useState<{
     type: 'export' | 'import' | 'cleanup'
@@ -115,6 +117,39 @@ export function DataSettingsTab() {
 
   return (
     <div className="space-y-6">
+      {/* R2 存储使用情况 */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Database className="w-4 h-4 text-primary" />
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">R2 存储使用情况（全局）</h3>
+            <p className="text-xs text-muted-foreground">
+              包含所有快照和封面图在 R2 中的总占用
+            </p>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {isLoadingR2Quota || !r2Quota ? (
+            '加载中...'
+          ) : (
+            <>
+              当前使用{' '}
+              <strong>
+                {(r2Quota.used_bytes / (1024 * 1024 * 1024)).toFixed(2)} GB
+              </strong>
+              {' / '}
+              {r2Quota.unlimited || r2Quota.limit_bytes === null ? (
+                '无限制'
+              ) : (
+                <>
+                  {(r2Quota.limit_bytes / (1024 * 1024 * 1024)).toFixed(2)} GB
+                </>
+              )}
+            </>
+          )}
+        </p>
+      </div>
+
       {/* 数据管理 */}
       <div className="space-y-4">
         <div>

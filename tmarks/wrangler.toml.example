@@ -22,6 +22,14 @@ ENVIRONMENT = "production"
 JWT_ACCESS_TOKEN_EXPIRES_IN = "365d"
 JWT_REFRESH_TOKEN_EXPIRES_IN = "365d"
 
+# R2 相关配置（用于网页快照 & 图片存储）
+# 在本地开发时可以直接在这里填写；生产环境建议在 Dashboard → 环境变量 中配置真实值
+# R2_PUBLIC_URL：可选，封面图使用 R2 存储时的对外访问域名（用于生成封面图 URL）
+# 例如：https://tmarks-snapshots.example.com 或 https://<account-id>.r2.cloudflarestorage.com/tmarks-snapshots
+# R2_MAX_TOTAL_BYTES：R2 总存储上限（字节），可选；不配置或 <= 0 表示不限制（如需限制可手动设置，例如 7GiB）
+# R2_PUBLIC_URL = "https://tmarks-snapshots.example.com"
+# R2_MAX_TOTAL_BYTES = "7516192768"
+
 # ⚠️ 敏感环境变量请在 Dashboard 中配置：
 # 路径：项目设置 → 环境变量 → 生产环境
 # - JWT_SECRET

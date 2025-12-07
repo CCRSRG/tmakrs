@@ -35,6 +35,13 @@ interface BookmarkStatistics {
     domain: string
     count: number
   }>
+  // 当前选择的时间范围内，每个书签的点击次数（按点击次数降序）
+  bookmark_clicks: Array<{
+    id: string
+    title: string
+    url: string
+    click_count: number
+  }>
   recent_clicks: Array<{
     id: string
     title: string
@@ -88,27 +95,27 @@ export const onRequestGet: PagesFunction<Env, string, AuthContext>[] = [
           break
       }
 
-      // 7. 点击趋势 - 根据粒度动态分组
+      // 7. 点击趋势（基于点击事件表 bookmark_click_events） - 根据粒度动态分组
       let clickDateGroupBy = ''
       let clickDateSelect = ''
-      
+
       switch (granularity) {
         case 'year':
-          clickDateGroupBy = "strftime('%Y', last_clicked_at)"
-          clickDateSelect = "strftime('%Y', last_clicked_at) as date"
+          clickDateGroupBy = "strftime('%Y', clicked_at)"
+          clickDateSelect = "strftime('%Y', clicked_at) as date"
           break
         case 'month':
-          clickDateGroupBy = "strftime('%Y-%m', last_clicked_at)"
-          clickDateSelect = "strftime('%Y-%m', last_clicked_at) as date"
+          clickDateGroupBy = "strftime('%Y-%m', clicked_at)"
+          clickDateSelect = "strftime('%Y-%m', clicked_at) as date"
           break
         case 'week':
-          clickDateGroupBy = "strftime('%Y-W%W', last_clicked_at)"
-          clickDateSelect = "strftime('%Y-W%W', last_clicked_at) as date"
+          clickDateGroupBy = "strftime('%Y-W%W', clicked_at)"
+          clickDateSelect = "strftime('%Y-W%W', clicked_at) as date"
           break
         case 'day':
         default:
-          clickDateGroupBy = "DATE(last_clicked_at)"
-          clickDateSelect = "DATE(last_clicked_at) as date"
+          clickDateGroupBy = "DATE(clicked_at)"
+          clickDateSelect = "DATE(clicked_at) as date"
           break
       }
 
@@ -121,7 +128,8 @@ export const onRequestGet: PagesFunction<Env, string, AuthContext>[] = [
         topDomains,
         recentClicks,
         bookmarkTrends,
-        clickTrends
+        clickTrends,
+        bookmarkClickStats,
       ] = await Promise.all([
         // 1. 汇总统计
         db.prepare(
@@ -219,17 +227,35 @@ export const onRequestGet: PagesFunction<Env, string, AuthContext>[] = [
           .bind(userId, ...[startDate, endDate].filter(Boolean))
           .all(),
 
-        // 8. 点击趋势
+        // 8. 点击趋势（基于 bookmark_click_events）
         db.prepare(
-          `SELECT 
+          `SELECT
             ${clickDateSelect},
             COUNT(*) as count
-          FROM bookmarks
-          WHERE user_id = ? AND deleted_at IS NULL AND last_clicked_at IS NOT NULL
-            ${startDate ? `AND DATE(last_clicked_at) >= ?` : ''}
-            ${endDate ? `AND DATE(last_clicked_at) <= ?` : ''}
+          FROM bookmark_click_events
+          WHERE user_id = ?
+            ${startDate ? `AND DATE(clicked_at) >= ?` : ''}
+            ${endDate ? `AND DATE(clicked_at) <= ?` : ''}
           GROUP BY ${clickDateGroupBy}
           ORDER BY date ASC`
+        )
+          .bind(userId, ...[startDate, endDate].filter(Boolean))
+          .all(),
+
+        // 9. 当前时间范围内每个书签的点击次数
+        db.prepare(
+          `SELECT
+            b.id,
+            b.title,
+            b.url,
+            COUNT(e.id) as click_count
+          FROM bookmark_click_events e
+          JOIN bookmarks b ON e.bookmark_id = b.id
+          WHERE e.user_id = ? AND b.deleted_at IS NULL
+            ${startDate ? `AND DATE(e.clicked_at) >= ?` : ''}
+            ${endDate ? `AND DATE(e.clicked_at) <= ?` : ''}
+          GROUP BY b.id, b.title, b.url
+          ORDER BY click_count DESC`
         )
           .bind(userId, ...[startDate, endDate].filter(Boolean))
           .all()
@@ -266,6 +292,12 @@ export const onRequestGet: PagesFunction<Env, string, AuthContext>[] = [
           title: string
           url: string
           last_clicked_at: string
+        }>,
+        bookmark_clicks: (bookmarkClickStats.results || []) as Array<{
+          id: string
+          title: string
+          url: string
+          click_count: number
         }>,
         trends: {
           bookmarks: (bookmarkTrends.results || []) as Array<{ date: string; count: number }>,

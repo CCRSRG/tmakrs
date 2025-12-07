@@ -8,6 +8,7 @@ import type { Env } from '../../../../lib/types'
 import { success, badRequest, notFound, internalError } from '../../../../lib/response'
 import { requireApiKeyAuth, ApiKeyAuthContext } from '../../../../middleware/api-key-auth-pages'
 import { generateSignedUrl } from '../../../../lib/signed-url'
+import { checkR2Quota } from '../../../../lib/storage-quota'
 
 function generateNanoId(): string {
   const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -134,12 +135,22 @@ export const onRequestPost: PagesFunction<Env, 'id', ApiKeyAuthContext>[] = [
           //   console.warn(`[Snapshot V2 API] Image too large: ${image.hash}, ${(imageSize / 1024).toFixed(1)}KB`)
           //   continue
           // }
-          
+
           console.log(`[Snapshot V2 API] Processing image: ${image.hash}, ${(imageSize / 1024 / 1024).toFixed(2)}MB`)
+
+          // 上传前进行配额检查（按单张图片大小预估）
+          const imageQuota = await checkR2Quota(db, context.env, imageSize)
+          if (!imageQuota.allowed) {
+            const usedGB = imageQuota.usedBytes / (1024 * 1024 * 1024)
+            const limitGB = imageQuota.limitBytes / (1024 * 1024 * 1024)
+            console.warn(`[Snapshot V2 API] R2 quota exceeded when uploading image ${image.hash}: used ${usedGB.toFixed(2)}GB / ${limitGB.toFixed(2)}GB`)
+            // 直接跳过这张图片，继续处理其他图片
+            continue
+          }
 
           // 上传到 R2: {userId}/{bookmarkId}/v{version}/images/{hash}
           const imageKey = `${userId}/${bookmarkId}/v${version}/images/${image.hash}`
-          
+
           await bucket.put(imageKey, bytes, {
             httpMetadata: {
               contentType: image.type,
@@ -181,6 +192,18 @@ export const onRequestPost: PagesFunction<Env, 'id', ApiKeyAuthContext>[] = [
       const htmlKey = `${userId}/${bookmarkId}/snapshot-${timestamp}-v${version}.html`
       const encoder = new TextEncoder()
       const htmlBytes = encoder.encode(processedHtml)
+
+      // 将 HTML 大小也计入总配额检查
+      const totalSizeForQuota = htmlBytes.length + totalImageSize
+      const quota = await checkR2Quota(db, context.env, totalSizeForQuota)
+      if (!quota.allowed) {
+        const usedGB = quota.usedBytes / (1024 * 1024 * 1024)
+        const limitGB = quota.limitBytes / (1024 * 1024 * 1024)
+        return badRequest({
+          code: 'R2_STORAGE_LIMIT_EXCEEDED',
+          message: `Snapshot storage limit exceeded. Used ${usedGB.toFixed(2)}GB of ${limitGB.toFixed(2)}GB. Please delete some snapshots or images and try again.`,
+        })
+      }
 
       await bucket.put(htmlKey, htmlBytes, {
         httpMetadata: {

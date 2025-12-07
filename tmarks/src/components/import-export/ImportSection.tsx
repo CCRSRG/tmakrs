@@ -243,7 +243,10 @@ export function ImportSection({ onImport }: ImportSectionProps) {
           code: 'UNKNOWN_ERROR'
         }],
         created_bookmarks: [],
-        created_tags: []
+        created_tags: [],
+        created_tab_groups: [],
+        tab_groups_success: 0,
+        tab_groups_failed: 0
       })
     } finally {
       setIsImporting(false)

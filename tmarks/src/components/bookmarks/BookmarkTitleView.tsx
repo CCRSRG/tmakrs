@@ -122,20 +122,20 @@ export function BookmarkTitleView({
   })()
 
   return (
-    <div ref={containerRef} className="w-full">
+    <div ref={containerRef} className="w-full min-w-0">
       {/* CSS Grid 布局 - 并排显示各列 */}
       {columnedBookmarks.length > 0 && (
         <div
-          className="w-full"
+          className="w-full min-w-0"
           style={{
             display: 'grid',
-            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
             gap: '0.625rem',
-            outline: 'none'
+            outline: 'none',
           } as React.CSSProperties}
         >
           {columnedBookmarks.map((col, colIndex) => (
-            <div key={`col-${colIndex}`} style={{ outline: 'none' }}>
+            <div key={`col-${colIndex}`} className="min-w-0" style={{ outline: 'none' }}>
               {col.map((bookmark) => (
                 <div key={bookmark.id} className="mb-2.5 sm:mb-3" style={{ outline: 'none' }}>
                   <TitleOnlyCard
@@ -377,7 +377,7 @@ function TitleOnlyCard({
                 href={bookmark.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="pointer-events-auto flex-shrink-0 text-[10px] sm:text-xs text-muted-foreground/60 hover:text-primary transition-colors"
+                className="pointer-events-auto flex-shrink-0 text-[10px] sm:text-xs text-muted-foreground/60 hover:text-primary transition-colors truncate max-w-[40%]"
                 onClick={(e) => {
                   if (batchMode) {
                     e.preventDefault()
