@@ -29,6 +29,7 @@ import { ConfirmModal } from './ui/ConfirmModal';
 import { GROUP_ICONS } from '../constants';
 import { StorageService } from '@/lib/utils/storage';
 import { getTMarksUrls } from '@/lib/constants/urls';
+import { t } from '@/lib/i18n';
 
 // 图标映射
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -154,12 +155,12 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
           onMouseEnter={() => setHoveredGroup('add')}
           onMouseLeave={() => setHoveredGroup(null)}
           className="relative w-11 h-11 rounded-xl flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-white/10 transition-all active:scale-90"
-          title="新建分组"
+          title={t('sidebar_new_group')}
         >
           <Plus className="w-4 h-4" />
           {hoveredGroup === 'add' && !showAddMenu && (
             <div className="absolute left-full ml-2 px-2 py-1 rounded-lg bg-black/80 text-white text-xs whitespace-nowrap z-50">
-              新建分组
+              {t('sidebar_new_group')}
             </div>
           )}
         </button>
@@ -172,7 +173,7 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
             />
             <div className="absolute left-full top-0 ml-2 w-56 p-3 rounded-xl glass-modal border border-white/10 shadow-2xl z-50 animate-scaleIn">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-white">新建分组</span>
+                <span className="text-sm font-medium text-white">{t('sidebar_new_group')}</span>
                 <button
                   onClick={() => setShowAddMenu(false)}
                   className="p-1 rounded hover:bg-white/10 transition-colors"
@@ -185,7 +186,7 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
                 type="text"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="分组名称"
+                placeholder={t('sidebar_group_name')}
                 className="w-full bg-white/10 text-white text-sm rounded-lg px-3 py-2 mb-3 outline-none border border-white/20 focus:border-blue-500/50 placeholder:text-white/40"
                 autoFocus
                 onKeyDown={(e) => e.key === 'Enter' && handleAddGroup()}
@@ -215,7 +216,7 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
                 disabled={!newGroupName.trim()}
                 className="w-full py-1.5 rounded-lg bg-blue-500/80 hover:bg-blue-500 text-white text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                创建
+                {t('btn_create')}
               </button>
             </div>
           </>
@@ -232,12 +233,12 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
           onMouseEnter={() => setHoveredGroup('tmarks')}
           onMouseLeave={() => setHoveredGroup(null)}
           className="relative w-11 h-11 rounded-xl flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
-          title="TMarks 书签"
+          title={t('sidebar_tmarks')}
         >
           <BookMarked className="w-4 h-4" />
           {hoveredGroup === 'tmarks' && (
             <div className="absolute left-full ml-2 px-2 py-1 rounded-lg bg-black/80 text-white text-xs whitespace-nowrap z-50">
-              书签管理
+              {t('sidebar_bookmark_manage')}
             </div>
           )}
         </button>
@@ -252,12 +253,12 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
         onMouseEnter={() => setHoveredGroup('settings')}
         onMouseLeave={() => setHoveredGroup(null)}
         className="relative w-11 h-11 rounded-xl flex items-center justify-center text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
-        title="设置"
+        title={t('widget_settings')}
       >
         <Settings className="w-4 h-4" />
         {hoveredGroup === 'settings' && (
           <div className="absolute left-full ml-2 px-2 py-1 rounded-lg bg-black/80 text-white text-xs whitespace-nowrap z-50">
-            设置
+            {t('widget_settings')}
           </div>
         )}
       </button>
@@ -265,16 +266,16 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
       {/* 删除分组确认弹窗 */}
       <ConfirmModal
         isOpen={!!deleteGroupId}
-        title="删除分组"
+        title={t('sidebar_delete_group')}
         message={(() => {
           const group = shortcutGroups.find((g) => g.id === deleteGroupId);
           if (group?.bookmarkFolderId) {
-            return "删除分组后，该分组的所有内容将被一并删除。确定删除？";
+            return t('sidebar_delete_group_with_content');
           }
-          return "删除分组后，该分组的快捷方式将移到「首页」。确定删除？";
+          return t('sidebar_delete_group_move_home');
         })()}
-        confirmText="删除"
-        cancelText="取消"
+        confirmText={t('ui_delete')}
+        cancelText={t('btn_cancel')}
         confirmVariant="danger"
         onConfirm={confirmRemoveGroup}
         onCancel={() => setDeleteGroupId(null)}

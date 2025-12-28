@@ -4,6 +4,7 @@
 
 import { useState, useEffect, memo } from 'react';
 import { RefreshCw, BookOpen } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { DEFAULT_POETRY } from '../../constants';
 import type { Poetry as PoetryType } from '../../types';
 import type { WidgetRendererProps } from './types';
@@ -61,7 +62,7 @@ export const PoetryWidget = memo(function PoetryWidget({
           <button
             onClick={getRandomPoetry}
             className="mt-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all"
-            title="换一首"
+            title={t('widget_poetry_refresh')}
           >
             <RefreshCw className="w-3 h-3 text-white/50" />
           </button>
@@ -80,7 +81,7 @@ export const PoetryWidget = memo(function PoetryWidget({
           <button
             onClick={getRandomPoetry}
             className="p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all flex-shrink-0"
-            title="换一首"
+            title={t('widget_poetry_refresh')}
           >
             <RefreshCw className="w-3 h-3 text-white/50" />
           </button>

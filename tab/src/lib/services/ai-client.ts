@@ -2,7 +2,7 @@ import type { AIProvider as ProviderName } from '@/types';
 import { AI_SERVICE_URLS } from '@/lib/constants/urls';
 
 const SYSTEM_PROMPT =
-  '你是一个智能书签标签推荐助手。优先使用已有标签,只有在必要时才建议新标签。返回格式必须是JSON。';
+  'You are an intelligent bookmark tag recommendation assistant. Prefer using existing tags, only suggest new tags when necessary. Response format must be JSON.';
 
 interface InvokeParams {
   provider: ProviderName;

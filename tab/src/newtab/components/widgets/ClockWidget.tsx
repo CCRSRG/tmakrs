@@ -4,6 +4,7 @@
 
 import { useState, useEffect, memo, useMemo } from 'react';
 import { Lunar } from 'lunar-javascript';
+import { t } from '@/lib/i18n';
 import type { WidgetRendererProps } from './types';
 import { getSizeSpan } from './widgetRegistry';
 
@@ -48,11 +49,10 @@ export const ClockWidget = memo(function ClockWidget({
   };
 
   const formatDate = () => {
-    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const weekday = t(`weekday_${time.getDay()}`);
     const month = time.getMonth() + 1;
     const date = time.getDate();
-    const weekday = weekdays[time.getDay()];
-    return `${month}月${date}日 ${weekday}`;
+    return `${month}/${date} ${weekday}`;
   };
 
   const lunarInfo = useMemo(() => {

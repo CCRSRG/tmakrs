@@ -2,8 +2,9 @@
  * 已保存配置列表组件
  */
 
+import { t } from '@/lib/i18n';
 import type { AIProvider, AIConnectionInfo } from '@/types';
-import { providerNameMap } from './types';
+import { getProviderName } from './types';
 
 interface SavedConnectionsListProps {
   connections: Array<AIConnectionInfo & { provider: AIProvider }>;
@@ -28,17 +29,17 @@ export function SavedConnectionsList({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[var(--tab-options-title)]">
-          已保存的全部配置
+          {t('options_saved_configs')}
         </h3>
         <div className="flex items-center gap-2 text-xs text-[var(--tab-options-text-muted)]">
-          <span>共 {connections.length} 个</span>
+          <span>{t('options_total_count', [connections.length.toString()])}</span>
           {connections.length > 3 && (
             <button
               type="button"
               onClick={onToggleShowAll}
               className="rounded-full border border-[color:var(--tab-options-button-border)] px-2 py-0.5 text-[11px] font-medium text-[var(--tab-options-button-text)] transition-colors hover:bg-[var(--tab-options-button-hover-bg)]"
             >
-              {showAll ? '收起' : `展开更多 (${connections.length - 3})`}
+              {showAll ? t('popup_back') : `${t('popup_more')} (${connections.length - 3})`}
             </button>
           )}
         </div>
@@ -46,7 +47,7 @@ export function SavedConnectionsList({
 
       {connections.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[color:var(--tab-options-button-border)] bg-[color:var(--tab-options-card-bg)] p-6 text-sm text-[var(--tab-options-text-muted)]">
-          目前还没有保存过任何配置，填写好 API 信息后点击「保存当前配置」即可创建预设。
+          {t('options_no_saved_configs')}
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -61,13 +62,13 @@ export function SavedConnectionsList({
               <div className="flex items-center justify-between gap-2">
                 <p
                   className="text-sm font-semibold text-[var(--tab-options-title)] truncate"
-                  title={connection.label || connection.apiUrl || '未命名配置'}
+                  title={connection.label || connection.apiUrl || t('options_unnamed_config')}
                 >
-                  {connection.label || '未命名配置'}
+                  {connection.label || t('options_unnamed_config')}
                 </p>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--tab-options-pill-bg)] text-[var(--tab-options-pill-text)] px-2 py-0.5 text-[11px]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--tab-options-button-primary-bg)]" />
-                  {providerNameMap[connection.provider || currentProvider]}
+                  {getProviderName(connection.provider || currentProvider)}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -76,14 +77,14 @@ export function SavedConnectionsList({
                   onClick={() => onApply(connection, connection.provider)}
                   className="flex-1 rounded-lg bg-[var(--tab-options-button-primary-bg)] px-3 py-2 text-xs font-medium text-[var(--tab-options-button-primary-text)] transition-colors hover:bg-[var(--tab-options-button-primary-hover)]"
                 >
-                  使用
+                  {t('options_use')}
                 </button>
                 <button
                   type="button"
                   onClick={() => onDelete(connection, connection.provider)}
                   className="rounded-lg border border-[color:var(--tab-options-button-border)] px-3 py-2 text-xs font-medium text-[var(--tab-options-button-text)] transition-colors hover:bg-[var(--tab-options-button-hover-bg)]"
                 >
-                  删除
+                  {t('options_delete')}
                 </button>
               </div>
             </div>

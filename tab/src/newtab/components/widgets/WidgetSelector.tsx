@@ -6,7 +6,8 @@ import { memo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, Link, Cloud, Clock, CheckSquare, StickyNote, TrendingUp, BookOpen, Folder } from 'lucide-react';
 import type { GridItemType } from '../../types';
-import { WIDGET_REGISTRY } from './widgetRegistry';
+import { getWidgetRegistry } from './widgetRegistry';
+import { t } from '@/lib/i18n';
 
 // 图标映射
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -35,8 +36,11 @@ export const WidgetSelector = memo(function WidgetSelector({
 }: WidgetSelectorProps) {
   if (!isOpen) return null;
 
+  // 获取动态注册表（支持 i18n）
+  const widgetRegistry = getWidgetRegistry();
+  
   // 过滤掉已排除的类型
-  const availableWidgets = Object.values(WIDGET_REGISTRY).filter(
+  const availableWidgets = Object.values(widgetRegistry).filter(
     (widget) => !excludeTypes.includes(widget.type)
   );
 
@@ -58,7 +62,7 @@ export const WidgetSelector = memo(function WidgetSelector({
                       w-full max-w-md p-6 rounded-2xl glass-modal" style={{ animation: 'modalScale 0.2s ease-out' }}>
         {/* 标题 */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-white">添加组件</h3>
+          <h3 className="text-lg font-medium text-white">{t('widget_selector_title')}</h3>
           <button
             onClick={onClose}
             className="p-1.5 rounded-xl hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20"
@@ -94,7 +98,7 @@ export const WidgetSelector = memo(function WidgetSelector({
 
         {/* 提示 */}
         <p className="mt-4 text-xs text-white/40 text-center">
-          选择要添加的组件类型，组件将添加到当前分组
+          {t('widget_selector_hint')}
         </p>
       </div>
     </>,

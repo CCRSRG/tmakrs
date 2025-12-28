@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { t } from '@/lib/i18n';
 import type {
   PageInfo,
   TagSuggestion,
@@ -221,7 +222,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         createSnapshot: config.preferences.defaultCreateSnapshot ?? false
       });
     } catch (error) {
-      set({ error: 'Failed to load configuration' });
+      set({ error: t('error_load_config') });
     }
   },
 
@@ -234,7 +235,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         isPublic: config.preferences.defaultVisibility === 'public'
       });
     } catch (error) {
-      set({ error: 'Failed to save configuration' });
+      set({ error: t('error_save_config') });
     }
   },
 
@@ -258,7 +259,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to extract page info',
+        error: error instanceof Error ? error.message : t('error_extract_page_info'),
         isLoading: false
       });
     }
@@ -268,7 +269,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { currentPage } = get();
 
     if (!currentPage) {
-      set({ error: 'No page info available' });
+      set({ error: t('error_no_page_info') });
       return;
     }
 
@@ -309,8 +310,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         set({
           ...baseState,
           error: result.message
-            ? `AI 推荐失败：${result.message}。已使用本地推荐标签，可重试。`
-            : 'AI 推荐失败，已使用本地推荐标签，可重试。'
+            ? t('error_ai_recommend_fallback_with_msg', result.message)
+            : t('error_ai_recommend_fallback')
         });
       } else {
         set({
@@ -318,7 +319,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           error: null
         });
 
-        const aiMessage = `🎯 AI 推荐完成（耗时 ${(elapsedMs / 1000).toFixed(2)}s）`;
+        const aiMessage = t('msg_ai_recommend_complete', (elapsedMs / 1000).toFixed(2));
         set({ successMessage: aiMessage });
         setTimeout(() => {
           if (get().successMessage === aiMessage) {
@@ -329,7 +330,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       const elapsedMs = Date.now() - startTime;
       set({
-        error: error instanceof Error ? error.message : 'Failed to recommend tags',
+        error: error instanceof Error ? error.message : t('error_recommend_tags'),
         isLoading: false,
         isRecommending: false,
         lastRecommendationSource: null,
@@ -343,13 +344,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { currentPage, selectedTags, isPublic, includeThumbnail, createSnapshot } = get();
 
     if (!currentPage) {
-      set({ error: 'No page info available' });
+      set({ error: t('error_no_page_info') });
       return;
     }
 
     // AI 书签助手的核心功能是标签推荐，必须至少有一个标签
     if (selectedTags.length === 0) {
-      set({ error: '请至少选择一个标签' });
+      set({ error: t('error_select_one_tag') });
       return;
     }
 
@@ -378,7 +379,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Check if save was successful
       if (!result.success) {
         set({
-          error: `${result.message || result.error || '保存失败'}（耗时 ${formattedSeconds}s）`,
+          error: `${result.message || result.error || t('error_save_failed')}（${formattedSeconds}s）`,
           isLoading: false,
           isSaving: false,
           lastSaveDurationMs: elapsedMs
@@ -400,7 +401,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       let toastMessage: string;
 
       if (result.offline) {
-        toastMessage = `${result.message || '书签已离线保存'}（保存耗时 ${formattedSeconds}s）`;
+        toastMessage = `${result.message || t('msg_bookmark_offline_saved')}（${formattedSeconds}s）`;
         set({
           successMessage: toastMessage,
           isLoading: false,
@@ -412,11 +413,11 @@ export const useAppStore = create<AppState>((set, get) => ({
         chrome.notifications.create({
           type: 'basic',
           iconUrl: '/icons/icon-128.png',
-          title: 'AI 书签助手',
-          message: `${result.message || '书签已离线保存'}（耗时 ${formattedSeconds}s）`
+          title: t('extName'),
+          message: `${result.message || t('msg_bookmark_offline_saved')}（${formattedSeconds}s）`
         });
       } else {
-        toastMessage = `✅ 书签保存成功！（保存耗时 ${formattedSeconds}s）`;
+        toastMessage = `✅ ${t('success')}!（${formattedSeconds}s）`;
         set({
           successMessage: toastMessage,
           isLoading: false,
@@ -428,8 +429,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         chrome.notifications.create({
           type: 'basic',
           iconUrl: '/icons/icon-128.png',
-          title: 'AI 书签助手',
-          message: `《${currentPage.title}》已成功保存到书签（耗时 ${formattedSeconds}s）`
+          title: t('extName'),
+          message: `"${currentPage.title}" ${t('success')}（${formattedSeconds}s）`
         });
       }
 
@@ -445,8 +446,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const elapsedMs = failureTime - startTime;
       const formattedSeconds = (elapsedMs / 1000).toFixed(2);
       set({
-        error:
-          `${error instanceof Error ? error.message : 'Failed to save bookmark'}（耗时 ${formattedSeconds}s）`,
+        error: t('error_save_bookmark_with_time', [error instanceof Error ? error.message : t('error_save_bookmark_failed'), formattedSeconds]),
         isLoading: false,
         isSaving: false,
         lastSaveDurationMs: elapsedMs
@@ -468,11 +468,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
 
       if (!result.success) {
-        throw new Error(result.error || '更新标签失败');
+        throw new Error(result.error || t('error_update_tags_failed'));
       }
 
       set({
-        successMessage: '✅ 标签已更新',
+        successMessage: `✅ ${t('msg_tags_updated')}`,
         isSaving: false,
         existingBookmark: null
       });
@@ -480,8 +480,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       chrome.notifications.create({
         type: 'basic',
         iconUrl: '/icons/icon-128.png',
-        title: 'AI 书签助手',
-        message: '标签已成功更新'
+        title: t('extName'),
+        message: t('msg_tags_updated')
       });
 
       setTimeout(() => {
@@ -489,7 +489,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }, 2000);
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to update tags',
+        error: error instanceof Error ? error.message : t('error_update_tags_failed'),
         isSaving: false
       });
     }
@@ -509,11 +509,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
 
       if (!result.success) {
-        throw new Error(result.error || '更新描述失败');
+        throw new Error(result.error || t('error_update_desc_failed'));
       }
 
       set({
-        successMessage: '✅ 描述已更新',
+        successMessage: `✅ ${t('msg_desc_updated')}`,
         isSaving: false,
         existingBookmark: null
       });
@@ -521,8 +521,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       chrome.notifications.create({
         type: 'basic',
         iconUrl: '/icons/icon-128.png',
-        title: 'AI 书签助手',
-        message: '描述已成功更新'
+        title: t('extName'),
+        message: t('msg_desc_updated')
       });
 
       setTimeout(() => {
@@ -530,7 +530,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }, 2000);
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to update description',
+        error: error instanceof Error ? error.message : t('error_update_desc_failed'),
         isSaving: false
       });
     }
@@ -541,7 +541,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (!currentPage) return;
 
     try {
-      set({ isSaving: true, error: null, loadingMessage: '正在捕获页面内容...', successMessage: null });
+      set({ isSaving: true, error: null, loadingMessage: t('msg_capturing_page'), successMessage: null });
 
       // Get the current tab's HTML content
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -558,7 +558,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         // If we reach here, it means success (sendMessage throws on error)
         set({
-          successMessage: '快照已创建',
+          successMessage: t('msg_snapshot_created'),
           loadingMessage: null,
           isSaving: false,
           existingBookmark: null
@@ -567,8 +567,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         chrome.notifications.create({
           type: 'basic',
           iconUrl: '/icons/icon-128.png',
-          title: 'AI 书签助手',
-          message: '快照已成功创建'
+          title: t('extName'),
+          message: t('msg_snapshot_created')
         });
 
         setTimeout(() => {
@@ -577,7 +577,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to create snapshot',
+        error: error instanceof Error ? error.message : t('error_create_snapshot'),
         loadingMessage: null,
         isSaving: false
       });
@@ -593,7 +593,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
 
       set({
-        successMessage: 'Cache synced successfully!',
+        successMessage: t('msg_cache_synced'),
         isLoading: false
       });
 
@@ -602,7 +602,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }, 2000);
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to sync cache',
+        error: error instanceof Error ? error.message : t('error_sync_cache'),
         isLoading: false
       });
     }

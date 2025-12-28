@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { t } from '@/lib/i18n';
 import type { AIProvider } from '@/types';
 import { AI_SERVICE_URLS } from '@/lib/constants/urls';
 import { SavedConnectionsList } from './SavedConnectionsList';
@@ -49,7 +50,7 @@ export function AIConfigSection({
       case 'siliconflow':
         return AI_SERVICE_URLS.SILICONFLOW;
       default:
-        return '请输入自定义 API 地址';
+        return t('options_custom_api_placeholder');
     }
   };
 
@@ -61,9 +62,9 @@ export function AIConfigSection({
         {/* 头部 */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-[var(--tab-options-title)]">AI 配置</h2>
+            <h2 className="text-2xl font-semibold text-[var(--tab-options-title)]">{t('options_ai_config_title')}</h2>
             <p className="mt-2 text-sm text-[var(--tab-options-text)]">
-              连接你的智能标签服务，管理模型与调用策略。
+              {t('options_ai_config_desc')}
             </p>
           </div>
           <button
@@ -76,7 +77,7 @@ export function AIConfigSection({
                 : 'bg-[var(--tab-options-button-hover-bg)] text-[var(--tab-options-text-muted)] cursor-not-allowed'
             }`}
           >
-            保存当前配置
+            {t('options_save_config')}
           </button>
         </div>
 
@@ -94,21 +95,21 @@ export function AIConfigSection({
           {/* AI 引擎选择 */}
           <div>
             <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-3">
-              AI 引擎
+              {t('options_ai_engine')}
             </label>
             <select
               value={formData.aiProvider}
               onChange={(e) => handleProviderChange(e.target.value as AIProvider)}
               className="w-full px-3 py-2 border border-[color:var(--tab-options-button-border)] rounded-lg bg-[color:var(--tab-options-card-bg)] text-[var(--tab-options-title)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-options-button-primary-bg)]"
             >
-              <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-              <option value="claude">Claude (Anthropic)</option>
-              <option value="deepseek">DeepSeek</option>
-              <option value="zhipu">智谱AI (GLM-4)</option>
-              <option value="modelscope">ModelScope (通义千问)</option>
-              <option value="siliconflow">SiliconFlow</option>
-              <option value="iflow">iFlytek Spark (讯飞星火)</option>
-              <option value="custom">自定义 API</option>
+              <option value="openai">{t('provider_openai')}</option>
+              <option value="claude">{t('provider_claude')}</option>
+              <option value="deepseek">{t('provider_deepseek')}</option>
+              <option value="zhipu">{t('provider_zhipu')}</option>
+              <option value="modelscope">{t('provider_modelscope')}</option>
+              <option value="siliconflow">{t('provider_siliconflow')}</option>
+              <option value="iflow">{t('provider_iflow')}</option>
+              <option value="custom">{t('provider_custom')}</option>
             </select>
           </div>
 
@@ -116,7 +117,7 @@ export function AIConfigSection({
           {showApiUrlInput && (
             <div>
               <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-3">
-                API 地址
+                {t('options_api_url')}
               </label>
               <input
                 type="url"
@@ -155,7 +156,7 @@ export function AIConfigSection({
               disabled={isTesting || !formData.apiKey}
               className="px-4 py-2 bg-[var(--tab-options-button-primary-bg)] hover:bg-[var(--tab-options-button-primary-hover)] disabled:opacity-50 text-[var(--tab-options-button-primary-text)] rounded-lg transition-colors duration-200"
             >
-              {isTesting ? '测试中...' : '测试连接'}
+              {isTesting ? t('options_testing') : t('options_test_connection')}
             </button>
           </div>
         </div>

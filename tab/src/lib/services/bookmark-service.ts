@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { t } from '@/lib/i18n';
 import { bookmarkAPI } from './bookmark-api';
 import { tagRecommender } from './tag-recommender';
 import type { BookmarkInput, SaveResult } from '@/types';
@@ -30,14 +31,14 @@ export class BookmarkService {
 
       // If bookmark exists, return it for the dialog
       if (isExisting && result.existingBookmark) {
-        console.log('[BookmarkService] 书签已存在，返回对话框数据');
+        console.log('[BookmarkService] Bookmark exists, returning dialog data');
         return {
           success: true,
           existingBookmark: {
             ...result.existingBookmark,
             needsDialog: true
           },
-          message: '书签已存在'
+          message: t('error_bookmark_exists')
         };
       }
 
@@ -85,29 +86,29 @@ export class BookmarkService {
                           errorCode === 'INSUFFICIENT_PERMISSIONS' ||
                           errorStatus === 401 ||
                           errorStatus === 403 ||
-                          errorMessage.includes('认证') ||
+                          errorMessage.includes('auth') ||
                           errorMessage.includes('API Key');
       
-      console.log('[BookmarkService] 是否认证错误:', isAuthError);
+      console.log('[BookmarkService] Is auth error:', isAuthError);
       
       // 判断是否是真正的网络错误（无法连接服务器）
       const isNetworkError = (errorCode === 'NETWORK_ERROR' || errorStatus === 0) &&
                              !isAuthError &&
                              (errorMessage.includes('Network') || 
-                              errorMessage.includes('网络') ||
+                              errorMessage.includes('network') ||
                               errorMessage.includes('connect'));
       
-      console.log('[BookmarkService] 是否网络错误:', isNetworkError);
+      console.log('[BookmarkService] Is network error:', isNetworkError);
       
       if (isNetworkError) {
-        console.log('[BookmarkService] >>> 进入离线队列');
+        console.log('[BookmarkService] >>> Entering offline queue');
         // Queue for later sync
         await this.queueForLaterSync(bookmark);
 
         return {
           success: true,
           offline: true,
-          message: '网络不可用，已暂存到本地，将在网络恢复后自动同步'
+          message: t('msg_offline_saved')
         };
       }
       
@@ -176,7 +177,7 @@ export class BookmarkService {
     return {
       success: true,
       bookmarkId: bookmarkId,
-      message: isExisting ? '书签已存在，已为其创建新快照' : undefined
+      message: isExisting ? t('msg_bookmark_exists_snapshot') : undefined
     };
   }
 

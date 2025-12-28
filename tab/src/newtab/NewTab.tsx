@@ -4,6 +4,7 @@
 
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { Plus, Edit, FolderPlus } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { useNewtabStore } from './hooks/useNewtabStore';
 import { Clock } from './components/Clock';
 import { SearchBar } from './components/SearchBar';
@@ -348,17 +349,17 @@ export function NewTab() {
           y={contextMenu.y}
           items={[
             {
-              label: '添加快捷方式',
+              label: t('newtab_context_add_shortcut'),
               icon: <Plus className="w-4 h-4" />,
               onClick: () => setShowAddModal(true),
             },
             {
-              label: '添加文件夹',
+              label: t('newtab_context_add_folder'),
               icon: <FolderPlus className="w-4 h-4" />,
               onClick: () => setShowAddFolderModal(true),
             },
             {
-              label: '批量编辑',
+              label: t('newtab_context_batch_edit'),
               icon: <Edit className="w-4 h-4" />,
               onClick: () => {
                 setBatchSelectedIds(new Set());

@@ -3,6 +3,7 @@
  */
 
 import { Inbox, Search, Bookmark, CheckSquare, FileText, TrendingUp } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 type EmptyStateType = 'default' | 'search' | 'bookmark' | 'todo' | 'notes' | 'hotsearch';
 
@@ -21,13 +22,16 @@ const ICONS: Record<EmptyStateType, React.ReactNode> = {
   hotsearch: <TrendingUp className="w-8 h-8" />,
 };
 
-const DEFAULT_MESSAGES: Record<EmptyStateType, string> = {
-  default: '暂无内容',
-  search: '未找到结果',
-  bookmark: '暂无书签',
-  todo: '暂无待办事项',
-  notes: '暂无笔记',
-  hotsearch: '暂无数据',
+const getDefaultMessage = (type: EmptyStateType): string => {
+  const messages: Record<EmptyStateType, string> = {
+    default: t('empty_default'),
+    search: t('empty_search'),
+    bookmark: t('empty_bookmark'),
+    todo: t('empty_todo'),
+    notes: t('empty_notes'),
+    hotsearch: t('empty_hotsearch'),
+  };
+  return messages[type];
 };
 
 export function EmptyState({
@@ -40,7 +44,7 @@ export function EmptyState({
       <div className="mb-2 opacity-50">
         {ICONS[type]}
       </div>
-      <p className="text-sm">{message || DEFAULT_MESSAGES[type]}</p>
+      <p className="text-sm">{message || getDefaultMessage(type)}</p>
       {description && (
         <p className="text-xs text-white/30 mt-1">{description}</p>
       )}

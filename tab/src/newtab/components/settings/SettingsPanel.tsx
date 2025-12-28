@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Cloud, User, Palette, Sparkles } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { Z_INDEX } from '../../constants/z-index';
 import { GeneralTab, AppearanceTab, SyncTab, AITab } from './tabs';
 
@@ -15,10 +16,10 @@ interface SettingsPanelProps {
 type SettingsTab = 'general' | 'appearance' | 'sync' | 'ai';
 
 const TABS = [
-  { id: 'general' as const, label: '常规', icon: User },
-  { id: 'appearance' as const, label: '外观', icon: Palette },
-  { id: 'sync' as const, label: '同步', icon: Cloud },
-  { id: 'ai' as const, label: 'AI 整理', icon: Sparkles },
+  { id: 'general' as const, labelKey: 'settings_general', icon: User },
+  { id: 'appearance' as const, labelKey: 'settings_appearance', icon: Palette },
+  { id: 'sync' as const, labelKey: 'settings_sync', icon: Cloud },
+  { id: 'ai' as const, labelKey: 'settings_ai', icon: Sparkles },
 ];
 
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
@@ -37,7 +38,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
       >
         {/* 顶部标题栏 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-          <h2 className="text-lg font-medium text-white">设置</h2>
+          <h2 className="text-lg font-medium text-white">{t('options_title')}</h2>
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -63,7 +64,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  {tab.label}
+                  {t(tab.labelKey)}
                   {activeTab === tab.id && (
                     <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500" />
                   )}

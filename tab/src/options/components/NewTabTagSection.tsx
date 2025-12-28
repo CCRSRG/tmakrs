@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { t } from '@/lib/i18n';
 import { NEWTAB_FOLDER_PROMPT_TEMPLATE } from '@/lib/constants/newtabPrompts';
 
 interface NewTabTagSectionProps {
@@ -23,7 +24,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
       setFolderPathsError(null);
 
       if (!chrome?.runtime?.sendMessage) {
-        throw new Error('当前环境不支持 chrome.runtime');
+        throw new Error(t('options_chrome_runtime_error'));
       }
 
       const resp = (await chrome.runtime.sendMessage({
@@ -38,7 +39,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
       };
 
       if (!resp?.success) {
-        throw new Error(resp?.error || '加载候选路径失败');
+        throw new Error(resp?.error || t('options_load_paths_failed'));
       }
 
       const paths = (resp.data?.folders || [])
@@ -47,9 +48,9 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
         .filter(Boolean);
 
       setFolderPaths(paths);
-      setSuccessMessage('加载候选路径成功');
+      setSuccessMessage(t('options_load_paths_success'));
     } catch (e) {
-      setFolderPathsError(e instanceof Error ? e.message : '加载候选路径失败');
+      setFolderPathsError(e instanceof Error ? e.message : t('options_load_paths_failed'));
       setFolderPaths([]);
     } finally {
       setIsLoadingFolderPaths(false);
@@ -62,15 +63,15 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
 
       <div className="p-6 pt-10 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">NewTab 文件夹推荐</h2>
+          <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">{t('options_newtab_folder_title')}</h2>
           <p className="mt-2 text-sm text-[var(--tab-options-text)]">
-            配置 Popup「保存到 NewTab」的文件夹 AI 推荐。
+            {t('options_newtab_folder_desc')}
           </p>
           <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">
-            NewTab 根目录固定为浏览器书签栏下的文件夹：TMarks。
+            {t('options_newtab_root_hint')}
           </p>
           <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">
-            后续"AI 整理"会在该根目录范围内创建备份并复制生成整理后的书签结构。
+            {t('options_newtab_ai_organize_hint')}
           </p>
         </div>
 
@@ -78,10 +79,10 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
           <div className="flex items-center justify-between">
             <div>
               <label className="block text-sm font-medium text-[var(--tab-options-text)]">
-                启用 NewTab 文件夹 AI 推荐
+                {t('options_enable_newtab_ai')}
               </label>
               <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">
-                启用后，保存到 NewTab 时可使用 AI 推荐文件夹。
+                {t('options_enable_newtab_ai_desc')}
               </p>
             </div>
             <button
@@ -105,7 +106,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
 
           <div>
             <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">
-              推荐文件夹数量: {formData.newtabFolderRecommendCount}
+              {t('options_recommend_count')}: {formData.newtabFolderRecommendCount}
             </label>
             <input
               type="range"
@@ -118,14 +119,14 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
               className="w-full"
             />
             <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">
-              AI 推荐的候选文件夹数量（1-20）
+              {t('options_recommend_count_hint')}
             </p>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-[var(--tab-options-text)]">
-                自定义 Prompt
+                {t('options_custom_prompt')}
               </label>
               <button
                 type="button"
@@ -157,7 +158,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
                   className="w-full rounded-lg border border-[var(--tab-options-card-border)] bg-[var(--tab-options-card-bg)] px-3 py-2 text-sm text-[var(--tab-options-text)] placeholder-[var(--tab-options-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-options-button-primary-bg)]"
                 />
                 <p className="text-xs text-[var(--tab-options-text-muted)]">
-                  可用变量: {'{{title}}'}, {'{{url}}'}, {'{{description}}'}, {'{{folderPaths}}'},{' '}
+                  {t('options_prompt_variables')}: {'{{title}}'}, {'{{url}}'}, {'{{description}}'}, {'{{folderPaths}}'},{' '}
                   {'{{recommendCount}}'}
                 </p>
               </div>
@@ -171,7 +172,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
               disabled={isLoadingFolderPaths}
               className="rounded-lg bg-[var(--tab-options-button-primary-bg)] px-4 py-2 text-sm font-medium text-[var(--tab-options-button-primary-text)] hover:opacity-90 disabled:opacity-50"
             >
-              {isLoadingFolderPaths ? '加载中...' : '加载候选路径'}
+              {isLoadingFolderPaths ? t('options_loading_paths') : t('options_load_paths')}
             </button>
             {folderPathsError && (
               <p className="mt-2 text-xs text-red-500">{folderPathsError}</p>
@@ -179,7 +180,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
             {folderPaths.length > 0 && (
               <div className="mt-2 max-h-32 overflow-y-auto rounded-lg border border-[var(--tab-options-card-border)] bg-[var(--tab-options-card-bg)] p-2">
                 <p className="text-xs text-[var(--tab-options-text-muted)] mb-1">
-                  已加载 {folderPaths.length} 个候选路径:
+                  {t('options_paths_loaded', [folderPaths.length.toString()])}
                 </p>
                 {folderPaths.slice(0, 10).map((path, i) => (
                   <div key={i} className="text-xs text-[var(--tab-options-text)]">
@@ -188,7 +189,7 @@ export function NewTabTagSection({ formData, setFormData, setSuccessMessage }: N
                 ))}
                 {folderPaths.length > 10 && (
                   <div className="text-xs text-[var(--tab-options-text-muted)]">
-                    ...还有 {folderPaths.length - 10} 个
+                    {t('options_more_paths', [(folderPaths.length - 10).toString()])}
                   </div>
                 )}
               </div>

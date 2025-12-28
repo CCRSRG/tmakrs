@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Folder } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { WidgetRendererProps } from './types';
 import { useNewtabStore } from '../../hooks/useNewtabStore';
 import { getFaviconUrl } from '../../utils/favicon';
@@ -90,7 +91,7 @@ export const BookmarkFolderWidget = memo(function BookmarkFolderWidget({
   onToggleSelect,
 }: WidgetRendererProps) {
   const { setCurrentFolderId, gridItems } = useNewtabStore();
-  const title = item.bookmarkFolder?.title || '文件夹';
+  const title = item.bookmarkFolder?.title || t('default_folder_name');
 
   const folderRef = useRef<HTMLDivElement>(null);
 

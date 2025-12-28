@@ -1,4 +1,5 @@
 import type { AIRequest, AIResponse } from '@/types';
+import { t } from '@/lib/i18n';
 import { AIProvider } from './base';
 import { callAI } from '@/lib/services/ai-client';
 
@@ -15,7 +16,7 @@ export class CustomProvider extends AIProvider {
   ): Promise<AIResponse> {
     try {
       if (!apiUrl) {
-        throw new Error('自定义 AI 需要配置 API 地址');
+        throw new Error(t('error_custom_ai_url_required'));
       }
 
       const prompt = this.buildPrompt(request, customPrompt);

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 interface PageInfoCardProps {
   title: string;
@@ -15,7 +16,6 @@ export function PageInfoCard({ title, url, description, thumbnail, thumbnails, f
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
 
-  // 使用thumbnails数组或单个thumbnail
   const availableThumbnails = thumbnails && thumbnails.length > 0 ? thumbnails : (thumbnail ? [thumbnail] : []);
   const currentThumbnail = availableThumbnails[currentIndex];
   const hasMultipleThumbnails = availableThumbnails.length > 1;
@@ -53,13 +53,13 @@ export function PageInfoCard({ title, url, description, thumbnail, thumbnails, f
             }}
           />
           
-          {/* Navigation buttons - only show if multiple thumbnails */}
+          {/* Navigation buttons */}
           {hasMultipleThumbnails && (
             <>
               <button
                 onClick={handlePrevious}
                 className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-[color:var(--tab-overlay)] text-[var(--tab-message-info-icon-bg)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:opacity-90 active:scale-95"
-                title="上一张"
+                title={t('newtab_prev')}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -67,7 +67,7 @@ export function PageInfoCard({ title, url, description, thumbnail, thumbnails, f
               <button
                 onClick={handleNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-[color:var(--tab-overlay)] text-[var(--tab-message-info-icon-bg)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:opacity-90 active:scale-95"
-                title="下一张"
+                title={t('newtab_next')}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StorageService } from '@/lib/utils/storage';
 import { LoadingMessage } from '@/components/LoadingMessage';
+import { t } from '@/lib/i18n';
 
 interface ExistingBookmark {
   id: string;
@@ -65,55 +66,54 @@ export function BookmarkExistsDialog({
   const handleConfirm = async () => {
     if (selectedAction === 'snapshot') {
       setIsProcessing(true);
-      setProcessingMessage('正在捕获页面内容...');
+      setProcessingMessage(t('msg_capturing'));
       
       try {
         await onCreateSnapshot();
-        setProcessingMessage('快照创建成功！');
+        setProcessingMessage(t('msg_snapshot_success'));
         
-        // 成功后延迟关闭
         setTimeout(() => {
           setIsProcessing(false);
-          onCancel(); // 关闭对话框
+          onCancel();
         }, 1500);
       } catch (error) {
-        setProcessingMessage('快照创建失败');
+        setProcessingMessage(t('msg_snapshot_failed'));
         setTimeout(() => {
           setIsProcessing(false);
         }, 2000);
       }
     } else if (selectedAction === 'update-tags') {
       setIsProcessing(true);
-      setProcessingMessage('正在更新标签...');
+      setProcessingMessage(t('msg_updating_tags'));
       
       try {
         await onUpdateTags(newTags);
-        setProcessingMessage('标签更新成功！');
+        setProcessingMessage(t('msg_tags_success'));
         
         setTimeout(() => {
           setIsProcessing(false);
           onCancel();
         }, 1500);
       } catch (error) {
-        setProcessingMessage('标签更新失败');
+        setProcessingMessage(t('msg_tags_failed'));
         setTimeout(() => {
           setIsProcessing(false);
         }, 2000);
       }
     } else if (selectedAction === 'update-description') {
       setIsProcessing(true);
-      setProcessingMessage('正在更新描述...');
+      setProcessingMessage(t('msg_updating_desc'));
       
       try {
         await onUpdateDescription(descriptionInput.trim());
-        setProcessingMessage('描述更新成功！');
+        setProcessingMessage(t('msg_desc_success'));
         
         setTimeout(() => {
           setIsProcessing(false);
           onCancel();
         }, 1500);
       } catch (error) {
-        setProcessingMessage('描述更新失败');
+        setProcessingMessage(t('msg_desc_failed'));
         setTimeout(() => {
           setIsProcessing(false);
         }, 2000);
@@ -123,7 +123,7 @@ export function BookmarkExistsDialog({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-[color:var(--tab-overlay)] backdrop-blur-sm animate-in fade-in duration-200">
-      {/* Loading Message - 显示在对话框上方 */}
+      {/* Loading Message */}
       {isProcessing && (
         <div className="absolute top-4 left-0 right-0 px-4 z-50">
           <LoadingMessage message={processingMessage} />
@@ -151,10 +151,10 @@ export function BookmarkExistsDialog({
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-[var(--tab-text)]">
-                书签已存在
+                {t('bookmark_exists_title')}
               </h3>
               <p className="text-sm text-[var(--tab-text-muted)] mt-1">
-                该网址已经保存过了，您可以选择以下操作
+                {t('bookmark_exists_desc')}
               </p>
             </div>
           </div>
@@ -162,36 +162,36 @@ export function BookmarkExistsDialog({
 
         {/* Content */}
         <div className="px-6 py-4 space-y-4">
-          {/* 现有书签信息 */}
+          {/* Existing bookmark info */}
           <div className="bg-[color:var(--tab-surface-muted)] rounded-lg p-4 space-y-3">
             <div>
-              <div className="text-xs text-[var(--tab-text-muted)] mb-1">标题</div>
+              <div className="text-xs text-[var(--tab-text-muted)] mb-1">{t('label_title')}</div>
               <div className="text-sm font-medium text-[var(--tab-text)]">
                 {bookmark.title}
               </div>
             </div>
 
             <div>
-              <div className="text-xs text-[var(--tab-text-muted)] mb-1">创建时间</div>
+              <div className="text-xs text-[var(--tab-text-muted)] mb-1">{t('label_created_at')}</div>
               <div className="text-sm text-[var(--tab-text)]">
                 {formatDate(bookmark.created_at)}
               </div>
             </div>
 
-            {/* 现有描述 */}
+            {/* Existing description */}
             {bookmark.description && (
               <div>
-                <div className="text-xs text-[var(--tab-text-muted)] mb-1">描述</div>
+                <div className="text-xs text-[var(--tab-text-muted)] mb-1">{t('label_description')}</div>
                 <div className="text-sm text-[var(--tab-text)]">
                   {bookmark.description}
                 </div>
               </div>
             )}
 
-            {/* 现有标签 */}
+            {/* Existing tags */}
             {bookmark.tags.length > 0 && (
               <div>
-                <div className="text-xs text-[var(--tab-text-muted)] mb-2">现有标签</div>
+                <div className="text-xs text-[var(--tab-text-muted)] mb-2">{t('label_existing_tags')}</div>
                 <div className="flex flex-wrap gap-2">
                   {bookmark.tags.map((tag) => (
                     <span
@@ -213,7 +213,7 @@ export function BookmarkExistsDialog({
               </div>
             )}
 
-            {/* 快照信息 */}
+            {/* Snapshot info */}
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <svg
@@ -231,8 +231,8 @@ export function BookmarkExistsDialog({
                 </svg>
                 <span className="text-[var(--tab-text)]">
                   {bookmark.has_snapshot
-                    ? `已有 ${bookmark.snapshot_count || 0} 个快照`
-                    : '暂无快照'}
+                    ? t('snapshot_count', String(bookmark.snapshot_count || 0))
+                    : t('no_snapshot')}
                 </span>
               </div>
               {bookmark.has_snapshot && tmarksUrl && (
@@ -243,7 +243,7 @@ export function BookmarkExistsDialog({
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-[var(--tab-message-info-icon)] hover:opacity-90 hover:bg-[color:var(--tab-message-info-icon-bg)] rounded transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  查看快照
+                  {t('view_snapshot')}
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
@@ -252,11 +252,11 @@ export function BookmarkExistsDialog({
             </div>
           </div>
 
-          {/* 新标签提示 */}
+          {/* New tags hint */}
           {hasNewTags && (
             <div className="bg-[color:var(--tab-message-success-bg)] border border-[color:var(--tab-message-success-border)] rounded-lg p-3">
               <div className="text-xs text-[var(--tab-message-success-icon)] mb-2">
-                检测到新标签
+                {t('label_new_tags_detected')}
               </div>
               <div className="flex flex-wrap gap-2">
                 {newTagsToAdd.map((tag) => (
@@ -271,13 +271,13 @@ export function BookmarkExistsDialog({
             </div>
           )}
 
-          {/* 操作选项 */}
+          {/* Action options */}
           <div className="space-y-2">
             <div className="text-sm font-medium text-[var(--tab-text)] mb-3">
-              请选择操作：
+              {t('label_select_action')}
             </div>
 
-            {/* 创建快照 */}
+            {/* Create snapshot */}
             <label
               className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
                 selectedAction === 'snapshot'
@@ -295,15 +295,15 @@ export function BookmarkExistsDialog({
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-[var(--tab-text)]">
-                  创建新快照
+                  {t('action_create_snapshot')}
                 </div>
                 <div className="text-xs text-[var(--tab-text-muted)] mt-1">
-                  为这个书签保存当前页面的快照
+                  {t('action_create_snapshot_desc')}
                 </div>
               </div>
             </label>
 
-            {/* 更新标签 */}
+            {/* Update tags */}
             {hasNewTags && (
               <label
                 className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
@@ -322,16 +322,16 @@ export function BookmarkExistsDialog({
                 />
                 <div className="flex-1">
                   <div className="text-sm font-medium text-[var(--tab-text)]">
-                    添加新标签
+                    {t('action_add_tags')}
                   </div>
                   <div className="text-xs text-[var(--tab-text-muted)] mt-1">
-                    将新标签添加到现有书签
+                    {t('action_add_tags_desc')}
                   </div>
                 </div>
               </label>
             )}
 
-            {/* 更新描述 */}
+            {/* Update description */}
             <label
               className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
                 selectedAction === 'update-description'
@@ -349,16 +349,16 @@ export function BookmarkExistsDialog({
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-[var(--tab-text)]">
-                  更新描述
+                  {t('action_update_desc')}
                 </div>
                 <div className="text-xs text-[var(--tab-text-muted)] mt-1">
-                  修改书签的描述信息
+                  {t('action_update_desc_desc')}
                 </div>
                 {selectedAction === 'update-description' && (
                   <textarea
                     value={descriptionInput}
                     onChange={(e) => setDescriptionInput(e.target.value)}
-                    placeholder="输入新的描述..."
+                    placeholder={t('placeholder_new_desc')}
                     rows={3}
                     className="mt-2 w-full rounded-lg border border-[color:var(--tab-border-strong)] bg-[color:var(--tab-surface)] px-3 py-2 text-sm text-[var(--tab-text)] placeholder:text-[var(--tab-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-message-info-icon)] resize-none"
                     onClick={(e) => e.stopPropagation()}
@@ -376,14 +376,14 @@ export function BookmarkExistsDialog({
             disabled={isProcessing}
             className="flex-1 px-4 py-2.5 text-sm font-medium text-[var(--tab-text)] bg-[color:var(--tab-surface)] border border-[color:var(--tab-border-strong)] rounded-lg hover:bg-[color:var(--tab-surface-muted)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            取消
+            {t('btn_cancel')}
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedAction || isProcessing}
             className="flex-1 px-4 py-2.5 text-sm font-medium text-[var(--tab-popup-primary-text)] bg-[var(--tab-popup-primary-from)] rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isProcessing ? '处理中...' : '确认'}
+            {isProcessing ? t('btn_processing') : t('btn_confirm')}
           </button>
         </div>
       </div>

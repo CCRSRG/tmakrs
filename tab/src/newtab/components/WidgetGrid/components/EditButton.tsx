@@ -4,6 +4,7 @@
 
 import { memo } from 'react';
 import { Settings2, Check } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 interface EditButtonProps {
   isEditing: boolean;
@@ -20,7 +21,7 @@ export const EditButton = memo(function EditButton({ isEditing, onToggle }: Edit
             ? 'bg-green-500 hover:bg-green-600 text-white'
             : 'glass hover:bg-white/20 text-white/70'
         }`}
-        title={isEditing ? '完成编辑' : '编辑布局'}
+        title={isEditing ? t('newtab_edit_done') : t('newtab_edit_layout')}
       >
         {isEditing ? <Check className="w-5 h-5" /> : <Settings2 className="w-5 h-5" />}
       </button>

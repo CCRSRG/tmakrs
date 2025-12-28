@@ -16,6 +16,7 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
+import { t } from '@/lib/i18n';
 import { useNewtabStore } from '../../hooks/useNewtabStore';
 import { Z_INDEX } from '../../constants/z-index';
 import { WidgetRenderer } from '../widgets/WidgetRenderer';
@@ -198,7 +199,7 @@ export function WidgetGrid({
   if (filteredItems.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 text-white/50">
-        <span className="text-sm">当前分组没有内容</span>
+        <span className="text-sm">{t('empty_group')}</span>
       </div>
     );
   }
@@ -305,11 +306,11 @@ export function WidgetGrid({
       {/* 文件夹合并/移入选择弹窗 */}
       <ActionSheet
         isOpen={!!folderMergePrompt}
-        title="文件夹操作"
-        message={`将「${folderMergePrompt?.sourceName}」拖到了「${folderMergePrompt?.targetName}」上`}
+        title={t('newtab_folder_action')}
+        message={t('newtab_drag_to', [folderMergePrompt?.sourceName || '', folderMergePrompt?.targetName || ''])}
         actions={[
-          { label: '合并文件夹', onClick: handleMergeFolders },
-          { label: '移入文件夹', onClick: handleMoveToFolder },
+          { label: t('newtab_merge_folders'), onClick: handleMergeFolders },
+          { label: t('newtab_move_to_folder'), onClick: handleMoveToFolder },
         ]}
         onCancel={() => setFolderMergePrompt(null)}
       />
@@ -317,11 +318,11 @@ export function WidgetGrid({
       {/* 快捷方式合并创建文件夹弹窗 */}
       <ActionSheet
         isOpen={!!shortcutMergePrompt}
-        title="创建文件夹"
-        message={`将「${shortcutMergePrompt?.sourceName}」拖到了「${shortcutMergePrompt?.targetName}」上`}
+        title={t('newtab_create_folder')}
+        message={t('newtab_drag_to', [shortcutMergePrompt?.sourceName || '', shortcutMergePrompt?.targetName || ''])}
         actions={[
-          { label: '合并为文件夹', onClick: handleCreateFolderFromShortcuts },
-          { label: '仅调整顺序', onClick: handleReorderShortcuts },
+          { label: t('newtab_merge_to_folder'), onClick: handleCreateFolderFromShortcuts },
+          { label: t('newtab_reorder_only'), onClick: handleReorderShortcuts },
         ]}
         onCancel={() => setShortcutMergePrompt(null)}
       />

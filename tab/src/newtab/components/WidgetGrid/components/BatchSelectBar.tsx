@@ -3,6 +3,7 @@
  */
 
 import { memo } from 'react';
+import { t } from '@/lib/i18n';
 import type { GridItem } from '../../../types';
 
 interface BatchSelectBarProps {
@@ -35,7 +36,7 @@ export const BatchSelectBar = memo(function BatchSelectBar({
         onClick={handleToggleAll}
         className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
       >
-        {allSelectedInView ? '取消全选当前分组' : '全选当前分组'}
+        {allSelectedInView ? t('newtab_deselect_all_group') : t('newtab_select_all_group')}
       </button>
     </div>
   );

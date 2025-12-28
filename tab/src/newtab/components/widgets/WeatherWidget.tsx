@@ -4,6 +4,7 @@
 
 import { useState, useEffect, memo } from 'react';
 import { Cloud, CloudRain, CloudSnow, Sun, Wind, Droplets, Eye, MapPin, RefreshCw } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { WidgetRendererProps } from './types';
 import { getSizeSpan } from './widgetRegistry';
 
@@ -70,7 +71,7 @@ export const WeatherWidget = memo(function WeatherWidget({
   const [cityInput, setCityInput] = useState('');
   const { rows } = getSizeSpan(item.size);
 
-  const city = item.config?.weather?.city || '北京';
+  const city = item.config?.weather?.city || 'Beijing';
   const unit = item.config?.weather?.unit || 'C';
   const showForecast = rows >= 2;
 
@@ -99,19 +100,19 @@ export const WeatherWidget = memo(function WeatherWidget({
       );
       
       if (!response.ok) {
-        throw new Error('获取天气失败');
+        throw new Error(t('widget_weather_fetch_failed'));
       }
 
       const data = await response.json();
       
       if (!data.success) {
-        throw new Error(data.message || '获取天气失败');
+        throw new Error(data.message || t('widget_weather_fetch_failed'));
       }
 
       const weatherData: WeatherData = {
         city: data.data.city || cityName,
         temp: parseInt(data.data.tem) || 0,
-        condition: data.data.wea || '未知',
+        condition: data.data.wea || t('widget_weather_unknown'),
         icon: data.data.wea_img || 'cloudy',
         humidity: parseInt(data.data.humidity) || 0,
         windSpeed: parseInt(data.data.win_speed) || 0,
@@ -121,7 +122,7 @@ export const WeatherWidget = memo(function WeatherWidget({
           date: day.date,
           tempMax: parseInt(day.tem_day) || 0,
           tempMin: parseInt(day.tem_night) || 0,
-          condition: day.wea || '未知',
+          condition: day.wea || t('widget_weather_unknown'),
           icon: day.wea_img || 'cloudy',
         })) : undefined,
       };
@@ -133,7 +134,7 @@ export const WeatherWidget = memo(function WeatherWidget({
         [CACHE_KEY]: { city: cityName, data: weatherData },
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '获取天气失败');
+      setError(err instanceof Error ? err.message : t('widget_weather_fetch_failed'));
     } finally {
       setLoading(false);
     }
@@ -186,7 +187,7 @@ export const WeatherWidget = memo(function WeatherWidget({
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCityChange()}
-            placeholder="输入城市名称"
+            placeholder={t('widget_weather_city_placeholder')}
             className="w-full bg-white/10 text-white text-xs rounded px-2 py-1 outline-none border border-white/20 focus:border-blue-500/50"
             autoFocus
           />
@@ -196,7 +197,7 @@ export const WeatherWidget = memo(function WeatherWidget({
       {/* 天气内容 */}
       {loading && !weather ? (
         <div className="flex-1 flex items-center justify-center text-white/40 text-sm">
-          加载中...
+          {t('loading')}
         </div>
       ) : error ? (
         <div className="flex-1 flex items-center justify-center text-red-400 text-sm">
@@ -234,7 +235,7 @@ export const WeatherWidget = memo(function WeatherWidget({
           {/* 未来预报 */}
           {showForecast && weather.forecast && weather.forecast.length > 0 && (
             <div className="flex-1 border-t border-white/10 pt-2">
-              <div className="text-xs text-white/60 mb-2">未来预报</div>
+              <div className="text-xs text-white/60 mb-2">{t('widget_weather_forecast')}</div>
               <div className="space-y-1">
                 {weather.forecast.map((day, index) => {
                   const DayIcon = getWeatherIcon(day.condition);

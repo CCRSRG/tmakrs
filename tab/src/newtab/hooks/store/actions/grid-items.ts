@@ -2,6 +2,7 @@
  * Grid Items 相关 Actions
  */
 
+import { t } from '@/lib/i18n';
 import type { GridItem, GridItemType, GridItemSize } from '../../../types';
 import type { NewTabState } from '../types';
 import { generateId, pruneEmptyFoldersCascade } from '../utils';
@@ -84,7 +85,7 @@ export function createGridItemActions(
             if (type === 'bookmarkFolder') {
               const created = await chrome.bookmarks.create({
                 parentId: parentBookmarkId,
-                title: newItem.bookmarkFolder?.title || '文件夹',
+                title: newItem.bookmarkFolder?.title || t('default_folder_name'),
               });
               set({
                 gridItems: get().gridItems.map((i) =>

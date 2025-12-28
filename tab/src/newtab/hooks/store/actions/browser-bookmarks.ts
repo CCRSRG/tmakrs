@@ -2,6 +2,7 @@
  * Browser Bookmarks 相关 Actions
  */
 
+import { t } from '@/lib/i18n';
 import type { GridItem } from '../../../types';
 import type { NewTabState } from '../types';
 import { pruneEmptyFoldersCascade } from '../utils';
@@ -129,7 +130,7 @@ export function createBrowserBookmarkActions(
             }
           : undefined,
         bookmarkFolder: !node.url
-          ? { title: node.title || existing?.bookmarkFolder?.title || '文件夹' }
+          ? { title: node.title || existing?.bookmarkFolder?.title || t('default_folder_name') }
           : undefined,
         config: existing?.config,
         createdAt: existing?.createdAt ?? Date.now(),

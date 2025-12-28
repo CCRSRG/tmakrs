@@ -1,5 +1,6 @@
 import type { AIProvider } from '@/types';
 import { AI_SERVICE_URLS } from '@/lib/constants/urls';
+import { t } from '@/lib/i18n';
 
 const PROVIDER_DEFAULT_BASE_URL: Partial<Record<AIProvider, string>> = {
   openai: AI_SERVICE_URLS.OPENAI,
@@ -42,12 +43,12 @@ const fetchOpenAIStyleModels = async (baseUrl: string, apiKey: string): Promise<
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`获取模型列表失败 (${response.status}): ${errorText || response.statusText}`);
+    throw new Error(t('error_fetch_models', [String(response.status), errorText || response.statusText]));
   }
 
   const json = await response.json();
   if (!Array.isArray(json?.data)) {
-    throw new Error('模型列表响应格式无效');
+    throw new Error(t('error_model_list_invalid'));
   }
 
   const models = json.data
@@ -60,7 +61,7 @@ const fetchOpenAIStyleModels = async (baseUrl: string, apiKey: string): Promise<
     .filter((id: unknown): id is string => typeof id === 'string' && id.length > 0);
 
   if (models.length === 0) {
-    throw new Error('模型列表为空');
+    throw new Error(t('error_model_list_empty'));
   }
 
   return models;
@@ -85,16 +86,16 @@ export async function fetchAvailableModels(
   apiUrl?: string
 ): Promise<string[]> {
   if (!OPENAI_COMPATIBLE_PROVIDERS.has(provider)) {
-    throw new Error('当前 AI 服务暂不支持自动获取模型列表');
+    throw new Error(t('error_provider_not_supported'));
   }
 
   if (!apiKey.trim()) {
-    throw new Error('缺少 API Key');
+    throw new Error(t('error_missing_api_key'));
   }
 
   const baseUrl = resolveBaseUrl(provider, apiUrl);
   if (!baseUrl) {
-    throw new Error('缺少 API 地址');
+    throw new Error(t('error_missing_api_url'));
   }
 
   return fetchOpenAIStyleModels(baseUrl, apiKey);

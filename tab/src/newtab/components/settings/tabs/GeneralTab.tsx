@@ -2,6 +2,8 @@
  * 设置面板 - 常规标签页
  */
 
+import { useState } from 'react';
+import { t, getCurrentLanguageSync, setLanguage, SUPPORTED_LANGUAGES, type LanguageCode } from '@/lib/i18n';
 import { useNewtabStore } from '../../../hooks/useNewtabStore';
 import { SEARCH_ENGINES } from '../../../constants';
 import {
@@ -15,54 +17,73 @@ import type { ClockFormat, SearchEngine } from '../../../types';
 
 export function GeneralTab() {
   const { settings, updateSettings } = useNewtabStore();
+  const [currentLang, setCurrentLang] = useState<LanguageCode>(getCurrentLanguageSync());
+
+  const handleLanguageChange = async (lang: LanguageCode) => {
+    await setLanguage(lang);
+    setCurrentLang(lang);
+    // 刷新页面以应用新语言
+    window.location.reload();
+  };
 
   return (
     <div className="space-y-6">
+      {/* 语言设置 */}
+      <SettingSection title={t('settings_language')}>
+        <SelectItem
+          label={t('settings_language_select')}
+          value={currentLang}
+          options={SUPPORTED_LANGUAGES.map((l) => ({ value: l.code, label: l.nativeName }))}
+          onChange={(v) => handleLanguageChange(v as LanguageCode)}
+        />
+        <div className="text-xs text-white/50 mt-1">{t('settings_language_hint')}</div>
+      </SettingSection>
+
       {/* 个性化 */}
-      <SettingSection title="个性化">
+      <SettingSection title={t('settings_personalization')}>
         <ToggleItem
-          label="显示问候语"
+          label={t('settings_show_greeting')}
           checked={settings.showGreeting}
           onChange={(v) => updateSettings({ showGreeting: v })}
         />
         <TextItem
-          label="你的名字"
+          label={t('settings_your_name')}
           value={settings.userName}
-          placeholder="可选"
+          placeholder={t('settings_optional')}
           onChange={(v) => updateSettings({ userName: v })}
         />
       </SettingSection>
 
       {/* 时钟 */}
-      <SettingSection title="时钟">
+      <SettingSection title={t('settings_clock')}>
         <ToggleItem
-          label="显示时钟"
+          label={t('settings_show_clock')}
           checked={settings.showClock}
           onChange={(v) => updateSettings({ showClock: v })}
         />
         {settings.showClock && (
           <>
             <ToggleItem
-              label="显示日期"
+              label={t('settings_show_date')}
               checked={settings.showDate}
               onChange={(v) => updateSettings({ showDate: v })}
             />
             <ToggleItem
-              label="显示秒数"
+              label={t('settings_show_seconds')}
               checked={settings.showSeconds}
               onChange={(v) => updateSettings({ showSeconds: v })}
             />
             <ToggleItem
-              label="显示农历"
+              label={t('settings_show_lunar')}
               checked={settings.showLunar}
               onChange={(v) => updateSettings({ showLunar: v })}
             />
             <SelectItem
-              label="时间格式"
+              label={t('settings_time_format')}
               value={settings.clockFormat}
               options={[
-                { value: '24h', label: '24 小时制' },
-                { value: '12h', label: '12 小时制' },
+                { value: '24h', label: t('settings_24h') },
+                { value: '12h', label: t('settings_12h') },
               ]}
               onChange={(v) => updateSettings({ clockFormat: v as ClockFormat })}
             />
@@ -70,37 +91,37 @@ export function GeneralTab() {
         )}
       </SettingSection>
 
-      <SettingSection title="诗词">
+      <SettingSection title={t('settings_poetry')}>
         <ToggleItem
-          label="显示每日诗词"
+          label={t('settings_show_poetry')}
           checked={settings.showPoetry}
           onChange={(v) => updateSettings({ showPoetry: v })}
         />
       </SettingSection>
 
-      <SettingSection title="搜索">
+      <SettingSection title={t('settings_search')}>
         <ToggleItem
-          label="显示搜索框"
+          label={t('settings_show_search')}
           checked={settings.showSearch}
           onChange={(v) => updateSettings({ showSearch: v })}
         />
         <SelectItem
-          label="搜索引擎"
+          label={t('settings_search_engine')}
           value={settings.searchEngine}
           options={SEARCH_ENGINES.map((e) => ({ value: e.id, label: e.name }))}
           onChange={(v) => updateSettings({ searchEngine: v as SearchEngine })}
         />
       </SettingSection>
 
-      <SettingSection title="离线缓存">
+      <SettingSection title={t('settings_offline_cache')}>
         <CacheFaviconsButton />
       </SettingSection>
 
-      <SettingSection title="使用说明">
+      <SettingSection title={t('settings_usage_guide')}>
         <div className="text-sm text-white/70 leading-relaxed space-y-2">
-          <div>1. 编辑模式下，双击文件夹可以进入文件夹。</div>
-          <div>2. 滚轮切换：左右两侧30%区域滚轮切换分组，中间40%区域滚轮切换图标翻页。</div>
-          <div>3. 单个分组图标过多时，可在图标区域滚动进行左右翻页。</div>
+          <div>{t('settings_guide_1')}</div>
+          <div>{t('settings_guide_2')}</div>
+          <div>{t('settings_guide_3')}</div>
         </div>
       </SettingSection>
     </div>

@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, RefreshCw } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { WeatherData } from '../types';
 
 const WEATHER_CACHE_KEY = 'newtab_weather';
@@ -71,7 +72,7 @@ export function Weather() {
       setWeather(weatherData);
       chrome.storage.local.set({ [WEATHER_CACHE_KEY]: weatherData });
     } catch (err) {
-      setError('获取天气失败');
+      setError(t('widget_weather_fetch_failed'));
     } finally {
       setLoading(false);
     }
@@ -108,7 +109,7 @@ export function Weather() {
           <button
             onClick={() => fetchWeather(true)}
             className="p-1 rounded-full hover:bg-white/10 transition-colors ml-1"
-            title="刷新天气"
+            title={t('newtab_refresh_weather')}
           >
             <RefreshCw className="w-3 h-3 text-white/40" />
           </button>

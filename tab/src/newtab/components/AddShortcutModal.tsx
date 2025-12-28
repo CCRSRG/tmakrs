@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Link, Type } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { Z_INDEX } from '../constants/z-index';
 
 interface AddShortcutModalProps {
@@ -24,7 +25,7 @@ export function AddShortcutModal({ isOpen, onClose, onAdd, groupName }: AddShort
   const handleSubmit = () => {
     setError('');
     if (!url.trim()) {
-      setError('请输入网址');
+      setError(t('error_enter_url'));
       return;
     }
     try {
@@ -37,7 +38,7 @@ export function AddShortcutModal({ isOpen, onClose, onAdd, groupName }: AddShort
       setTitle('');
       onClose();
     } catch {
-      setError('无效的网址格式');
+      setError(t('error_invalid_url'));
     }
   };
 
@@ -62,8 +63,8 @@ export function AddShortcutModal({ isOpen, onClose, onAdd, groupName }: AddShort
         <div className="glass-modal rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-medium text-white">
-              添加快捷方式
-              {groupName && <span className="ml-2 text-sm text-white/50">到 {groupName}</span>}
+              {t('modal_add_shortcut')}
+              {groupName && <span className="ml-2 text-sm text-white/50">{t('modal_add_shortcut_to', groupName)}</span>}
             </h3>
             <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
               <X className="w-5 h-5 text-white/60" />
@@ -73,7 +74,7 @@ export function AddShortcutModal({ isOpen, onClose, onAdd, groupName }: AddShort
             <div>
               <label className="flex items-center gap-2 text-sm text-white/60 mb-2">
                 <Link className="w-4 h-4" />
-                网址
+                {t('label_url')}
               </label>
               <input
                 type="text"
@@ -88,14 +89,14 @@ export function AddShortcutModal({ isOpen, onClose, onAdd, groupName }: AddShort
             <div>
               <label className="flex items-center gap-2 text-sm text-white/60 mb-2">
                 <Type className="w-4 h-4" />
-                名称 <span className="text-white/30">(可选)</span>
+                {t('label_name')} <span className="text-white/30">{t('label_optional')}</span>
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="自动获取域名"
+                placeholder={t('placeholder_auto_domain')}
                 className="w-full bg-white/10 text-white text-sm rounded-xl px-4 py-3 outline-none border border-white/20 focus:border-blue-500/50 placeholder:text-white/30 transition-colors"
               />
             </div>
@@ -106,13 +107,13 @@ export function AddShortcutModal({ isOpen, onClose, onAdd, groupName }: AddShort
               onClick={onClose}
               className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/70 text-sm transition-colors"
             >
-              取消
+              {t('btn_cancel')}
             </button>
             <button
               onClick={handleSubmit}
               className="flex-1 py-2.5 rounded-xl bg-blue-500/80 hover:bg-blue-500 text-white text-sm transition-colors"
             >
-              添加
+              {t('btn_add')}
             </button>
           </div>
         </div>

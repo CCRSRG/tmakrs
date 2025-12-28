@@ -21,6 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTMarksSync } from '../hooks/useTMarksSync';
+import { t } from '@/lib/i18n';
 import type { TMarksBookmark } from '../types';
 
 // 获取 favicon URL
@@ -225,7 +226,7 @@ export function DockBar() {
           <div 
             className={`flex items-center gap-2 px-4 py-3 rounded-2xl glass-dark ${isRefreshing ? 'animate-pulse' : ''}`}
             onDoubleClick={handleDoubleClick}
-            title="拖拽排序 | 双击同步最新"
+            title={t('dock_drag_sort_hint')}
           >
             {localBookmarks.map((bookmark) => (
               <SortableBookmarkItem

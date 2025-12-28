@@ -3,6 +3,7 @@
  * 支持从 OpenAI 兼容 API 自动获取可用模型
  */
 
+import i18n from '@/i18n'
 import type { AIProvider } from './constants'
 import { AI_SERVICE_URLS } from './constants'
 
@@ -54,12 +55,12 @@ const fetchOpenAIStyleModels = async (baseUrl: string, apiKey: string): Promise<
 
   if (!response.ok) {
     const errorText = await response.text()
-    throw new Error(`获取模型列表失败 (${response.status}): ${errorText || response.statusText}`)
+    throw new Error(`${i18n.t('errors:ai.modelListFailed')} (${response.status}): ${errorText || response.statusText}`)
   }
 
   const json = await response.json()
   if (!Array.isArray(json?.data)) {
-    throw new Error('模型列表响应格式无效')
+    throw new Error(i18n.t('errors:ai.modelListInvalid'))
   }
 
   const models = json.data
@@ -72,7 +73,7 @@ const fetchOpenAIStyleModels = async (baseUrl: string, apiKey: string): Promise<
     .filter((id: unknown): id is string => typeof id === 'string' && id.length > 0)
 
   if (models.length === 0) {
-    throw new Error('模型列表为空')
+    throw new Error(i18n.t('errors:ai.modelListEmpty'))
   }
 
   return models
@@ -103,16 +104,16 @@ export async function fetchAvailableModels(
   apiUrl?: string
 ): Promise<string[]> {
   if (!OPENAI_COMPATIBLE_PROVIDERS.has(provider)) {
-    throw new Error('当前 AI 服务暂不支持自动获取模型列表')
+    throw new Error(i18n.t('errors:ai.providerNotSupported'))
   }
 
   if (!apiKey.trim()) {
-    throw new Error('缺少 API Key')
+    throw new Error(i18n.t('errors:ai.missingApiKey'))
   }
 
   const baseUrl = resolveBaseUrl(provider, apiUrl)
   if (!baseUrl) {
-    throw new Error('缺少 API 地址')
+    throw new Error(i18n.t('errors:ai.missingApiUrl'))
   }
 
   return fetchOpenAIStyleModels(baseUrl, apiKey)

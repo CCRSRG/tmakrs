@@ -5,7 +5,8 @@
 import { useState, useEffect, memo } from 'react';
 import { Flame, ChevronDown, RefreshCw, ExternalLink } from 'lucide-react';
 import { EmptyState } from '../ui/EmptyState';
-import { HOT_SEARCH_TYPES } from '../../constants';
+import { HOT_SEARCH_TYPES, getHotSearchTypeName } from '../../constants';
+import { t } from '@/lib/i18n';
 import type { HotSearchItem, HotSearchType } from '../../types';
 import type { WidgetRendererProps } from './types';
 import { getSizeSpan } from './widgetRegistry';
@@ -101,7 +102,7 @@ export const HotSearchWidget = memo(function HotSearchWidget({
               onClick={() => setShowTypeMenu(!showTypeMenu)}
               className="text-sm font-medium text-white/80 hover:text-white flex items-center gap-1"
             >
-              {currentType.name}
+              {getHotSearchTypeName(currentType.id)}
               <ChevronDown className={`w-3 h-3 transition-transform ${showTypeMenu ? 'rotate-180' : ''}`} />
             </button>
             
@@ -109,15 +110,15 @@ export const HotSearchWidget = memo(function HotSearchWidget({
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowTypeMenu(false)} />
                 <div className="absolute top-full left-0 mt-1 w-24 rounded-lg glass-dark overflow-hidden z-50">
-                  {HOT_SEARCH_TYPES.map((t) => (
+                  {HOT_SEARCH_TYPES.map((hotType) => (
                     <button
-                      key={t.id}
-                      onClick={() => handleTypeChange(t.id as HotSearchType)}
+                      key={hotType.id}
+                      onClick={() => handleTypeChange(hotType.id as HotSearchType)}
                       className={`w-full px-3 py-1.5 text-left text-sm transition-colors ${
-                        t.id === type ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
+                        hotType.id === type ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
                       }`}
                     >
-                      {t.name}
+                      {getHotSearchTypeName(hotType.id)}
                     </button>
                   ))}
                 </div>
@@ -139,7 +140,7 @@ export const HotSearchWidget = memo(function HotSearchWidget({
       <div className="flex-1 space-y-0.5 overflow-y-auto">
         {items.length === 0 ? (
           loading ? (
-            <div className="text-center text-white/40 text-sm py-4">加载中...</div>
+            <div className="text-center text-white/40 text-sm py-4">{t('loading')}</div>
           ) : (
             <EmptyState type="hotsearch" />
           )

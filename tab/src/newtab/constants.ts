@@ -2,6 +2,7 @@
  * NewTab 常量定义
  */
 
+import { t } from '@/lib/i18n';
 import type { SearchEngineConfig, NewTabSettings, WallpaperConfig, ShortcutGroup } from './types';
 
 // 搜索引擎配置（精简版）
@@ -20,7 +21,7 @@ export const SEARCH_ENGINES: SearchEngineConfig[] = [
   },
   {
     id: 'zhihu',
-    name: '知乎',
+    name: 'Zhihu',
     url: 'https://www.zhihu.com/search?type=content&q=',
     icon: 'https://static.zhihu.com/heifetz/favicon.ico',
   },
@@ -32,7 +33,7 @@ export const SEARCH_ENGINES: SearchEngineConfig[] = [
   },
   {
     id: 'bilibili',
-    name: 'B站',
+    name: 'Bilibili',
     url: 'https://search.bilibili.com/all?keyword=',
     icon: 'https://www.bilibili.com/favicon.ico',
   },
@@ -87,11 +88,22 @@ export const DEFAULT_SETTINGS: NewTabSettings = {
 
 // 热搜类型配置
 export const HOT_SEARCH_TYPES = [
-  { id: 'baidu', name: '百度热搜' },
-  { id: 'weibo', name: '微博热搜' },
-  { id: 'zhihu', name: '知乎热榜' },
-  { id: 'bilibili', name: 'B站热门' },
+  { id: 'baidu', name: 'Baidu Hot' },
+  { id: 'weibo', name: 'Weibo Hot' },
+  { id: 'zhihu', name: 'Zhihu Hot' },
+  { id: 'bilibili', name: 'Bilibili Hot' },
 ] as const;
+
+// 获取本地化的热搜类型名称
+export const getHotSearchTypeName = (id: string): string => {
+  const nameMap: Record<string, string> = {
+    baidu: t('hot_search_baidu'),
+    weibo: t('hot_search_weibo'),
+    zhihu: t('hot_search_zhihu'),
+    bilibili: t('hot_search_bilibili'),
+  };
+  return nameMap[id] || id;
+};
 
 // 默认诗词库
 export const DEFAULT_POETRY = [
@@ -122,6 +134,12 @@ export const BING_WALLPAPER_API = 'https://www.bing.com/HPImageArchive.aspx?form
 export const FAVICON_API = 'https://icon.ooo/';
 
 // 默认快捷方式分组（只保留一个默认分组，用户自行添加）
+// 使用函数延迟获取，确保 i18n 已初始化
+export const getDefaultGroups = (): ShortcutGroup[] => [
+  { id: 'home', name: t('group_home'), icon: 'Home', position: 0 },
+];
+
+// 兼容旧代码的常量（使用时会调用函数）
 export const DEFAULT_GROUPS: ShortcutGroup[] = [
   { id: 'home', name: '首页', icon: 'Home', position: 0 },
 ];

@@ -92,7 +92,7 @@ export function createGroupActions(
         setBrowserBookmarkWriteLockUntil,
       } = get();
       if (id === 'home') {
-        console.warn('不能删除首页分组');
+        console.warn('Cannot delete home group');
         return;
       }
       const targetGroup = shortcutGroups.find((g) => g.id === id);

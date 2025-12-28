@@ -2,6 +2,8 @@
  * NewTab 保存视图
  */
 
+import { t } from '@/lib/i18n';
+
 interface NewtabViewProps {
   currentPage: {
     title: string;
@@ -88,8 +90,8 @@ function NewtabHeaderSection({
     <section className="rounded-xl border border-[var(--tab-popup-section-gray-border)] bg-[var(--tab-popup-section-gray-bg)] p-3.5 shadow-lg">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-[var(--tab-popup-text)]">保存到 NewTab</p>
-          <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">选择文件夹后保存，或使用 AI 推荐。</p>
+          <p className="text-sm font-semibold text-[var(--tab-popup-text)]">{t('newtab_save_title')}</p>
+          <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">{t('newtab_save_desc')}</p>
         </div>
         <span className="rounded-full bg-[var(--tab-popup-section-blue-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-blue-badge-text)]">NewTab</span>
       </div>
@@ -108,7 +110,7 @@ function NewtabHeaderSection({
               onClick={() => enterNewtabFolder(c.id)}
               className="rounded-md bg-[var(--tab-popup-action-neutral-bg)] px-2 py-1 hover:bg-[var(--tab-popup-action-neutral-bg-hover)] transition-colors"
             >
-              {idx === 0 ? '根目录' : c.title}
+              {idx === 0 ? t('root_folder') : c.title}
             </button>
           ))}
         </div>
@@ -120,13 +122,13 @@ function NewtabHeaderSection({
           disabled={isNewtabRecommending || !currentPage?.url || !newtabFoldersLoaded}
           className="rounded-lg border border-[var(--tab-popup-border-strong)] bg-[var(--tab-popup-surface)] px-3 py-2 text-xs font-medium text-[var(--tab-popup-text)] transition-all duration-200 hover:bg-[var(--tab-popup-action-neutral-bg)] disabled:opacity-40"
         >
-          {isNewtabRecommending ? 'AI 推荐中...' : 'AI 推荐文件夹'}
+          {isNewtabRecommending ? t('newtab_ai_recommending') : t('newtab_ai_recommend_folder')}
         </button>
         <button
           onClick={loadNewtabFolders}
           className="rounded-lg border border-[var(--tab-popup-border-strong)] bg-[var(--tab-popup-surface)] px-3 py-2 text-xs font-medium text-[var(--tab-popup-text)] transition-all duration-200 hover:bg-[var(--tab-popup-action-neutral-bg)]"
         >
-          刷新文件夹
+          {t('newtab_refresh_folders')}
         </button>
       </div>
     </section>
@@ -143,7 +145,7 @@ function AISuggestionsSection({
   return (
     <section className="rounded-xl border border-[var(--tab-popup-section-purple-border)] bg-gradient-to-br from-[var(--tab-popup-section-purple-from)] to-[var(--tab-popup-section-purple-to)] p-3.5 shadow-lg">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-[var(--tab-popup-text)]">AI 推荐文件夹</p>
+        <p className="text-sm font-semibold text-[var(--tab-popup-text)]">{t('newtab_ai_recommend_title')}</p>
         <span className="rounded-full bg-[var(--tab-popup-section-purple-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-purple-badge-text)]">
           {newtabSuggestions.length}
         </span>
@@ -182,8 +184,8 @@ function FolderListSection({
   return (
     <section className="rounded-xl border border-[var(--tab-popup-section-emerald-border)] bg-gradient-to-br from-[var(--tab-popup-section-emerald-from)] to-[var(--tab-popup-section-emerald-to)] p-3.5 shadow-lg">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-[var(--tab-popup-text)]">选择文件夹</p>
-        <span className="text-xs text-[var(--tab-popup-text-muted)]">点击进入</span>
+        <p className="text-sm font-semibold text-[var(--tab-popup-text)]">{t('newtab_select_folder')}</p>
+        <span className="text-xs text-[var(--tab-popup-text-muted)]">{t('newtab_click_to_enter')}</span>
       </div>
       <div className="max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[var(--tab-popup-border-strong)] scrollbar-track-transparent">
         <div className="space-y-1">
@@ -194,11 +196,11 @@ function FolderListSection({
               className="w-full flex items-center justify-between rounded-lg bg-[var(--tab-popup-action-neutral-bg)] px-3 py-2 text-left text-sm text-[var(--tab-popup-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)] transition-colors"
             >
               <span className="truncate">{f.title}</span>
-              <span className="text-xs text-[var(--tab-popup-text-muted)]">进入</span>
+              <span className="text-xs text-[var(--tab-popup-text-muted)]">{t('newtab_enter')}</span>
             </button>
           ))}
           {filteredFolders.length === 0 && (
-            <div className="py-4 text-center text-xs text-[var(--tab-popup-text-muted)]">当前层级没有子文件夹</div>
+            <div className="py-4 text-center text-xs text-[var(--tab-popup-text-muted)]">{t('newtab_no_subfolders')}</div>
           )}
         </div>
       </div>

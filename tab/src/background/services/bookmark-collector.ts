@@ -2,6 +2,7 @@
  * 书签收集服务
  */
 
+import { t } from '@/lib/i18n';
 import { TMARKS_ROOT_TITLE, ROOT_PATH_PLACEHOLDER } from '../constants';
 import { getHostname } from '../utils/json-parser';
 
@@ -61,7 +62,7 @@ export async function collectAllBrowserBookmarks(
     const children = node.children || [];
     for (let i = children.length - 1; i >= 0; i--) {
       const child = children[i];
-      const childTitle = (child.title || '').trim() || '未命名';
+      const childTitle = (child.title || '').trim() || t('default_untitled');
       const isFolder = !child.url;
       const childPath = isFolder ? (path ? `${path}/${childTitle}` : childTitle) : path;
       stack.push({
@@ -132,7 +133,7 @@ export async function copyBookmarkTreeToFolder(opts: {
     const createdFolder = await chrome.bookmarks.create({
       parentId: frame.targetParentId,
       index: nodeIndex,
-      title: node.title || '文件夹',
+      title: node.title || t('default_folder_name'),
     });
     counts.folders += 1;
     pushChildren(node.children, createdFolder.id);

@@ -3,6 +3,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { t } from '@/lib/i18n';
 import { StorageService } from '@/lib/utils/storage';
 import { createTMarksClient, type TMarks } from '@/lib/api/tmarks';
 import { getTMarksUrls } from '@/lib/constants/urls';
@@ -29,7 +30,7 @@ async function getTMarksClient(): Promise<TMarks> {
   const apiKey = await StorageService.getBookmarkSiteApiKey();
 
   if (!apiKey) {
-    throw new Error('API Key 未配置');
+    throw new Error('API Key not configured');
   }
 
   let apiBaseUrl: string;
@@ -80,12 +81,12 @@ export function useTMarksSync() {
       const cached = result[PINNED_BOOKMARKS_CACHE_KEY] as CachedPinnedBookmarks | undefined;
 
       if (cached && cached.bookmarks) {
-        logger.log('从缓存加载置顶书签:', cached.bookmarks.length, '个');
+        logger.log('Loaded pinned bookmarks from cache:', cached.bookmarks.length);
         return cached.bookmarks;
       }
       return null;
     } catch (error) {
-      logger.error('加载缓存失败:', error);
+      logger.error('Failed to load cache:', error);
       return null;
     }
   }, []);
@@ -98,9 +99,9 @@ export function useTMarksSync() {
         timestamp: Date.now(),
       };
       await chrome.storage.local.set({ [PINNED_BOOKMARKS_CACHE_KEY]: cached });
-      logger.log('已缓存置顶书签');
+      logger.log('Pinned bookmarks cached');
     } catch (error) {
-      logger.error('保存缓存失败:', error);
+      logger.error('Failed to save cache:', error);
     }
   }, []);
 
@@ -128,7 +129,7 @@ export function useTMarksSync() {
         page_size: 20,
       });
 
-      logger.debug('获取置顶书签响应:', {
+      logger.debug('Fetch pinned bookmarks response:', {
         total: response.data?.bookmarks?.length,
         bookmarks: response.data?.bookmarks?.map((b) => ({
           id: b.id,
@@ -141,7 +142,7 @@ export function useTMarksSync() {
         // 双重过滤：确保只显示 is_pinned 为 true 的书签
         const pinnedOnly = response.data.bookmarks.filter((b) => b.is_pinned === true);
         
-        logger.log('过滤后置顶书签:', pinnedOnly.length);
+        logger.log('Filtered pinned bookmarks:', pinnedOnly.length);
 
         const bookmarks: TMarksBookmark[] = pinnedOnly.map((b) => ({
           id: b.id,
@@ -163,8 +164,8 @@ export function useTMarksSync() {
 
       return response.data?.bookmarks || [];
     } catch (error) {
-      const message = error instanceof Error ? error.message : '同步失败';
-      logger.error('获取置顶书签失败:', error);
+      const message = error instanceof Error ? error.message : t('error_sync_failed');
+      logger.error('Fetch pinned bookmarks failed:', error);
       setSyncState((s) => ({
         ...s,
         isSyncing: false,
@@ -215,7 +216,7 @@ export function useTMarksSync() {
   useEffect(() => {
     const handleMessage = (message: Message) => {
       if (message.type === 'REFRESH_PINNED_BOOKMARKS') {
-        logger.log('收到刷新置顶书签消息');
+        logger.log('Received refresh pinned bookmarks message');
         // 强制从后端刷新
         if (fetchPinnedBookmarksRef.current) {
           fetchPinnedBookmarksRef.current(true);
@@ -244,9 +245,9 @@ export function useTMarksSync() {
       const client = await getTMarksClient();
       await client.bookmarks.reorderPinnedBookmarks(bookmarkIds);
       
-      logger.log('置顶书签顺序已更新并同步到后端');
+      logger.log('Pinned bookmarks order updated and synced');
     } catch (error) {
-      logger.error('更新置顶书签顺序失败:', error);
+      logger.error('Failed to update pinned bookmarks order:', error);
       // 失败时重新从后端获取
       await fetchPinnedBookmarks(true);
     }
@@ -257,10 +258,10 @@ export function useTMarksSync() {
     try {
       const client = await getTMarksClient();
       await client.bookmarks.recordClick(bookmarkId);
-      logger.debug('已记录书签点击:', bookmarkId);
+      logger.debug('Recorded bookmark click:', bookmarkId);
     } catch (error) {
       // 静默失败，不影响用户体验
-      logger.warn('记录书签点击失败:', error);
+      logger.warn('Failed to record bookmark click:', error);
     }
   }, []);
 
@@ -269,10 +270,10 @@ export function useTMarksSync() {
     try {
       const client = await getTMarksClient();
       await client.tags.incrementClick(tagId);
-      logger.debug('已记录标签点击:', tagId);
+      logger.debug('Recorded tag click:', tagId);
     } catch (error) {
       // 静默失败，不影响用户体验
-      logger.warn('记录标签点击失败:', error);
+      logger.warn('Failed to record tag click:', error);
     }
   }, []);
 

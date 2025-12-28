@@ -4,6 +4,7 @@
 
 import { useState, memo } from 'react';
 import { Plus, Check, X, CheckSquare } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { EmptyState } from '../ui/EmptyState';
 import { useTodoStore } from '../../hooks/useTodoStore';
 import type { WidgetRendererProps } from './types';
@@ -42,7 +43,7 @@ export const TodoWidget = memo(function TodoWidget({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-white/80">
           <CheckSquare className="w-4 h-4" />
-          <span className="text-sm font-medium">待办事项</span>
+          <span className="text-sm font-medium">{t('widget_todo_title')}</span>
           {activeTodos.length > 0 && (
             <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
               {activeTodos.length}
@@ -54,7 +55,7 @@ export const TodoWidget = memo(function TodoWidget({
             onClick={() => setShowCompleted(!showCompleted)}
             className="text-xs text-white/50 hover:text-white/80 transition-colors"
           >
-            {showCompleted ? '隐藏' : `${completedTodos.length} 完成`}
+            {showCompleted ? t('widget_todo_hide') : `${completedTodos.length} ${t('widget_todo_completed')}`}
           </button>
         )}
       </div>
@@ -66,7 +67,7 @@ export const TodoWidget = memo(function TodoWidget({
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="添加待办..."
+          placeholder={t('widget_todo_placeholder')}
           className="flex-1 bg-white/10 text-white text-sm rounded-lg px-3 py-1.5 outline-none 
                      border border-white/10 focus:border-white/30 placeholder-white/40"
         />
@@ -118,7 +119,7 @@ export const TodoWidget = memo(function TodoWidget({
         )}
         {displayTodos.length > maxItems && (
           <div className="text-center text-white/40 text-xs py-1">
-            还有 {displayTodos.length - maxItems} 项...
+            {t('widget_todo_more', [(displayTodos.length - maxItems).toString()])}
           </div>
         )}
       </div>

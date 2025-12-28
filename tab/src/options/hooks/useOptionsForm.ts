@@ -5,6 +5,7 @@ import type { AIProvider, AIConnectionInfo } from '@/types';
 import { DEFAULT_PROMPT_TEMPLATE } from '@/lib/constants/prompts';
 import { canFetchModels, fetchAvailableModels } from '@/lib/services/ai-models';
 import { applyTheme, applyThemeStyle, initThemeListener } from '@/lib/utils/themeManager';
+import { t } from '@/lib/i18n';
 
 export interface OptionsFormData {
   theme: 'light' | 'dark' | 'auto';
@@ -361,10 +362,10 @@ export function useOptionsForm() {
         },
       });
 
-      setSuccessMessage('设置已保存!');
+      setSuccessMessage(t('msg_settings_saved'));
       setTimeout(() => setSuccessMessage(null), 2000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '保存失败');
+      setError(e instanceof Error ? e.message : t('error_save_failed'));
     }
   };
 
@@ -374,7 +375,7 @@ export function useOptionsForm() {
       const dbStats = await db.getStats();
       setStats(dbStats);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '同步失败');
+      setError(e instanceof Error ? e.message : t('error_save_failed'));
     }
   };
 
@@ -388,13 +389,13 @@ export function useOptionsForm() {
 
       const testRequest = {
         page: {
-          title: 'Claude Code - AI 编程助手',
+          title: 'Claude Code - AI Programming Assistant',
           url: 'https://claude.ai',
-          description: 'Claude 是一个强大的 AI 编程助手',
-          content: 'Claude Code 是 Anthropic 推出的智能编程工具，支持多种编程语言和框架。',
+          description: 'Claude is a powerful AI programming assistant',
+          content: 'Claude Code is an intelligent programming tool by Anthropic, supporting multiple programming languages and frameworks.',
         },
         context: {
-          existingTags: ['开发工具', 'AI', '编程', '效率'],
+          existingTags: ['Dev Tools', 'AI', 'Programming', 'Productivity'],
           recentBookmarks: [],
         },
         options: {
@@ -412,25 +413,23 @@ export function useOptionsForm() {
       );
 
       setSuccessMessage(
-        `API 测试成功！返回 ${response.suggestedTags.length} 个标签：${response.suggestedTags
-          .map((t: any) => t.name)
-          .join(', ')}`
+        t('api_test_success', [String(response.suggestedTags.length), response.suggestedTags.map((tag: any) => tag.name).join(', ')])
       );
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'API 测试失败');
+      setError(e instanceof Error ? e.message : t('api_test_failed'));
     } finally {
       setIsTesting(false);
     }
   };
 
   const formatDate = (timestamp: number) => {
-    if (!timestamp) return '从未同步';
-    return new Date(timestamp).toLocaleString('zh-CN');
+    if (!timestamp) return t('never_synced');
+    return new Date(timestamp).toLocaleString();
   };
 
   const handleReset = () => {
-    if (confirm('确定要重置所有设置吗？此操作不可撤销。')) {
+    if (confirm(t('confirm_reset'))) {
       setFormData({
         theme: 'auto',
         themeStyle: 'default',
@@ -453,7 +452,7 @@ export function useOptionsForm() {
         enableNewtabFolderPrompt: false,
         newtabFolderPrompt: '',
       });
-      setSuccessMessage('设置已重置');
+      setSuccessMessage(t('msg_settings_reset'));
       setTimeout(() => setSuccessMessage(null), 2000);
     }
   };
@@ -472,11 +471,11 @@ export function useOptionsForm() {
   const handleSaveConnectionPreset = () => {
     const trimmedKey = formData.apiKey.trim();
     if (!trimmedKey) {
-      setError('请先填写 API Key 再保存配置');
+      setError(t('error_api_key_required'));
       return;
     }
 
-    const defaultName = `配置 ${(savedConnections[formData.aiProvider]?.length || 0) + 1}`;
+    const defaultName = t('preset_default_name', String((savedConnections[formData.aiProvider]?.length || 0) + 1));
     setPresetLabel(defaultName);
     setPresetError(null);
     setIsPresetModalOpen(true);
@@ -485,18 +484,18 @@ export function useOptionsForm() {
   const handleConfirmSaveConnectionPreset = async () => {
     const trimmedKey = formData.apiKey.trim();
     if (!trimmedKey) {
-      setPresetError('请先填写 API Key 再保存配置');
+      setPresetError(t('error_api_key_required'));
       return;
     }
 
     const trimmedLabel = presetLabel.trim();
     if (!trimmedLabel) {
-      setPresetError('配置名称不能为空');
+      setPresetError(t('error_preset_name_required'));
       return;
     }
 
     if (!config) {
-      setError('配置尚未加载，稍后再试');
+      setError(t('error_config_not_loaded'));
       setIsPresetModalOpen(false);
       return;
     }
@@ -523,12 +522,12 @@ export function useOptionsForm() {
           savedConnections: updated,
         },
       });
-      setSuccessMessage(`已保存为「${trimmedLabel}」`);
+      setSuccessMessage(t('msg_preset_saved', trimmedLabel));
       setTimeout(() => setSuccessMessage(null), 2000);
       setIsPresetModalOpen(false);
     } catch (e) {
       setSavedConnections(previous);
-      setPresetError(e instanceof Error ? e.message : '保存配置失败');
+      setPresetError(e instanceof Error ? e.message : t('error_save_preset_failed'));
     } finally {
       setIsSavingPreset(false);
     }
@@ -563,7 +562,7 @@ export function useOptionsForm() {
   const handleDeleteSavedConnection = async (connection: AIConnectionInfo, providerOverride?: AIProvider) => {
     const provider = providerOverride || connection.provider || formData.aiProvider;
     if (!provider) {
-      setError('无法确定配置所属的 AI 引擎');
+      setError(t('error_provider_unknown'));
       return;
     }
 
@@ -573,7 +572,7 @@ export function useOptionsForm() {
 
     try {
       if (!config) {
-        throw new Error('配置尚未加载');
+        throw new Error(t('error_config_not_loaded'));
       }
       await saveConfig({
         aiConfig: {
@@ -581,11 +580,11 @@ export function useOptionsForm() {
           savedConnections: updated,
         },
       });
-      setSuccessMessage('已删除保存的连接');
+      setSuccessMessage(t('msg_connection_deleted'));
       setTimeout(() => setSuccessMessage(null), 2000);
     } catch (e) {
       setSavedConnections(previous);
-      setError(e instanceof Error ? e.message : '删除连接失败');
+      setError(e instanceof Error ? e.message : t('error_delete_connection_failed'));
     }
   };
 

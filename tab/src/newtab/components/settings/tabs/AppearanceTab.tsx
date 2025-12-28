@@ -2,6 +2,7 @@
  * 设置面板 - 外观标签页
  */
 
+import { t } from '@/lib/i18n';
 import { useNewtabStore } from '../../../hooks/useNewtabStore';
 import {
   SettingSection,
@@ -18,48 +19,48 @@ export function AppearanceTab() {
 
   return (
     <div className="space-y-6">
-      <SettingSection title="快捷方式">
+      <SettingSection title={t('settings_shortcuts')}>
         <ToggleItem
-          label="显示快捷方式"
+          label={t('settings_show_shortcuts')}
           checked={settings.showShortcuts}
           onChange={(v) => updateSettings({ showShortcuts: v })}
         />
         <SelectItem
-          label="每行数量"
+          label={t('settings_per_row')}
           value={String(settings.shortcutColumns)}
           options={[
-            { value: '6', label: '6 个' },
-            { value: '8', label: '8 个' },
-            { value: '10', label: '10 个' },
+            { value: '6', label: t('settings_count_items', '6') },
+            { value: '8', label: t('settings_count_items', '8') },
+            { value: '10', label: t('settings_count_items', '10') },
           ]}
           onChange={(v) => updateSettings({ shortcutColumns: Number(v) as 6 | 8 | 10 })}
         />
         <SelectItem
-          label="样式"
+          label={t('settings_style')}
           value={settings.shortcutStyle}
           options={[
-            { value: 'icon', label: '图标' },
-            { value: 'card', label: '卡片' },
+            { value: 'icon', label: t('settings_style_icon') },
+            { value: 'card', label: t('settings_style_card') },
           ]}
           onChange={(v) => updateSettings({ shortcutStyle: v as 'icon' | 'card' })}
         />
       </SettingSection>
 
-      <SettingSection title="壁纸">
+      <SettingSection title={t('settings_wallpaper')}>
         <SelectItem
-          label="壁纸类型"
+          label={t('settings_wallpaper_type')}
           value={settings.wallpaper.type}
           options={[
-            { value: 'color', label: '纯色' },
-            { value: 'bing', label: 'Bing 每日壁纸' },
-            { value: 'unsplash', label: '随机风景' },
-            { value: 'image', label: '自定义图片' },
+            { value: 'color', label: t('settings_wallpaper_color') },
+            { value: 'bing', label: t('settings_wallpaper_bing') },
+            { value: 'unsplash', label: t('settings_wallpaper_unsplash') },
+            { value: 'image', label: t('settings_wallpaper_custom') },
           ]}
           onChange={(v) => updateSettings({ wallpaper: { ...settings.wallpaper, type: v as WallpaperType } })}
         />
         {settings.wallpaper.type === 'color' && (
           <ColorItem
-            label="背景颜色"
+            label={t('settings_bg_color')}
             value={settings.wallpaper.value}
             onChange={(v) => updateSettings({ wallpaper: { ...settings.wallpaper, value: v } })}
           />
@@ -67,22 +68,22 @@ export function AppearanceTab() {
         {settings.wallpaper.type === 'bing' && (
           <>
             <SelectItem
-              label="历史图片"
+              label={t('settings_history_image')}
               value={String(settings.wallpaper.bingHistoryIndex || 0)}
               options={[
-                { value: '0', label: '今天' },
-                { value: '1', label: '昨天' },
-                { value: '2', label: '2 天前' },
-                { value: '3', label: '3 天前' },
-                { value: '4', label: '4 天前' },
-                { value: '5', label: '5 天前' },
-                { value: '6', label: '6 天前' },
-                { value: '7', label: '7 天前' },
+                { value: '0', label: t('settings_today') },
+                { value: '1', label: t('settings_yesterday') },
+                { value: '2', label: t('settings_days_ago', '2') },
+                { value: '3', label: t('settings_days_ago', '3') },
+                { value: '4', label: t('settings_days_ago', '4') },
+                { value: '5', label: t('settings_days_ago', '5') },
+                { value: '6', label: t('settings_days_ago', '6') },
+                { value: '7', label: t('settings_days_ago', '7') },
               ]}
               onChange={(v) => updateSettings({ wallpaper: { ...settings.wallpaper, bingHistoryIndex: Number(v) } })}
             />
             <ToggleItem
-              label="显示图片信息"
+              label={t('settings_show_image_info')}
               checked={settings.wallpaper.showBingInfo || false}
               onChange={(v) => updateSettings({ wallpaper: { ...settings.wallpaper, showBingInfo: v } })}
             />
@@ -90,21 +91,21 @@ export function AppearanceTab() {
         )}
         {settings.wallpaper.type === 'image' && (
           <TextItem
-            label="图片 URL"
+            label={t('settings_image_url')}
             value={settings.wallpaper.value}
             placeholder="https://..."
             onChange={(v) => updateSettings({ wallpaper: { ...settings.wallpaper, value: v } })}
           />
         )}
         <RangeItem
-          label="模糊"
+          label={t('settings_blur')}
           value={settings.wallpaper.blur}
           min={0}
           max={20}
           onChange={(v) => updateSettings({ wallpaper: { ...settings.wallpaper, blur: v } })}
         />
         <RangeItem
-          label="亮度"
+          label={t('settings_brightness')}
           value={settings.wallpaper.brightness}
           min={20}
           max={100}

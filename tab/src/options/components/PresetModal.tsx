@@ -1,3 +1,5 @@
+import { t } from '@/lib/i18n';
+
 interface PresetModalProps {
   isOpen: boolean;
   presetLabel: string;
@@ -28,28 +30,28 @@ export function PresetModal({
         <div className="p-6 pt-10 space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-[var(--tab-options-title)]">保存当前配置</h3>
-              <p className="mt-1 text-sm text-[var(--tab-options-text)]">为当前 AI 设置输入一个易记的名称。</p>
+              <h3 className="text-lg font-semibold text-[var(--tab-options-title)]">{t('options_save_config')}</h3>
+              <p className="mt-1 text-sm text-[var(--tab-options-text)]">{t('options_save_config_desc')}</p>
             </div>
             <button
               type="button"
               onClick={onClose}
               className="rounded-full border border-transparent px-3 py-1 text-xl leading-none text-[var(--tab-options-modal-close-text)] transition-colors hover:border-[var(--tab-options-modal-close-hover-border)] hover:text-[var(--tab-options-modal-close-hover-text)]"
-              aria-label="关闭"
+              aria-label={t('options_close')}
             >
               ×
             </button>
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-[var(--tab-options-text)]">配置名称</label>
+            <label className="block text-sm font-medium text-[var(--tab-options-text)]">{t('options_config_name')}</label>
             <input
               type="text"
               value={presetLabel}
               onChange={(e) => onChangeLabel(e.target.value)}
               autoFocus
               className="w-full rounded-lg border border-[color:var(--tab-options-button-border)] bg-[color:var(--tab-options-card-bg)] px-3 py-2 text-[var(--tab-options-title)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-options-button-primary-bg)]"
-              placeholder="例如：生产环境配置"
+              placeholder={t('options_config_name_placeholder')}
             />
           </div>
 
@@ -66,7 +68,7 @@ export function PresetModal({
               disabled={isSaving}
               className="rounded-lg border border-[color:var(--tab-options-button-border)] px-4 py-2 text-sm font-medium text-[var(--tab-options-button-text)] transition-colors hover:bg-[var(--tab-options-button-hover-bg)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              取消
+              {t('btn_cancel')}
             </button>
             <button
               type="button"
@@ -74,7 +76,7 @@ export function PresetModal({
               disabled={isSaving}
               className="rounded-lg bg-[var(--tab-options-button-primary-bg)] px-4 py-2 text-sm font-medium text-[var(--tab-options-button-primary-text)] shadow-sm transition-colors hover:bg-[var(--tab-options-button-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSaving ? '保存中...' : '确认保存'}
+              {isSaving ? t('btn_saving') : t('btn_confirm')}
             </button>
           </div>
         </div>

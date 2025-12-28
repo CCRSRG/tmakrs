@@ -5,6 +5,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { FolderInput, CheckCircle2 } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useNewtabStore } from '../hooks/useNewtabStore';
 import { Z_INDEX } from '../constants/z-index';
@@ -116,12 +117,12 @@ export function BatchEditModal({ isOpen, onClose, selectedIds, onSelectedIdsChan
             onClick={handleSelectAll}
             className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-xs text-white/80"
           >
-            {isAllSelected ? '取消全选' : '全选'}
+            {isAllSelected ? t('batch_deselect_all') : t('batch_select_all')}
           </button>
 
           <span className="flex items-center gap-1 text-xs text-white/70 min-w-[76px]">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            已选 {selectedIds.size}
+            {t('batch_selected_count', selectedIds.size.toString())}
           </span>
 
           <div className="h-5 w-px bg-white/15" />
@@ -131,20 +132,20 @@ export function BatchEditModal({ isOpen, onClose, selectedIds, onSelectedIdsChan
               onClick={handleComplete}
               className="px-3 py-1.5 rounded-full bg-green-500/20 text-green-300 hover:bg-green-500/30 transition-colors text-xs"
             >
-              完成
+              {t('batch_complete')}
             </button>
             <button
               onClick={handleComplete}
               className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-xs text-white/80"
             >
-              取消
+              {t('btn_cancel')}
             </button>
             <button
               onClick={handleBatchDelete}
               disabled={selectedIds.size === 0}
               className="px-3 py-1.5 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors disabled:opacity-30 text-xs"
             >
-              删除
+              {t('ui_delete')}
             </button>
           </div>
 
@@ -157,7 +158,7 @@ export function BatchEditModal({ isOpen, onClose, selectedIds, onSelectedIdsChan
               onChange={(e) => setTargetGroupId(e.target.value)}
               className="bg-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none border border-white/15 min-w-[140px] max-w-[280px]"
             >
-              <option value="">选择分组</option>
+              <option value="">{t('batch_select_group')}</option>
               {shortcutGroups.map((group) => (
                 <option key={group.id} value={group.id} className="bg-slate-900 text-white">
                   {group.name}
@@ -169,7 +170,7 @@ export function BatchEditModal({ isOpen, onClose, selectedIds, onSelectedIdsChan
               disabled={!targetGroupId || selectedIds.size === 0}
               className="px-4 py-2 rounded-xl bg-white text-slate-900 text-xs font-medium transition-colors disabled:opacity-40"
             >
-              移动
+              {t('batch_move')}
             </button>
           </div>
         </div>
@@ -177,10 +178,10 @@ export function BatchEditModal({ isOpen, onClose, selectedIds, onSelectedIdsChan
 
       <ConfirmModal
         isOpen={showDeleteConfirm}
-        title="删除确认"
-        message={`确定要删除选中的 ${selectedIds.size} 个快捷方式吗？此操作不可恢复。`}
-        confirmText="删除"
-        cancelText="取消"
+        title={t('batch_delete_confirm_title')}
+        message={t('batch_delete_confirm_message', selectedIds.size.toString())}
+        confirmText={t('ui_delete')}
+        cancelText={t('btn_cancel')}
         confirmVariant="danger"
         onConfirm={confirmBatchDelete}
         onCancel={() => setShowDeleteConfirm(false)}

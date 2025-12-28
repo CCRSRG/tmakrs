@@ -1,3 +1,5 @@
+import { t } from '@/lib/i18n';
+
 interface PreferencesSectionProps {
   formData: {
     theme: 'light' | 'dark' | 'auto';
@@ -18,13 +20,13 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
 
         <div className="p-6 pt-10 space-y-6">
           <div>
-            <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">外观设置</h2>
-            <p className="mt-2 text-sm text-[var(--tab-options-text)]">配置扩展的主题与样式。</p>
+            <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">{t('pref_appearance_title')}</h2>
+            <p className="mt-2 text-sm text-[var(--tab-options-text)]">{t('pref_appearance_desc')}</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">主题</label>
+              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">{t('pref_theme')}</label>
               <div className="inline-flex rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-card-bg)] p-1 text-sm font-medium text-[var(--tab-options-text)]">
                 <button
                   type="button"
@@ -35,7 +37,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  跟随
+                  {t('pref_theme_auto')}
                 </button>
                 <button
                   type="button"
@@ -46,7 +48,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  浅色
+                  {t('pref_theme_light')}
                 </button>
                 <button
                   type="button"
@@ -57,14 +59,14 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  深色
+                  {t('pref_theme_dark')}
                 </button>
               </div>
-              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">控制扩展的明暗模式。</p>
+              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">{t('pref_theme_hint')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">主题样式</label>
+              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">{t('pref_theme_style')}</label>
               <div className="inline-flex rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-card-bg)] p-1 text-sm font-medium text-[var(--tab-options-text)]">
                 <button
                   type="button"
@@ -75,7 +77,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  默认
+                  {t('pref_style_default')}
                 </button>
                 <button
                   type="button"
@@ -86,7 +88,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  黑白
+                  {t('pref_style_bw')}
                 </button>
                 <button
                   type="button"
@@ -100,11 +102,11 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                   TMarks
                 </button>
               </div>
-              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">切换扩展的配色方案。</p>
+              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">{t('pref_style_hint')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">标签样式</label>
+              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">{t('pref_tag_style')}</label>
               <div className="inline-flex rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-card-bg)] p-1 text-sm font-medium text-[var(--tab-options-text)]">
                 <button
                   type="button"
@@ -115,7 +117,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  经典
+                  {t('pref_tag_classic')}
                 </button>
                 <button
                   type="button"
@@ -126,7 +128,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  纯文字
+                  {t('pref_tag_mono')}
                 </button>
                 <button
                   type="button"
@@ -137,10 +139,10 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  黑白
+                  {t('pref_style_bw')}
                 </button>
               </div>
-              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">弹窗内标签展示风格。</p>
+              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">{t('pref_tag_hint')}</p>
             </div>
           </div>
         </div>
@@ -151,13 +153,13 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
 
         <div className="p-6 pt-10 space-y-6">
           <div>
-            <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">保存默认值</h2>
-            <p className="mt-2 text-sm text-[var(--tab-options-text)]">配置保存书签时的默认选项。</p>
+            <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">{t('pref_defaults_title')}</h2>
+            <p className="mt-2 text-sm text-[var(--tab-options-text)]">{t('pref_defaults_desc')}</p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">默认可见性</label>
+              <label className="block text-sm font-medium text-[var(--tab-options-text)] mb-2">{t('pref_visibility')}</label>
               <div className="inline-flex rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-card-bg)] p-1 text-sm font-medium text-[var(--tab-options-text)]">
                 <button
                   type="button"
@@ -168,7 +170,7 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  公开
+                  {t('pref_visibility_public')}
                 </button>
                 <button
                   type="button"
@@ -179,16 +181,16 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
                       : 'hover:text-[var(--tab-options-title)]'
                   }`}
                 >
-                  隐私
+                  {t('pref_visibility_private')}
                 </button>
               </div>
-              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">保存书签时的默认可见性。</p>
+              <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">{t('pref_visibility_hint')}</p>
             </div>
 
             <div className="flex items-center justify-between py-3 border-t border-[color:var(--tab-options-card-border)]">
               <div>
-                <label className="block text-sm font-medium text-[var(--tab-options-text)]">默认包含封面图</label>
-                <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">保存时是否包含页面封面图。</p>
+                <label className="block text-sm font-medium text-[var(--tab-options-text)]">{t('pref_thumbnail')}</label>
+                <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">{t('pref_thumbnail_hint')}</p>
               </div>
               <button
                 type="button"
@@ -209,8 +211,8 @@ export function PreferencesSection({ formData, setFormData }: PreferencesSection
 
             <div className="flex items-center justify-between py-3 border-t border-[color:var(--tab-options-card-border)]">
               <div>
-                <label className="block text-sm font-medium text-[var(--tab-options-text)]">默认创建快照</label>
-                <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">保存时是否创建网页快照。</p>
+                <label className="block text-sm font-medium text-[var(--tab-options-text)]">{t('pref_snapshot')}</label>
+                <p className="mt-1 text-xs text-[var(--tab-options-text-muted)]">{t('pref_snapshot_hint')}</p>
               </div>
               <button
                 type="button"

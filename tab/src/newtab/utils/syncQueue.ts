@@ -65,7 +65,7 @@ export async function enqueue<T>(type: string, payload: T): Promise<void> {
   }
 
   await saveQueue(queue);
-  logger.log('已加入同步队列:', type);
+  logger.log('Added to sync queue:', type);
 
   // 如果在线，立即尝试处理
   if (isOnline) {
@@ -80,7 +80,7 @@ export async function processQueue(): Promise<void> {
   if (isProcessing || !isOnline) return;
   
   isProcessing = true;
-  logger.debug('开始处理同步队列');
+  logger.debug('Start processing sync queue');
 
   try {
     const queue = await loadQueue();
@@ -90,7 +90,7 @@ export async function processQueue(): Promise<void> {
       const handler = handlers.get(item.type);
       
       if (!handler) {
-        logger.warn('未找到队列处理器:', item.type);
+        logger.warn('Queue handler not found:', item.type);
         continue;
       }
 
@@ -102,13 +102,13 @@ export async function processQueue(): Promise<void> {
             initialDelay: 500,
             shouldRetry: isRetryableError,
             onRetry: (_, attempt) => {
-              logger.debug(`重试 ${item.type} (${attempt + 1})`);
+              logger.debug(`Retry ${item.type} (${attempt + 1})`);
             },
           }
         );
-        logger.debug('队列处理成功:', item.type);
+        logger.debug('Queue processed successfully:', item.type);
       } catch (error) {
-        logger.error('队列处理失败:', item.type, error);
+        logger.error('Queue processing failed:', item.type, error);
         
         // 增加重试次数
         item.retries++;
@@ -117,13 +117,13 @@ export async function processQueue(): Promise<void> {
         if (item.retries < MAX_RETRIES) {
           remaining.push(item);
         } else {
-          logger.warn('已达最大重试次数，丢弃:', item.type);
+          logger.warn('Max retries reached, discarding:', item.type);
         }
       }
     }
 
     await saveQueue(remaining);
-    logger.debug('队列处理完成，剩余:', remaining.length);
+    logger.debug('Queue processing complete, remaining:', remaining.length);
   } finally {
     isProcessing = false;
   }
@@ -142,7 +142,7 @@ export async function getQueueLength(): Promise<number> {
  */
 export async function clearQueue(): Promise<void> {
   await chrome.storage.local.remove(QUEUE_STORAGE_KEY);
-  logger.log('同步队列已清空');
+  logger.log('Sync queue cleared');
 }
 
 /**
@@ -164,7 +164,7 @@ async function saveQueue(queue: QueueItem[]): Promise<void> {
   try {
     await chrome.storage.local.set({ [QUEUE_STORAGE_KEY]: queue });
   } catch (error) {
-    logger.error('保存同步队列失败:', error);
+    logger.error('Failed to save sync queue:', error);
   }
 }
 
@@ -175,13 +175,13 @@ export function initSyncQueue(): void {
   if (typeof window === 'undefined') return;
 
   window.addEventListener('online', () => {
-    logger.log('网络已恢复');
+    logger.log('Network restored');
     isOnline = true;
     processQueue();
   });
 
   window.addEventListener('offline', () => {
-    logger.log('网络已断开');
+    logger.log('Network disconnected');
     isOnline = false;
   });
 

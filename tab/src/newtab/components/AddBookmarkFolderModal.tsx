@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Folder, X } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { Z_INDEX } from '../constants/z-index';
 
 interface AddBookmarkFolderModalProps {
@@ -46,7 +47,7 @@ export function AddBookmarkFolderModal({
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2">
             <Folder className="w-5 h-5 text-white/70" />
-            <h3 className="text-base font-medium text-white">新建文件夹</h3>
+            <h3 className="text-base font-medium text-white">{t('modal_new_folder')}</h3>
           </div>
           <button
             onClick={onClose}
@@ -61,7 +62,7 @@ export function AddBookmarkFolderModal({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="文件夹名称"
+            placeholder={t('placeholder_folder_name')}
             className="w-full bg-white/10 text-white text-sm rounded-lg px-3 py-2.5 outline-none border border-white/10 focus:border-white/30 placeholder-white/40"
             autoFocus
           />
@@ -72,14 +73,14 @@ export function AddBookmarkFolderModal({
               onClick={onClose}
               className="flex-1 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/70 text-sm"
             >
-              取消
+              {t('btn_cancel')}
             </button>
             <button
               type="submit"
               disabled={!name.trim()}
               className="flex-1 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white text-sm"
             >
-              创建
+              {t('btn_create')}
             </button>
           </div>
         </form>

@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { t } from '@/lib/i18n';
 import { Z_INDEX } from '../../constants/z-index';
 
 interface ConfirmModalProps {
@@ -21,13 +22,15 @@ export function ConfirmModal({
   isOpen,
   title,
   message,
-  confirmText = '确定',
-  cancelText = '取消',
+  confirmText,
+  cancelText,
   confirmVariant = 'default',
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const finalConfirmText = confirmText || t('btn_confirm');
+  const finalCancelText = cancelText || t('btn_cancel');
 
   useEffect(() => {
     if (isOpen) {
@@ -107,19 +110,19 @@ export function ConfirmModal({
             <button
               type="button"
               onClick={handleCancel}
-              aria-label={cancelText}
+              aria-label={finalCancelText}
               className="flex-1 py-[11px] text-[17px] font-normal transition-colors focus:outline-none"
               style={{ color: 'var(--ios-action-primary)' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--ios-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              {cancelText}
+              {finalCancelText}
             </button>
             <div className="w-px" style={{ backgroundColor: 'var(--ios-divider)' }} />
             <button
               type="button"
               onClick={handleConfirm}
-              aria-label={confirmText}
+              aria-label={finalConfirmText}
               className="flex-1 py-[11px] text-[17px] font-semibold transition-colors focus:outline-none"
               style={{
                 color: confirmVariant === 'danger' ? 'var(--ios-action-danger)' : 'var(--ios-action-primary)',
@@ -127,7 +130,7 @@ export function ConfirmModal({
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--ios-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              {confirmText}
+              {finalConfirmText}
             </button>
           </div>
         </div>

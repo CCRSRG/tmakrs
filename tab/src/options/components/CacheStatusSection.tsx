@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface CacheStatusSectionProps {
@@ -23,24 +24,24 @@ export function CacheStatusSection({
 
       <div className="p-6 pt-10 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">缓存状态</h2>
+          <h2 className="text-xl font-semibold text-[var(--tab-options-title)]">{t('options_cache_title')}</h2>
           <p className="mt-2 text-sm text-[var(--tab-options-text)]">
-            查看本地缓存概况并手动触发一次同步。
+            {t('options_cache_desc')}
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-tag-bg)] p-4 text-center">
             <p className="text-2xl font-bold text-[var(--tab-options-pill-text)]">{stats.tags}</p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-[var(--tab-options-text-muted)]">标签数</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-[var(--tab-options-text-muted)]">{t('options_tags_count')}</p>
           </div>
           <div className="rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-tag-bg)] p-4 text-center">
             <p className="text-2xl font-bold text-[var(--tab-options-pill-text)]">{stats.bookmarks}</p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-[var(--tab-options-text-muted)]">书签数</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-[var(--tab-options-text-muted)]">{t('options_bookmarks_count')}</p>
           </div>
           <div className="rounded-xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-tag-bg)] p-4 text-center">
             <p className="text-xs font-medium text-[var(--tab-options-text)]">{formatDate(stats.lastSync)}</p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-[var(--tab-options-text-muted)]">上次同步</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-[var(--tab-options-text-muted)]">{t('options_last_sync')}</p>
           </div>
         </div>
 
@@ -52,10 +53,10 @@ export function CacheStatusSection({
           {isLoading ? (
             <>
               <LoadingSpinner />
-              <span>同步中...</span>
+              <span>{t('options_syncing')}</span>
             </>
           ) : (
-            '立即同步'
+            t('options_sync_now')
           )}
         </button>
       </div>

@@ -8,6 +8,7 @@ import { SEARCH_ENGINES, FAVICON_API } from '../constants';
 import { useNewtabStore } from '../hooks/useNewtabStore';
 import { useTMarksSync } from '../hooks/useTMarksSync';
 import { SearchEngineSelector } from './SearchEngineSelector';
+import { t } from '@/lib/i18n';
 import type { SearchEngine, SearchResult } from '../types';
 
 // 获取 favicon URL，如果没有则使用 Google API
@@ -178,7 +179,7 @@ export function SearchBar({ engine, enableSuggestions = true, onEngineChange }: 
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 150)}
-          placeholder={bookmarkMode ? '搜索书签...' : `在 ${engineConfig.name} 中搜索...`}
+          placeholder={bookmarkMode ? t('search_bookmark_placeholder') : t('search_engine_placeholder', engineConfig.name)}
           className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-base"
         />
         
@@ -190,7 +191,7 @@ export function SearchBar({ engine, enableSuggestions = true, onEngineChange }: 
               ? 'bg-blue-500/30 text-blue-400'
               : 'text-white/40 hover:text-white/70 hover:bg-white/10'
           }`}
-          title={bookmarkMode ? '切换到搜索引擎' : '切换到书签搜索'}
+          title={bookmarkMode ? t('switch_to_search_engine') : t('switch_to_bookmark_search')}
         >
           <BookMarked className="w-4 h-4" />
         </button>
@@ -222,7 +223,7 @@ export function SearchBar({ engine, enableSuggestions = true, onEngineChange }: 
                 <div className="text-xs text-white/50 truncate">{result.url}</div>
               </div>
               <span className="text-xs text-white/30">
-                {result.source === 'shortcut' ? '快捷方式' : '书签'}
+                {result.source === 'shortcut' ? t('source_shortcut') : t('source_bookmark')}
               </span>
             </button>
           ))}

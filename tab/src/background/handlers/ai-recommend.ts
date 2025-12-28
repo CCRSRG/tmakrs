@@ -2,6 +2,7 @@
  * AI 推荐处理器
  */
 
+import { t } from '@/lib/i18n';
 import type { Message, MessageResponse } from '@/types';
 import { StorageService } from '@/lib/utils/storage';
 import { callAI } from '@/lib/services/ai-client';
@@ -57,7 +58,7 @@ export async function handleRecommendNewtabFolder(
     .split('{{url}}')
     .join(url)
     .split('{{description}}')
-    .join(page.description || '无')
+    .join(page.description || t('none'))
     .split('{{recommendCount}}')
     .join(String(recommendCount))
     .split('{{folderPaths}}')
@@ -73,7 +74,7 @@ export async function handleRecommendNewtabFolder(
           .split('{{url}}')
           .join(url)
           .split('{{description}}')
-          .join(page.description || '无')
+          .join(page.description || t('none'))
           .split('{{recommendCount}}')
           .join(String(recommendCount))
           .split('{{folderPaths}}')

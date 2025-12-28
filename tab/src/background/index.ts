@@ -3,6 +3,7 @@
  * 主入口文件 - 负责消息监听和事件处理
  */
 
+import { t, initI18n } from '@/lib/i18n';
 import { cacheManager } from '@/lib/services/cache-manager';
 import { tagRecommender } from '@/lib/services/tag-recommender';
 import { bookmarkService } from '@/lib/services/bookmark-service';
@@ -25,6 +26,9 @@ import {
 } from './handlers/newtab-folders';
 import { handleRecommendNewtabFolder } from './handlers/ai-recommend';
 import { handleAiOrganizeNewtabWorkspace } from './handlers/ai-organize';
+
+// 初始化 i18n（Service Worker 启动时）
+initI18n().catch(() => {});
 
 // 确保 Service Worker 启动时就检查一次
 ensureNewtabWorkspaceFolders().catch(() => {});
@@ -237,7 +241,7 @@ async function handleMessage(
         const msg = (() => {
           const m = String(rawMsg || '');
           if (m.includes('429') || m.includes('rate_limit_exceeded')) {
-            return 'AI 服务当前拥塞/触发限流（429）。请稍后重试，或切换到其他模型/供应商。';
+            return t('error_ai_rate_limit');
           }
           return rawMsg;
         })();

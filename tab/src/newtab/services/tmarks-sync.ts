@@ -5,6 +5,7 @@
 
 import { createTMarksClient } from '@/lib/api/tmarks';
 import { StorageService } from '@/lib/utils/storage';
+import { t } from '@/lib/i18n';
 import type { GridItem } from '../types';
 
 export interface TMarksSyncResult {
@@ -59,10 +60,10 @@ export async function syncCreateBookmarkToTMarks(
       tmarksBookmarkId: response.data.bookmark.id,
     };
   } catch (error) {
-    console.error('[TMarks Sync] 创建书签失败:', error);
+    console.error('[TMarks Sync] Create bookmark failed:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : '同步失败',
+      error: error instanceof Error ? error.message : t('error_sync_failed'),
     };
   }
 }
@@ -86,10 +87,10 @@ export async function syncTrashBookmarkToTMarks(
     await client.bookmarks.trashBookmark(tmarksBookmarkId);
     return { success: true };
   } catch (error) {
-    console.error('[TMarks Sync] 删除书签失败:', error);
+    console.error('[TMarks Sync] Delete bookmark failed:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : '同步删除失败',
+      error: error instanceof Error ? error.message : t('error_sync_delete_failed'),
     };
   }
 }
@@ -114,14 +115,14 @@ export async function syncTrashBookmarksToTMarks(
     try {
       await client.bookmarks.trashBookmark(id);
     } catch (error) {
-      errors.push(`${id}: ${error instanceof Error ? error.message : '未知错误'}`);
+      errors.push(`${id}: ${error instanceof Error ? error.message : t('error_unknown')}`);
     }
   }
 
   if (errors.length > 0) {
     return {
       success: false,
-      error: `部分书签删除失败: ${errors.join(', ')}`,
+      error: t('error_partial_delete', errors.join(', ')),
     };
   }
 
@@ -148,10 +149,10 @@ export async function syncUpdateBookmarkToTMarks(
     await client.bookmarks.updateBookmark(tmarksBookmarkId, updates);
     return { success: true };
   } catch (error) {
-    console.error('[TMarks Sync] 更新书签失败:', error);
+    console.error('[TMarks Sync] Update bookmark failed:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : '同步更新失败',
+      error: error instanceof Error ? error.message : t('error_sync_update_failed'),
     };
   }
 }

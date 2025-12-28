@@ -2,6 +2,7 @@
  * AI 配置组件类型定义
  */
 
+import { t } from '@/lib/i18n';
 import type { AIProvider, AIConnectionInfo } from '@/types';
 
 export interface AIConfigFormData {
@@ -28,13 +29,28 @@ export interface AIConfigSectionProps {
   onSaveConnectionPreset: () => void;
 }
 
+export const getProviderName = (provider: AIProvider): string => {
+  const nameMap: Record<AIProvider, string> = {
+    openai: t('provider_openai'),
+    claude: t('provider_claude'),
+    deepseek: t('provider_deepseek'),
+    zhipu: t('provider_zhipu'),
+    modelscope: t('provider_modelscope'),
+    siliconflow: t('provider_siliconflow'),
+    iflow: t('provider_iflow'),
+    custom: t('provider_custom'),
+  };
+  return nameMap[provider];
+};
+
+// Keep for backward compatibility - use getProviderName() for i18n support
 export const providerNameMap: Record<AIProvider, string> = {
   openai: 'OpenAI',
   claude: 'Claude',
   deepseek: 'DeepSeek',
-  zhipu: '智谱AI',
+  zhipu: 'Zhipu AI',
   modelscope: 'ModelScope',
   siliconflow: 'SiliconFlow',
-  iflow: '讯飞星火',
-  custom: '自定义',
+  iflow: 'iFlytek Spark',
+  custom: 'Custom',
 };

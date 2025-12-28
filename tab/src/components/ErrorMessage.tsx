@@ -1,3 +1,5 @@
+import { t } from '@/lib/i18n';
+
 interface ErrorMessageProps {
   message: string;
   onDismiss?: () => void;
@@ -32,7 +34,7 @@ export function ErrorMessage({ message, onDismiss, onRetry }: ErrorMessageProps)
               onClick={onRetry}
               className="text-[var(--tab-message-danger-icon)] hover:opacity-90 text-xs font-medium transition-colors"
             >
-              重试
+              {t('btn_retry')}
             </button>
           )}
           {onDismiss && (

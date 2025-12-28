@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import type { PageInfo } from '@/types';
+import { t } from '@/lib/i18n';
 
 export interface NewtabFolder {
   id: string;
@@ -58,7 +59,7 @@ export function useNewtabState(onError: (error: string) => void) {
       setNewtabFoldersLoaded(true);
     } catch (e) {
       setNewtabFoldersLoaded(false);
-      setNewtabFoldersLoadError(e instanceof Error ? e.message : '加载文件夹失败');
+      setNewtabFoldersLoadError(e instanceof Error ? e.message : t('error_load_folders'));
       setNewtabRootId(null);
       setNewtabFolders([]);
       setCurrentNewtabFolderId(null);
@@ -84,12 +85,12 @@ export function useNewtabState(onError: (error: string) => void) {
 
   const handleRecommendNewtabFolder = async (currentPage: PageInfo | null) => {
     if (!currentPage?.url) {
-      onError('未获取到页面信息');
+      onError(t('error_no_page_info'));
       return;
     }
 
     if (!newtabFoldersLoaded) {
-      setNewtabFoldersLoadError('目录列表未加载，暂时无法进行 AI 文件夹推荐。你仍可直接保存到根目录。');
+      setNewtabFoldersLoadError(t('error_folders_not_loaded'));
       return;
     }
 
@@ -105,7 +106,7 @@ export function useNewtabState(onError: (error: string) => void) {
       });
       setNewtabSuggestions(resp.suggestedFolders || []);
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'AI 推荐失败');
+      onError(e instanceof Error ? e.message : t('error_ai_recommend_failed'));
     } finally {
       setIsNewtabRecommending(false);
     }

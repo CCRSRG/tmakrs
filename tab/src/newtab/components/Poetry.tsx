@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { DEFAULT_POETRY } from '../constants';
 import type { Poetry as PoetryType } from '../types';
 
@@ -51,7 +52,7 @@ export function Poetry() {
       <button
         onClick={getRandomPoetry}
         className="p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all inline-flex items-center"
-        title="换一首"
+        title={t('poetry_refresh')}
       >
         <RefreshCw className="w-3 h-3 text-white/50" />
       </button>

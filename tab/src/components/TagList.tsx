@@ -1,5 +1,6 @@
 import type { TagSuggestion } from '@/types';
 import { TAG_CHIP_BASE_CLASS, getSuggestedTagClass, type TagTheme } from '@/lib/utils/tagStyles';
+import { t } from '@/lib/i18n';
 
 interface TagListProps {
   tags: TagSuggestion[];
@@ -35,7 +36,7 @@ export function TagList({ tags, selectedTags, onToggle, theme = 'classic' }: Tag
                     : 'text-[var(--tab-message-info-icon)]'
                 }`}
               >
-                {' NEW '}
+                {` ${t('tag_new')} `}
               </span>
             )}
           </button>

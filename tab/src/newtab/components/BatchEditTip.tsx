@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, MousePointerClick } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { Z_INDEX } from '../constants/z-index';
 
 const STORAGE_KEY = 'tmarks_batch_edit_tip_dismissed';
@@ -56,7 +57,7 @@ export function BatchEditTip({ isOpen, onClose }: BatchEditTipProps) {
           <div className="p-2.5 rounded-xl bg-blue-500/20">
             <MousePointerClick className="w-5 h-5 text-blue-400" />
           </div>
-          <h3 className="text-lg font-semibold text-white">批量编辑模式</h3>
+          <h3 className="text-lg font-semibold text-white">{t('batch_edit_mode')}</h3>
         </div>
 
         <div className="space-y-3 text-sm text-white/80">
@@ -65,8 +66,8 @@ export function BatchEditTip({ isOpen, onClose }: BatchEditTipProps) {
               1
             </span>
             <div>
-              <p className="font-medium text-white/90">单击</p>
-              <p className="text-white/60 text-xs mt-0.5">选择/取消选择项目</p>
+              <p className="font-medium text-white/90">{t('batch_tip_click')}</p>
+              <p className="text-white/60 text-xs mt-0.5">{t('batch_tip_click_desc')}</p>
             </div>
           </div>
 
@@ -75,8 +76,8 @@ export function BatchEditTip({ isOpen, onClose }: BatchEditTipProps) {
               2
             </span>
             <div>
-              <p className="font-medium text-white/90">双击文件夹</p>
-              <p className="text-white/60 text-xs mt-0.5">进入文件夹查看内容</p>
+              <p className="font-medium text-white/90">{t('batch_tip_double_click')}</p>
+              <p className="text-white/60 text-xs mt-0.5">{t('batch_tip_double_click_desc')}</p>
             </div>
           </div>
 
@@ -85,8 +86,8 @@ export function BatchEditTip({ isOpen, onClose }: BatchEditTipProps) {
               !
             </span>
             <div>
-              <p className="font-medium text-white/90">空文件夹自动删除</p>
-              <p className="text-white/60 text-xs mt-0.5">移出所有内容后，文件夹会自动删除（首页除外）</p>
+              <p className="font-medium text-white/90">{t('batch_tip_auto_delete')}</p>
+              <p className="text-white/60 text-xs mt-0.5">{t('batch_tip_auto_delete_desc')}</p>
             </div>
           </div>
         </div>
@@ -99,7 +100,7 @@ export function BatchEditTip({ isOpen, onClose }: BatchEditTipProps) {
               onChange={(e) => setDontShowAgain(e.target.checked)}
               className="w-4 h-4 rounded border-white/30 bg-white/10 text-blue-500 focus:ring-blue-500/50"
             />
-            <span className="text-xs text-white/60">下次不再显示</span>
+            <span className="text-xs text-white/60">{t('batch_tip_dont_show')}</span>
           </label>
         </div>
 
@@ -107,7 +108,7 @@ export function BatchEditTip({ isOpen, onClose }: BatchEditTipProps) {
           onClick={handleClose}
           className="mt-4 w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors"
         >
-          知道了
+          {t('batch_tip_got_it')}
         </button>
       </div>
     </div>,

@@ -5,8 +5,9 @@
 import { useState, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Maximize2 } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { GridItem, GridItemSize } from '../../types';
-import { WIDGET_REGISTRY, getSizeSpan } from './widgetRegistry';
+import { getWidgetRegistry, getSizeSpan } from './widgetRegistry';
 
 interface WidgetConfigModalProps {
   item: GridItem;
@@ -17,13 +18,16 @@ interface WidgetConfigModalProps {
 }
 
 // 尺寸选项显示名称
-const SIZE_LABELS: Record<GridItemSize, string> = {
-  '1x1': '小 (1×1)',
-  '2x1': '宽 (2×1)',
-  '1x2': '高 (1×2)',
-  '2x2': '中 (2×2)',
-  '2x3': '大 (2×3)',
-  '2x4': '超大 (2×4)',
+const getSizeLabel = (size: GridItemSize): string => {
+  const labels: Record<GridItemSize, string> = {
+    '1x1': t('widget_size_small'),
+    '2x1': t('widget_size_wide'),
+    '1x2': t('widget_size_tall'),
+    '2x2': t('widget_size_medium'),
+    '2x3': t('widget_size_large'),
+    '2x4': t('widget_size_xlarge'),
+  };
+  return labels[size];
 };
 
 export const WidgetConfigModal = memo(function WidgetConfigModal({
@@ -34,7 +38,8 @@ export const WidgetConfigModal = memo(function WidgetConfigModal({
   onRemove,
 }: WidgetConfigModalProps) {
   const [localConfig, setLocalConfig] = useState(item.config || {});
-  const meta = WIDGET_REGISTRY[item.type];
+  const registry = getWidgetRegistry();
+  const meta = registry[item.type];
 
   if (!isOpen) return null;
 
@@ -67,7 +72,7 @@ export const WidgetConfigModal = memo(function WidgetConfigModal({
           {/* 标题栏 */}
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-medium text-white">
-              {meta.name} 设置
+              {meta.name} {t('widget_settings')}
             </h3>
             <button
               onClick={onClose}
@@ -83,7 +88,7 @@ export const WidgetConfigModal = memo(function WidgetConfigModal({
               <div>
                 <label className="flex items-center gap-2 text-sm text-white/60 mb-2">
                   <Maximize2 className="w-4 h-4" />
-                  组件尺寸
+                  {t('widget_size')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {meta.sizeConfig.allowedSizes.map((size) => {
@@ -116,7 +121,7 @@ export const WidgetConfigModal = memo(function WidgetConfigModal({
                             ))}
                           </div>
                         </div>
-                        <span className="text-xs">{SIZE_LABELS[size]}</span>
+                        <span className="text-xs">{getSizeLabel(size)}</span>
                       </button>
                     );
                   })}
@@ -151,7 +156,7 @@ export const WidgetConfigModal = memo(function WidgetConfigModal({
               onClick={handleRemove}
               className="w-full py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30"
             >
-              删除组件
+              {t('widget_delete')}
             </button>
           </div>
         </div>
@@ -172,26 +177,26 @@ function ClockConfig({
   return (
     <div className="space-y-3">
       <ToggleOption
-        label="显示日期"
+        label={t('widget_show_date')}
         checked={config.showDate !== false}
         onChange={(v) => onChange({ showDate: v })}
       />
       <ToggleOption
-        label="显示秒数"
+        label={t('widget_show_seconds')}
         checked={config.showSeconds === true}
         onChange={(v) => onChange({ showSeconds: v })}
       />
       <ToggleOption
-        label="显示农历"
+        label={t('widget_show_lunar')}
         checked={config.showLunar === true}
         onChange={(v) => onChange({ showLunar: v })}
       />
       <SelectOption
-        label="时间格式"
+        label={t('widget_time_format')}
         value={config.format || '24h'}
         options={[
-          { value: '24h', label: '24 小时制' },
-          { value: '12h', label: '12 小时制' },
+          { value: '24h', label: t('widget_24h') },
+          { value: '12h', label: t('widget_12h') },
         ]}
         onChange={(v) => onChange({ format: v })}
       />
@@ -210,11 +215,11 @@ function WeatherConfig({
   return (
     <div className="space-y-3">
       <SelectOption
-        label="温度单位"
+        label={t('widget_temp_unit')}
         value={config.unit || 'C'}
         options={[
-          { value: 'C', label: '摄氏度 (°C)' },
-          { value: 'F', label: '华氏度 (°F)' },
+          { value: 'C', label: t('widget_celsius') },
+          { value: 'F', label: t('widget_fahrenheit') },
         ]}
         onChange={(v) => onChange({ unit: v })}
       />
@@ -233,7 +238,7 @@ function TodoConfig({
   return (
     <div className="space-y-3">
       <ToggleOption
-        label="显示已完成"
+        label={t('widget_show_completed')}
         checked={config.showCompleted === true}
         onChange={(v) => onChange({ showCompleted: v })}
       />

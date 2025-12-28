@@ -4,6 +4,7 @@
 
 import { useState, useRef, useCallback, type ReactNode } from 'react';
 import { Trash2 } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 interface SwipeToDeleteProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ interface SwipeToDeleteProps {
 export function SwipeToDelete({
   children,
   onDelete,
-  deleteText = '删除',
+  deleteText,
   threshold = 80,
   disabled = false,
 }: SwipeToDeleteProps) {
@@ -25,6 +26,7 @@ export function SwipeToDelete({
   const startXRef = useRef(0);
   const currentXRef = useRef(0);
   const isDraggingRef = useRef(false);
+  const finalDeleteText = deleteText || t('ui_delete');
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (disabled) return;
@@ -87,7 +89,7 @@ export function SwipeToDelete({
           className="w-full h-full flex items-center justify-center text-white"
         >
           <Trash2 className="w-5 h-5" />
-          <span className="ml-1 text-sm font-medium">{deleteText}</span>
+          <span className="ml-1 text-sm font-medium">{finalDeleteText}</span>
         </button>
       </div>
 

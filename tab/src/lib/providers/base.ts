@@ -28,14 +28,14 @@ export abstract class AIProvider {
       return customPrompt
         .replace(/\{title\}/g, page.title)
         .replace(/\{url\}/g, page.url)
-        .replace(/\{description\}/g, page.description || '无')
-        .replace(/\{content\}/g, page.content?.substring(0, 500) || '无')
+        .replace(/\{description\}/g, page.description || 'N/A')
+        .replace(/\{content\}/g, page.content?.substring(0, 500) || 'N/A')
         .replace(/\{existingTags\}/g, context.existingTags.slice(0, 100).join(', '))
         .replace(/\{recentBookmarks\}/g, context.recentBookmarks.slice(0, 10).map(b =>
           `- ${b.title} [${b.tags.join(', ')}]`
         ).join('\n'))
         .replace(/\{maxTags\}/g, options.maxTags.toString())
-        .replace(/\{preferExisting\}/g, options.preferExisting ? '优先' : '可以');
+        .replace(/\{preferExisting\}/g, options.preferExisting ? 'prefer' : 'allow');
     }
 
     // Use modular default prompt

@@ -9,6 +9,7 @@ import { PresetModal } from './components/PresetModal';
 import { TMarksTagSection } from './components/TMarksTagSection';
 import { NewTabTagSection } from './components/NewTabTagSection';
 import { useOptionsForm } from './hooks/useOptionsForm';
+import { t } from '@/lib/i18n';
 
 export function Options() {
   const {
@@ -59,11 +60,11 @@ export function Options() {
   const tabs = useMemo(
     () =>
       [
-        { id: 'ai' as const, label: 'AI 配置' },
+        { id: 'ai' as const, label: t('options_tab_ai') },
         { id: 'tmarkstag' as const, label: 'TMarks' },
         { id: 'newtabtag' as const, label: 'NewTab' },
-        { id: 'preferences' as const, label: '偏好设置' },
-        { id: 'tmarks' as const, label: '同步设置' },
+        { id: 'preferences' as const, label: t('options_tab_preferences') },
+        { id: 'tmarks' as const, label: t('options_tab_tmarks') },
       ],
     []
   );
@@ -76,16 +77,16 @@ export function Options() {
             <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--tab-options-hero-gradient-from)] via-[color:var(--tab-options-hero-gradient-via)] to-[color:var(--tab-options-hero-gradient-to)]" />
             <div className="relative p-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[color:var(--tab-options-pill-bg)] text-sm font-medium text-[var(--tab-options-pill-text)]">
-                设置中心
+                {t('options_title')}
               </div>
-              <h1 className="mt-4 text-4xl font-bold text-[var(--tab-options-title)] tracking-tight">个性化你的书签助理</h1>
+              <h1 className="mt-4 text-4xl font-bold text-[var(--tab-options-title)] tracking-tight">{t('options_subtitle')}</h1>
               <p className="mt-3 max-w-2xl text-base text-[var(--tab-options-text)]">
-                管理 AI 接入、同步策略与服务端配置，为你的工作流打造顺滑的知识收集体验。
+                {t('options_description')}
               </p>
               <div className="mt-6 flex flex-wrap gap-3 text-xs font-medium text-[var(--tab-options-text-muted)]">
-                <span className="px-3 py-1 rounded-full bg-[color:var(--tab-options-tag-bg)] border border-[color:var(--tab-options-tag-border)]">AI 标签</span>
-                <span className="px-3 py-1 rounded-full bg-[color:var(--tab-options-tag-bg)] border border-[color:var(--tab-options-tag-border)]">多端同步</span>
-                <span className="px-3 py-1 rounded-full bg-[color:var(--tab-options-tag-bg)] border border-[color:var(--tab-options-tag-border)]">安全配置</span>
+                <span className="px-3 py-1 rounded-full bg-[color:var(--tab-options-tag-bg)] border border-[color:var(--tab-options-tag-border)]">{t('options_tag_ai')}</span>
+                <span className="px-3 py-1 rounded-full bg-[color:var(--tab-options-tag-bg)] border border-[color:var(--tab-options-tag-border)]">{t('options_tag_sync')}</span>
+                <span className="px-3 py-1 rounded-full bg-[color:var(--tab-options-tag-bg)] border border-[color:var(--tab-options-tag-border)]">{t('options_tag_security')}</span>
               </div>
             </div>
           </div>
@@ -102,31 +103,31 @@ export function Options() {
               <div className="sticky top-8 space-y-4">
                 <div className="rounded-2xl border border-[color:var(--tab-options-card-border)] bg-[color:var(--tab-options-card-bg)] shadow-sm backdrop-blur p-3">
                   <div className="space-y-2">
-                    {tabs.map((t) => (
+                    {tabs.map((tab) => (
                       <button
-                        key={t.id}
+                        key={tab.id}
                         type="button"
-                        onClick={() => setActiveTab(t.id)}
+                        onClick={() => setActiveTab(tab.id)}
                         className={`w-full text-left px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                          activeTab === t.id
+                          activeTab === tab.id
                             ? 'bg-[var(--tab-options-button-primary-bg)] text-[var(--tab-options-button-primary-text)]'
                             : 'text-[var(--tab-options-text)] hover:bg-[var(--tab-options-button-hover-bg)]'
                         }`}
                       >
-                        {t.label}
+                        {tab.label}
                       </button>
                     ))}
                   </div>
 
                   <div className="mt-4 border-t border-[color:var(--tab-options-card-border)] pt-4 space-y-3">
-                    <div className="text-xs font-semibold text-[var(--tab-options-text-muted)]">保存与同步</div>
+                    <div className="text-xs font-semibold text-[var(--tab-options-text-muted)]">{t('options_save_sync')}</div>
                     <div className="space-y-2">
                       <button
                         type="button"
                         onClick={handleReset}
                         className="w-full rounded-lg border border-[color:var(--tab-options-button-border)] px-3 py-2 text-sm font-medium text-[var(--tab-options-button-text)] hover:bg-[var(--tab-options-button-hover-bg)] transition-colors"
                       >
-                        重置设置
+                        {t('btn_reset')}
                       </button>
                       <button
                         type="button"
@@ -134,7 +135,7 @@ export function Options() {
                         disabled={isLoading}
                         className="w-full rounded-lg bg-[var(--tab-options-button-primary-bg)] px-3 py-2 text-sm font-medium text-[var(--tab-options-button-primary-text)] shadow-sm hover:bg-[var(--tab-options-button-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                       >
-                        {isLoading ? '保存中...' : '保存设置'}
+                        {isLoading ? t('btn_saving') : t('btn_save')}
                       </button>
                     </div>
                   </div>

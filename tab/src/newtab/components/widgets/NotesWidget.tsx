@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useRef, memo } from 'react';
 import { StickyNote } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { WidgetRendererProps } from './types';
 
 const NOTES_STORAGE_KEY = 'newtab_notes';
@@ -51,10 +52,10 @@ export const NotesWidget = memo(function NotesWidget({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-white/80">
           <StickyNote className="w-4 h-4" />
-          <span className="text-sm font-medium">备忘录</span>
+          <span className="text-sm font-medium">{t('widget_notes_title')}</span>
         </div>
         {isSaving && (
-          <span className="text-xs text-white/40">保存中...</span>
+          <span className="text-xs text-white/40">{t('btn_saving')}</span>
         )}
       </div>
 
@@ -63,7 +64,7 @@ export const NotesWidget = memo(function NotesWidget({
         ref={textareaRef}
         value={content}
         onChange={(e) => handleChange(e.target.value)}
-        placeholder="记录一些想法..."
+        placeholder={t('widget_notes_placeholder')}
         className="flex-1 w-full bg-white/10 text-white text-sm rounded-lg px-3 py-2 outline-none 
                    border border-white/10 focus:border-white/30 placeholder-white/40 resize-none"
       />

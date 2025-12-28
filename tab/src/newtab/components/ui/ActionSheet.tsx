@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { t } from '@/lib/i18n';
 import { Z_INDEX } from '../../constants/z-index';
 
 interface ActionSheetAction {
@@ -26,10 +27,11 @@ export function ActionSheet({
   title,
   message,
   actions,
-  cancelText = '取消',
+  cancelText,
   onCancel,
 }: ActionSheetProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const finalCancelText = cancelText || t('btn_cancel');
 
   useEffect(() => {
     if (isOpen) {
@@ -70,7 +72,7 @@ export function ActionSheet({
     >
       <div
         role="dialog"
-        aria-label={title || '操作'}
+        aria-label={title || t('ui_action')}
         className={`w-full max-w-[400px] transition-all duration-300 ease-out ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
@@ -137,13 +139,13 @@ export function ActionSheet({
           <button
             type="button"
             onClick={handleCancel}
-            aria-label={cancelText}
+            aria-label={finalCancelText}
             className="w-full py-[18px] text-[20px] font-semibold transition-colors focus:outline-none"
             style={{ color: 'var(--ios-action-primary)' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--ios-hover)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            {cancelText}
+            {finalCancelText}
           </button>
         </div>
       </div>

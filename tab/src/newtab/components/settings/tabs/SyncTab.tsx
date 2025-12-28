@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { useNewtabStore } from '../../../hooks/useNewtabStore';
 import { StorageService } from '@/lib/utils/storage';
 import { getTMarksUrls } from '@/lib/constants/urls';
@@ -28,14 +29,14 @@ export function SyncTab() {
 
   return (
     <div className="space-y-6">
-      <SettingSection title="TMarks 同步">
+      <SettingSection title={t('settings_tmarks_sync')}>
         <ToggleItem
-          label="显示置顶书签"
+          label={t('settings_show_pinned_bookmarks')}
           checked={settings.showPinnedBookmarks}
           onChange={(v) => updateSettings({ showPinnedBookmarks: v })}
         />
         <ToggleItem
-          label="搜索建议"
+          label={t('settings_search_suggestions')}
           checked={settings.enableSearchSuggestions}
           onChange={(v) => updateSettings({ enableSearchSuggestions: v })}
         />
@@ -46,34 +47,34 @@ export function SyncTab() {
             rel="noopener noreferrer"
             className="flex items-center justify-between p-3 mt-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
           >
-            <span className="text-sm text-white/70">打开 TMarks 网站</span>
+            <span className="text-sm text-white/70">{t('settings_open_tmarks')}</span>
             <ExternalLink className="w-4 h-4 text-white/50" />
           </a>
         )}
         <div className="text-xs text-white/40 mt-2">
-          在扩展设置中配置 API Key 以启用同步功能
+          {t('settings_api_key_hint')}
         </div>
       </SettingSection>
 
-      <SettingSection title="自动刷新">
+      <SettingSection title={t('settings_auto_refresh')}>
         <ToggleItem
-          label="定时刷新置顶书签"
+          label={t('settings_auto_refresh_pinned')}
           checked={settings.autoRefreshPinnedBookmarks}
           onChange={(v) => updateSettings({ autoRefreshPinnedBookmarks: v })}
         />
         {settings.autoRefreshPinnedBookmarks && (
           <>
             <SelectItem
-              label="刷新时间"
+              label={t('settings_refresh_time')}
               value={settings.pinnedBookmarksRefreshTime}
               options={[
-                { value: 'morning', label: '早上 8:00' },
-                { value: 'evening', label: '晚上 22:00' },
+                { value: 'morning', label: t('settings_morning_8') },
+                { value: 'evening', label: t('settings_evening_22') },
               ]}
               onChange={(v) => updateSettings({ pinnedBookmarksRefreshTime: v as 'morning' | 'evening' })}
             />
             <div className="text-xs text-white/40 -mt-1 ml-1">
-              每天自动更新置顶书签缓存，保持数据最新
+              {t('settings_auto_refresh_hint')}
             </div>
           </>
         )}

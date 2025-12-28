@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { t } from '@/lib/i18n';
 import { useNewtabStore } from '../../../hooks/useNewtabStore';
 
 // 设置分组
@@ -234,10 +235,10 @@ export function CacheFaviconsButton() {
         totalCached += gridResults.size;
       }
 
-      alert(`成功缓存 ${totalCached} 个图标`);
+      alert(t('settings_cache_success', totalCached.toString()));
     } catch (error) {
       console.error('Failed to cache favicons:', error);
-      alert('缓存图标失败，请重试');
+      alert(t('settings_cache_failed'));
     } finally {
       setIsLoading(false);
       setProgress({ current: 0, total: 0 });
@@ -258,14 +259,13 @@ export function CacheFaviconsButton() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <div className="text-sm text-white/80">下载并缓存所有图标</div>
+          <div className="text-sm text-white/80">{t('settings_cache_download')}</div>
           <div className="text-xs text-white/50 mt-1">
-            已缓存 {cachedCount} / {totalShortcuts} 个图标
+            {t('settings_cache_count', [cachedCount.toString(), totalShortcuts.toString()])}
           </div>
           {storageInfo && (
             <div className="text-xs text-white/40 mt-0.5">
-              存储占用: {formatBytes(storageInfo.used)} / {formatBytes(storageInfo.total)} 
-              ({((storageInfo.used / storageInfo.total) * 100).toFixed(1)}%)
+              {t('settings_storage_usage', [formatBytes(storageInfo.used), formatBytes(storageInfo.total), ((storageInfo.used / storageInfo.total) * 100).toFixed(1)])}
             </div>
           )}
         </div>
@@ -274,7 +274,7 @@ export function CacheFaviconsButton() {
           disabled={isLoading}
           className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:bg-white/20 text-white text-sm transition-colors"
         >
-          {isLoading ? '缓存中...' : '立即缓存'}
+          {isLoading ? t('settings_caching') : t('settings_cache_now')}
         </button>
       </div>
       {isLoading && progress.total > 0 && (
@@ -291,7 +291,7 @@ export function CacheFaviconsButton() {
         </div>
       )}
       <div className="text-xs text-white/40 leading-relaxed">
-        图标会自动压缩到 10KB 以内，离线时可正常显示
+        {t('settings_cache_hint')}
       </div>
     </div>
   );

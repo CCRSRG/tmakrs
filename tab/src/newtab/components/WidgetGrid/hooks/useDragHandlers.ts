@@ -4,6 +4,7 @@
 
 import { useCallback, useRef } from 'react';
 import type { DragEndEvent, DragCancelEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { t } from '@/lib/i18n';
 import type { GridItem } from '../../../types';
 import type { MergePrompt } from '../types';
 
@@ -142,8 +143,8 @@ export function useDragHandlers({
           setFolderMergePrompt({
             sourceId: String(active.id),
             targetId: overItem.id,
-            sourceName: activeItem.bookmarkFolder?.title || '文件夹',
-            targetName: overItem.bookmarkFolder?.title || '文件夹',
+            sourceName: activeItem.bookmarkFolder?.title || t('widget_folder'),
+            targetName: overItem.bookmarkFolder?.title || t('widget_folder'),
           });
           return;
         }
@@ -158,8 +159,8 @@ export function useDragHandlers({
         setShortcutMergePrompt({
           sourceId: String(active.id),
           targetId: String(over.id),
-          sourceName: activeItem.shortcut?.title || '快捷方式',
-          targetName: overItem.shortcut?.title || '快捷方式',
+          sourceName: activeItem.shortcut?.title || t('widget_shortcut'),
+          targetName: overItem.shortcut?.title || t('widget_shortcut'),
         });
         return;
       }

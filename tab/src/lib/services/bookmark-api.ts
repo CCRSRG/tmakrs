@@ -5,6 +5,7 @@ import type {
   ErrorCode
 } from '@/types';
 import { AppError } from '@/types';
+import { t } from '@/lib/i18n';
 import { StorageService } from '@/lib/utils/storage';
 import { createTMarksClient, type TMarksBookmark, type TMarksTag } from '@/lib/api/tmarks';
 import { getTMarksUrls } from '@/lib/constants/urls';
@@ -229,23 +230,23 @@ export class BookmarkAPIClient {
         stack: error.stack
       });
       
-      // 根据错误类型提供更友好的中文错误信息
+      // 根据错误类型提供更友好的错误信息
       let friendlyMessage: string;
       const errorCode = error.code || '';
       const errorStatus = error.status || 0;
       
       if (errorCode === 'INVALID_API_KEY' || errorCode === 'MISSING_API_KEY' || errorStatus === 401) {
-        friendlyMessage = '认证失败：API Key 无效或已过期，请在设置中检查您的 TMarks API Key';
+        friendlyMessage = t('error_auth_failed');
       } else if (errorCode === 'INSUFFICIENT_PERMISSIONS' || errorStatus === 403) {
-        friendlyMessage = '权限不足：您的 API Key 没有保存书签的权限';
+        friendlyMessage = t('error_permission_save_bookmark');
       } else if (errorCode === 'RATE_LIMIT_EXCEEDED' || errorStatus === 429) {
-        friendlyMessage = '请求过于频繁，请稍后再试';
+        friendlyMessage = t('error_rate_limit');
       } else if (errorCode === 'NETWORK_ERROR' || errorStatus === 0) {
-        friendlyMessage = '网络错误：无法连接到 TMarks 服务器，请检查网络连接';
+        friendlyMessage = t('error_network_error');
       } else if (errorStatus >= 500) {
-        friendlyMessage = 'TMarks 服务器错误，请稍后再试';
+        friendlyMessage = t('error_server_error');
       } else {
-        friendlyMessage = error.message || '保存书签失败';
+        friendlyMessage = error.message || t('error_save_bookmark_failed');
       }
       
       // 创建带有详细信息的错误

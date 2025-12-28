@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Folder, Plus, List } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { TMarksTabGroup } from '@/lib/api/tmarks/tab-groups';
 
 export interface CollectionOption {
@@ -30,11 +31,9 @@ export function CollectionOptionsDialog({
   const [newFolderTitle, setNewFolderTitle] = useState<string>('');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
 
-  // 分离文件夹和普通分组
   const folders = groups.filter(g => g.is_folder === 1);
   const regularGroups = groups.filter(g => g.is_folder === 0);
 
-  // 设置默认选中项
   useEffect(() => {
     if (mode === 'existing' && regularGroups.length > 0 && !selectedGroupId) {
       setSelectedGroupId(regularGroups[0].id);
@@ -53,21 +52,20 @@ export function CollectionOptionsDialog({
 
     if (mode === 'existing') {
       if (!selectedGroupId) {
-        alert('请选择一个分组');
+        alert(t('alert_select_group'));
         return;
       }
       option.targetId = selectedGroupId;
     } else if (mode === 'folder') {
-      // 如果选择了新建文件夹
       if (selectedFolderId === '__new__') {
         const folderTitle = newFolderTitle.trim();
         if (!folderTitle) {
-          alert('请输入文件夹名称');
+          alert(t('alert_enter_folder_name'));
           return;
         }
         
         if (!onCreateFolder) {
-          alert('创建文件夹功能不可用');
+          alert(t('alert_create_folder_unavailable'));
           return;
         }
 
@@ -78,14 +76,14 @@ export function CollectionOptionsDialog({
           option.targetId = newFolder.id;
           option.title = newGroupTitle.trim() || undefined;
         } catch (error) {
-          alert('创建文件夹失败：' + (error instanceof Error ? error.message : '未知错误'));
+          alert(t('alert_create_folder_failed', error instanceof Error ? error.message : t('error_unknown')));
           return;
         } finally {
           setIsCreatingFolder(false);
         }
       } else {
         if (!selectedFolderId) {
-          alert('请选择一个文件夹');
+          alert(t('alert_select_folder'));
           return;
         }
         option.targetId = selectedFolderId;
@@ -103,18 +101,17 @@ export function CollectionOptionsDialog({
       <div className="bg-[color:var(--tab-surface)] rounded-2xl shadow-2xl w-full max-w-[680px] max-h-[520px] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-5 py-4 border-b border-[color:var(--tab-border)] bg-[color:var(--tab-message-info-bg)]">
-          <h2 className="text-base font-bold text-[var(--tab-text)]">收纳标签页</h2>
-          <p className="text-xs text-[var(--tab-text-muted)] mt-0.5">已选择 <span className="font-semibold text-[var(--tab-message-info-icon)]">{tabCount}</span> 个标签页</p>
+          <h2 className="text-base font-bold text-[var(--tab-text)]">{t('collection_title')}</h2>
+          <p className="text-xs text-[var(--tab-text-muted)] mt-0.5">{t('collection_selected', String(tabCount))}</p>
         </div>
 
-        {/* Content - 左右布局 */}
+        {/* Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* 左侧：图标按钮 */}
+          {/* Left: Icon buttons */}
           <div className="w-14 border-r border-[color:var(--tab-border)] bg-[color:var(--tab-surface-muted)] py-3 flex flex-col items-center space-y-2 overflow-y-auto">
-            {/* Option 1: Create New Group */}
             <button
               onClick={() => setMode('new')}
-              title="创建新分组"
+              title={t('collection_create_group')}
               className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all ${
                 mode === 'new'
                   ? 'bg-[var(--tab-popup-primary-from)] text-[var(--tab-popup-primary-text)] shadow-md'
@@ -124,11 +121,10 @@ export function CollectionOptionsDialog({
               <Plus className="w-5 h-5" />
             </button>
 
-            {/* Option 2: Add to Existing Group */}
             <button
               onClick={() => setMode('existing')}
               disabled={regularGroups.length === 0}
-              title={regularGroups.length === 0 ? '暂无可用分组' : '添加到现有分组'}
+              title={regularGroups.length === 0 ? t('collection_no_groups') : t('collection_add_to_existing')}
               className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all ${
                 mode === 'existing'
                   ? 'bg-[var(--tab-popup-primary-from)] text-[var(--tab-popup-primary-text)] shadow-md'
@@ -140,11 +136,10 @@ export function CollectionOptionsDialog({
               <List className="w-5 h-5" />
             </button>
 
-            {/* Option 3: Add to Folder */}
             <button
               onClick={() => setMode('folder')}
               disabled={folders.length === 0}
-              title={folders.length === 0 ? '暂无可用文件夹' : '放入文件夹'}
+              title={folders.length === 0 ? t('collection_no_folders') : t('collection_add_to_folder')}
               className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all ${
                 mode === 'folder'
                   ? 'bg-[var(--tab-popup-primary-from)] text-[var(--tab-popup-primary-text)] shadow-md'
@@ -157,21 +152,21 @@ export function CollectionOptionsDialog({
             </button>
           </div>
 
-          {/* 右侧：配置区域 */}
+          {/* Right: Config area */}
           <div className="flex-1 p-5 overflow-y-auto bg-[color:var(--tab-surface)]">
             {mode === 'new' && (
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-[var(--tab-text)] mb-1.5">创建新分组</h3>
-                  <p className="text-xs text-[var(--tab-text-muted)] mb-3">将选中的标签页保存为一个新的分组</p>
+                  <h3 className="text-sm font-semibold text-[var(--tab-text)] mb-1.5">{t('collection_create_group')}</h3>
+                  <p className="text-xs text-[var(--tab-text-muted)] mb-3">{t('collection_create_group_desc')}</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[var(--tab-text)] mb-1.5">
-                    分组名称（可选）
+                    {t('collection_group_name_optional')}
                   </label>
                   <input
                     type="text"
-                    placeholder="留空将自动生成时间戳名称"
+                    placeholder={t('placeholder_group_name')}
                     value={newGroupTitle}
                     onChange={(e) => setNewGroupTitle(e.target.value)}
                     className="w-full px-3 py-2 border border-[color:var(--tab-border-strong)] rounded-lg text-xs bg-[color:var(--tab-surface)] text-[var(--tab-text)] placeholder:text-[var(--tab-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-message-info-icon)] focus:border-transparent"
@@ -183,13 +178,13 @@ export function CollectionOptionsDialog({
             {mode === 'existing' && (
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-[var(--tab-text)] mb-1.5">添加到现有分组</h3>
-                  <p className="text-xs text-[var(--tab-text-muted)] mb-3">将标签页添加到已有的分组中</p>
+                  <h3 className="text-sm font-semibold text-[var(--tab-text)] mb-1.5">{t('collection_add_to_existing')}</h3>
+                  <p className="text-xs text-[var(--tab-text-muted)] mb-3">{t('collection_add_to_existing_desc')}</p>
                 </div>
                 {regularGroups.length > 0 ? (
                   <div>
                     <label className="block text-xs font-medium text-[var(--tab-text)] mb-1.5">
-                      选择目标分组
+                      {t('collection_select_target_group')}
                     </label>
                     <select
                       value={selectedGroupId}
@@ -198,7 +193,7 @@ export function CollectionOptionsDialog({
                     >
                       {regularGroups.map((group) => (
                         <option key={group.id} value={group.id}>
-                          {group.title} ({group.item_count || 0} 项)
+                          {group.title} ({t('group_item_count', String(group.item_count || 0))})
                         </option>
                       ))}
                     </select>
@@ -206,8 +201,8 @@ export function CollectionOptionsDialog({
                 ) : (
                   <div className="flex flex-col items-center justify-center py-6 text-center">
                     <List className="w-10 h-10 text-[var(--tab-text-muted)] mb-2" />
-                    <p className="text-xs text-[var(--tab-text-muted)]">暂无可用分组</p>
-                    <p className="text-[10px] text-[var(--tab-text-muted)] mt-0.5">请先创建一个分组</p>
+                    <p className="text-xs text-[var(--tab-text-muted)]">{t('collection_no_groups')}</p>
+                    <p className="text-[10px] text-[var(--tab-text-muted)] mt-0.5">{t('collection_no_groups_hint')}</p>
                   </div>
                 )}
               </div>
@@ -216,19 +211,19 @@ export function CollectionOptionsDialog({
             {mode === 'folder' && (
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-[var(--tab-text)] mb-1.5">放入文件夹</h3>
-                  <p className="text-xs text-[var(--tab-text-muted)] mb-3">在文件夹下创建新分组</p>
+                  <h3 className="text-sm font-semibold text-[var(--tab-text)] mb-1.5">{t('collection_add_to_folder')}</h3>
+                  <p className="text-xs text-[var(--tab-text-muted)] mb-3">{t('collection_add_to_folder_desc')}</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[var(--tab-text)] mb-1.5">
-                    选择文件夹
+                    {t('collection_select_folder')}
                   </label>
                   <select
                     value={selectedFolderId}
                     onChange={(e) => setSelectedFolderId(e.target.value)}
                     className="w-full px-3 py-2 border border-[color:var(--tab-border-strong)] rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[var(--tab-message-info-icon)] focus:border-transparent bg-[color:var(--tab-surface)] text-[var(--tab-text)]"
                   >
-                    <option value="__new__">+ 新建文件夹</option>
+                    <option value="__new__">{t('collection_new_folder')}</option>
                     {folders.map((folder) => (
                       <option key={folder.id} value={folder.id}>
                         {folder.title}
@@ -240,11 +235,11 @@ export function CollectionOptionsDialog({
                 {selectedFolderId === '__new__' && (
                   <div>
                     <label className="block text-xs font-medium text-[var(--tab-text)] mb-1.5">
-                      文件夹名称
+                      {t('collection_folder_name')}
                     </label>
                     <input
                       type="text"
-                      placeholder="请输入文件夹名称"
+                      placeholder={t('placeholder_folder_name')}
                       value={newFolderTitle}
                       onChange={(e) => setNewFolderTitle(e.target.value)}
                       className="w-full px-3 py-2 border border-[color:var(--tab-border-strong)] rounded-lg text-xs bg-[color:var(--tab-surface)] text-[var(--tab-text)] placeholder:text-[var(--tab-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-message-info-icon)] focus:border-transparent"
@@ -254,11 +249,11 @@ export function CollectionOptionsDialog({
 
                 <div>
                   <label className="block text-xs font-medium text-[var(--tab-text)] mb-1.5">
-                    新分组名称（可选）
+                    {t('collection_new_group_name_optional')}
                   </label>
                   <input
                     type="text"
-                    placeholder="留空将自动生成时间戳名称"
+                    placeholder={t('placeholder_group_name')}
                     value={newGroupTitle}
                     onChange={(e) => setNewGroupTitle(e.target.value)}
                     className="w-full px-3 py-2 border border-[color:var(--tab-border-strong)] rounded-lg text-xs bg-[color:var(--tab-surface)] text-[var(--tab-text)] placeholder:text-[var(--tab-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-message-info-icon)] focus:border-transparent"
@@ -276,14 +271,14 @@ export function CollectionOptionsDialog({
             disabled={isCreatingFolder}
             className="px-4 py-2 text-xs font-medium text-[var(--tab-text)] bg-[color:var(--tab-surface)] border border-[color:var(--tab-border-strong)] rounded-lg hover:bg-[color:var(--tab-surface-muted)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            取消
+            {t('btn_cancel')}
           </button>
           <button
             onClick={handleConfirm}
             disabled={isCreatingFolder}
             className="px-4 py-2 text-xs font-medium text-[var(--tab-popup-primary-text)] bg-[var(--tab-popup-primary-from)] rounded-lg hover:opacity-90 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isCreatingFolder ? '创建中...' : '确认收纳'}
+            {isCreatingFolder ? t('btn_creating') : t('btn_confirm_collect')}
           </button>
         </div>
       </div>

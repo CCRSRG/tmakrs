@@ -17,6 +17,7 @@ import { NewtabModeView } from './components/NewtabModeView';
 import { useNewtabState } from './hooks/useNewtabState';
 import { getExistingTagClass, getSelectedTagClass, type TagTheme } from '@/lib/utils/tagStyles';
 import { applyTheme, applyThemeStyle } from '@/lib/utils/themeManager';
+import { t } from '@/lib/i18n';
 
 type ViewMode = 'selector' | 'bookmark' | 'newtab' | 'tabCollection';
 
@@ -98,7 +99,7 @@ export function Popup() {
         if (shouldUseAI) await recommendTags();
         setInitialized(true);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to initialize');
+        setError(err instanceof Error ? err.message : t('error_init_failed'));
         setInitialized(true);
       }
     };
@@ -113,7 +114,7 @@ export function Popup() {
         await extractPageInfo();
         await newtabState.loadNewtabFolders();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to initialize');
+        setError(err instanceof Error ? err.message : t('error_init_failed'));
       } finally {
         setInitialized(true);
       }
@@ -122,7 +123,7 @@ export function Popup() {
   }, [initialized, viewMode]);
 
   const handleSave = async () => {
-    if (selectedTags.length === 0) { setError('请至少选择一个标签'); return; }
+    if (selectedTags.length === 0) { setError(t('error_select_tag')); return; }
     await saveBookmark();
   };
 
@@ -172,7 +173,7 @@ export function Popup() {
   })();
 
   const handleSaveToNewTab = async () => {
-    if (!currentPage?.url) { setError('未获取到页面信息'); return; }
+    if (!currentPage?.url) { setError(t('error_no_page_info')); return; }
     const finalTitle = titleOverride.trim() || currentPage.title;
     try {
       let targetFolderId = newtabState.currentNewtabFolderId || undefined;
@@ -185,7 +186,7 @@ export function Popup() {
       
       if (shouldAutoRecommend && newtabState.newtabFoldersLoaded) {
         try {
-          setLoadingMessage('AI 正在推荐 NewTab 文件夹...');
+          setLoadingMessage(t('msg_ai_recommending_folder'));
           const resp = await sendMessage<{ suggestedFolders: Array<{ id: string; path: string; confidence: number }> }>({
             type: 'RECOMMEND_NEWTAB_FOLDER',
             payload: { title: finalTitle, url: currentPage.url, description: currentPage.description },
@@ -194,7 +195,7 @@ export function Popup() {
         } catch { /* ignore */ }
       }
 
-      setLoadingMessage('正在保存到 NewTab...');
+      setLoadingMessage(t('msg_saving_to_newtab'));
       await sendMessage<{ id: string }>({
         type: 'SAVE_TO_NEWTAB',
         payload: { url: currentPage.url, title: finalTitle, parentBookmarkId: targetFolderId },
@@ -203,20 +204,20 @@ export function Popup() {
       
       // 显示保存成功信息，包含目标路径
       const savedPath = newtabState.newtabFolders.find(f => f.id === targetFolderId)?.path || 'TMarks';
-      setSuccessMessage(`已保存到 ${savedPath}`);
+      setSuccessMessage(t('msg_saved_to', savedPath));
       chrome.notifications.create({
         type: 'basic', iconUrl: '/icons/icon-128.png',
-        title: 'AI 书签助手', message: `《${finalTitle}》已保存到 ${savedPath}`,
+        title: t('popup_title'), message: t('notification_saved', [finalTitle, savedPath]),
       });
       setTimeout(() => {
         const currentMsg = useAppStore.getState().successMessage;
-        if (currentMsg?.startsWith('已保存到')) {
+        if (currentMsg?.startsWith(t('msg_saved_to', '').split('$')[0])) {
           useAppStore.getState().setSuccessMessage(null);
         }
       }, 2000);
     } catch (e) {
       setLoadingMessage(null);
-      setError(e instanceof Error ? e.message : '保存失败');
+      setError(e instanceof Error ? e.message : t('error_save_failed'));
     }
   };
 
@@ -234,7 +235,7 @@ export function Popup() {
 
   // Tab collection view
   if (viewMode === 'tabCollection') {
-    if (!config) return <div>Loading...</div>;
+    if (!config) return <div>{t('loading')}</div>;
     return <TabCollectionView config={config.bookmarkSite} onBack={handleBackToSelector} />;
   }
 
@@ -256,18 +257,18 @@ export function Popup() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--tab-popup-onboarding-label)]">Onboarding</p>
-                  <h1 className="text-2xl font-semibold">欢迎使用 AI 书签助手</h1>
-                  <p className="text-sm text-[color:var(--tab-popup-onboarding-desc)]">完成基础配置，即可为任意网页生成智能标签与分类建议。</p>
+                  <h1 className="text-2xl font-semibold">{t('popup_welcome')}</h1>
+                  <p className="text-sm text-[color:var(--tab-popup-onboarding-desc)]">{t('popup_welcome_desc')}</p>
                 </div>
               </div>
             </div>
           </header>
           <main className="flex-1 space-y-5 overflow-y-auto px-6 pb-6">
             <section className="rounded-3xl border border-[color:var(--tab-popup-onboarding-card-border)] bg-[color:var(--tab-popup-onboarding-subtle-bg)] p-5 backdrop-blur-xl">
-              <h2 className="text-sm font-semibold">必备信息</h2>
-              <p className="mt-1 text-xs text-[color:var(--tab-popup-onboarding-label)]">准备以下三项配置，助手即可立即开始工作：</p>
+              <h2 className="text-sm font-semibold">{t('popup_required_info')}</h2>
+              <p className="mt-1 text-xs text-[color:var(--tab-popup-onboarding-label)]">{t('popup_required_info_desc')}</p>
               <ol className="mt-4 space-y-3 text-xs">
-                {['AI 服务 API Key', '书签站点 API 地址', '书签站点 API Key'].map((item, idx) => (
+                {[t('popup_config_ai_key'), t('popup_config_site_url'), t('popup_config_site_key')].map((item, idx) => (
                   <li key={idx} className="flex gap-3 rounded-2xl border border-[color:var(--tab-popup-onboarding-subtle-border)] bg-[color:var(--tab-popup-onboarding-subtle-bg)] p-3">
                     <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-[color:var(--tab-popup-onboarding-tip-bg)] text-[11px] font-semibold">{idx + 1}</span>
                     <div><p className="font-semibold">{item}</p></div>
@@ -279,7 +280,7 @@ export function Popup() {
           <footer className="px-6 pb-6">
             <button onClick={openOptions} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] via-[var(--tab-popup-primary-via)] to-[var(--tab-popup-primary-to)] px-6 py-3 text-sm font-semibold shadow-lg transition-all hover:shadow-xl active:scale-95">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-              前往设置
+              {t('popup_go_settings')}
             </button>
           </footer>
         </div>
@@ -301,15 +302,15 @@ export function Popup() {
         {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-20 border-b border-[var(--tab-popup-border)] bg-[var(--tab-popup-surface)] px-3 pt-2 pb-2.5 shadow-sm">
           <div className="flex items-center gap-2">
-            <button onClick={handleBackToSelector} className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--tab-popup-text-muted)] transition-all hover:bg-[var(--tab-popup-action-neutral-bg)] active:scale-95" title="返回">
+            <button onClick={handleBackToSelector} className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--tab-popup-text-muted)] transition-all hover:bg-[var(--tab-popup-action-neutral-bg)] active:scale-95" title={t('popup_back')}>
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
-            {viewMode === 'bookmark' && isAIEnabled && <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-blue-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-blue-text)]">推荐 {recommendedTags.length}</span>}
-            {viewMode === 'bookmark' && !isAIEnabled && <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-amber-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-amber-text)]">AI 关闭</span>}
+            {viewMode === 'bookmark' && isAIEnabled && <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-blue-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-blue-text)]">{t('popup_recommend_count', String(recommendedTags.length))}</span>}
+            {viewMode === 'bookmark' && !isAIEnabled && <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-amber-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-amber-text)]">{t('popup_ai_off')}</span>}
             {viewMode === 'bookmark' && (
               <>
-                <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-indigo-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-indigo-text)]">已选 {selectedTags.length}</span>
-                <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-purple-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-purple-text)]">库 {existingTags.length}</span>
+                <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-indigo-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-indigo-text)]">{t('popup_selected_count', String(selectedTags.length))}</span>
+                <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[var(--tab-popup-badge-purple-bg)] px-2 py-1 text-[10px] font-medium text-[var(--tab-popup-badge-purple-text)]">{t('popup_library_count', String(existingTags.length))}</span>
               </>
             )}
             {viewMode === 'newtab' && (
@@ -318,17 +319,17 @@ export function Popup() {
                 disabled={newtabState.isNewtabRecommending || !currentPage?.url || !newtabState.newtabFoldersLoaded}
                 className="rounded-lg border border-[var(--tab-popup-border-strong)] bg-[var(--tab-popup-surface)] px-2.5 py-1 text-[10px] font-medium text-[var(--tab-popup-text)] transition-all hover:bg-[var(--tab-popup-action-neutral-bg)] disabled:opacity-40"
               >
-                {newtabState.isNewtabRecommending ? 'AI 推荐中...' : 'AI 推荐'}
+                {newtabState.isNewtabRecommending ? t('popup_ai_recommending') : t('popup_ai_recommend')}
               </button>
             )}
             <div className="ml-auto flex gap-1.5">
-              <button onClick={() => window.close()} className="rounded-lg border border-[var(--tab-popup-border-strong)] bg-[var(--tab-popup-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--tab-popup-text)] transition-all hover:bg-[var(--tab-popup-action-neutral-bg)] active:scale-95">取消</button>
+              <button onClick={() => window.close()} className="rounded-lg border border-[var(--tab-popup-border-strong)] bg-[var(--tab-popup-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--tab-popup-text)] transition-all hover:bg-[var(--tab-popup-action-neutral-bg)] active:scale-95">{t('btn_cancel')}</button>
               {viewMode === 'bookmark' ? (
                 <button onClick={handleSave} disabled={isSaving || selectedTags.length === 0} className="rounded-lg bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-1.5 text-[11px] font-semibold text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">
-                  {isSaving ? <span className="flex items-center gap-1"><svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>保存中</span> : '保存书签'}
+                  {isSaving ? <span className="flex items-center gap-1"><svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>{t('popup_saving')}</span> : t('popup_save_bookmark')}
                 </button>
               ) : (
-                <button onClick={handleSaveToNewTab} disabled={isSaving || !currentPage?.url} className="rounded-lg bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-1.5 text-[11px] font-semibold text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">保存到 NewTab</button>
+                <button onClick={handleSaveToNewTab} disabled={isSaving || !currentPage?.url} className="rounded-lg bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-1.5 text-[11px] font-semibold text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">{t('popup_save_to_newtab')}</button>
               )}
             </div>
           </div>
@@ -345,9 +346,9 @@ export function Popup() {
                 <span className="text-sm font-semibold text-[var(--tab-popup-save-target-text)]">{currentSaveTargetPath}</span>
               </div>
               {hasUserSelectedFolder ? (
-                <span className="rounded-full bg-[var(--tab-popup-save-target-badge-bg)] px-2 py-0.5 text-[10px] font-medium text-[var(--tab-popup-save-target-badge-text)]">已选择</span>
+                <span className="rounded-full bg-[var(--tab-popup-save-target-badge-bg)] px-2 py-0.5 text-[10px] font-medium text-[var(--tab-popup-save-target-badge-text)]">{t('popup_selected')}</span>
               ) : (
-                <span className="rounded-full bg-[var(--tab-popup-save-target-badge-bg)] px-2 py-0.5 text-[10px] font-medium text-[var(--tab-popup-text-muted)]">默认</span>
+                <span className="rounded-full bg-[var(--tab-popup-save-target-badge-bg)] px-2 py-0.5 text-[10px] font-medium text-[var(--tab-popup-text-muted)]">{t('popup_default')}</span>
               )}
             </div>
           </div>
@@ -375,7 +376,7 @@ export function Popup() {
           {viewMode === 'bookmark' && isRecommending && (
             <section className="flex items-center gap-3 rounded-xl border border-[var(--tab-popup-border)] bg-[var(--tab-popup-section-gray-bg)] p-3.5 text-sm text-[var(--tab-popup-text)] shadow-lg">
               <LoadingSpinner />
-              <p>AI 正在分析当前页面，请稍候...</p>
+              <p>{t('popup_ai_analyzing')}</p>
             </section>
           )}
 
@@ -387,8 +388,8 @@ export function Popup() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p className="text-sm font-medium text-[var(--tab-popup-section-amber-title)]">AI 推荐已关闭</p>
-                  <p className="mt-1 text-xs text-[var(--tab-popup-section-amber-text)]">请从下方标签库中选择标签，或在设置中启用 AI 推荐。</p>
+                  <p className="text-sm font-medium text-[var(--tab-popup-section-amber-title)]">{t('popup_ai_disabled_title')}</p>
+                  <p className="mt-1 text-xs text-[var(--tab-popup-section-amber-text)]">{t('popup_ai_disabled_desc')}</p>
                 </div>
               </div>
             </section>
@@ -399,14 +400,14 @@ export function Popup() {
             <section className="rounded-xl border border-[var(--tab-popup-section-blue-border)] bg-gradient-to-br from-[var(--tab-popup-section-blue-from)] to-[var(--tab-popup-section-blue-to)] p-3.5 shadow-lg">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-[var(--tab-popup-text)]">已选择标签</p>
-                  <span className="text-[10px] text-[var(--tab-popup-text-muted)]">点击标签可取消选择。</span>
+                  <p className="text-sm font-semibold text-[var(--tab-popup-text)]">{t('popup_selected_tags')}</p>
+                  <span className="text-[10px] text-[var(--tab-popup-text-muted)]">{t('popup_click_to_remove')}</span>
                 </div>
                 <span className="rounded-full bg-[var(--tab-popup-section-blue-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-blue-badge-text)]">{selectedTags.length}</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {selectedTags.map((tag) => (
-                  <button key={tag} onClick={() => toggleTag(tag)} title="点击移除标签" className={getSelectedTagClass(tagTheme)}>
+                  <button key={tag} onClick={() => toggleTag(tag)} title={t('popup_click_to_remove')} className={getSelectedTagClass(tagTheme)}>
                     <span className="max-w-[120px] truncate">{tag}</span>
                   </button>
                 ))}
@@ -418,35 +419,35 @@ export function Popup() {
           {currentPage && viewMode === 'bookmark' && (
             <section className="rounded-xl border border-[var(--tab-popup-section-gray-border)] bg-[var(--tab-popup-section-gray-bg)] p-3.5 shadow-lg">
               <div className="mb-3 flex items-center justify-center gap-2">
-                <button type="button" onClick={() => setIsPublic(!isPublic)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${isPublic ? 'bg-[var(--tab-popup-action-emerald-bg)] text-[var(--tab-popup-action-emerald-text)] hover:bg-[var(--tab-popup-action-emerald-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={isPublic ? '公开（点击切换为隐私）' : '隐私（点击切换为公开）'}>
+                <button type="button" onClick={() => setIsPublic(!isPublic)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${isPublic ? 'bg-[var(--tab-popup-action-emerald-bg)] text-[var(--tab-popup-action-emerald-text)] hover:bg-[var(--tab-popup-action-emerald-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={isPublic ? t('tooltip_public') : t('tooltip_private')}>
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     {isPublic ? <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />}
                   </svg>
                 </button>
-                <button type="button" onClick={handleToggleThumbnail} disabled={!currentPage.thumbnail} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${includeThumbnail ? 'bg-[var(--tab-popup-action-amber-bg)] text-[var(--tab-popup-action-amber-text)] hover:bg-[var(--tab-popup-action-amber-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'} ${!currentPage.thumbnail ? 'cursor-not-allowed opacity-40' : ''}`} title={includeThumbnail ? '包含封面图（点击取消）' : '不包含封面图（点击添加）'}>
+                <button type="button" onClick={handleToggleThumbnail} disabled={!currentPage.thumbnail} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${includeThumbnail ? 'bg-[var(--tab-popup-action-amber-bg)] text-[var(--tab-popup-action-amber-text)] hover:bg-[var(--tab-popup-action-amber-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'} ${!currentPage.thumbnail ? 'cursor-not-allowed opacity-40' : ''}`} title={includeThumbnail ? t('tooltip_include_thumbnail') : t('tooltip_no_thumbnail')}>
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </button>
-                <button type="button" onClick={() => setCreateSnapshot(!createSnapshot)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${createSnapshot ? 'bg-[var(--tab-popup-action-purple-bg)] text-[var(--tab-popup-action-purple-text)] hover:bg-[var(--tab-popup-action-purple-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={createSnapshot ? '创建快照（点击取消）' : '不创建快照（点击创建）'}>
+                <button type="button" onClick={() => setCreateSnapshot(!createSnapshot)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${createSnapshot ? 'bg-[var(--tab-popup-action-purple-bg)] text-[var(--tab-popup-action-purple-text)] hover:bg-[var(--tab-popup-action-purple-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={createSnapshot ? t('tooltip_create_snapshot') : t('tooltip_no_snapshot')}>
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
-                <button type="button" onClick={() => setShowTitleEdit(!showTitleEdit)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${showTitleEdit ? 'bg-[var(--tab-popup-action-blue-bg)] text-[var(--tab-popup-action-blue-text)] hover:bg-[var(--tab-popup-action-blue-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={showTitleEdit ? '修改标题（点击收起）' : '修改标题（点击展开）'}>
+                <button type="button" onClick={() => setShowTitleEdit(!showTitleEdit)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${showTitleEdit ? 'bg-[var(--tab-popup-action-blue-bg)] text-[var(--tab-popup-action-blue-text)] hover:bg-[var(--tab-popup-action-blue-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={showTitleEdit ? t('tooltip_edit_title_collapse') : t('tooltip_edit_title_expand')}>
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 </button>
-                <button type="button" onClick={() => setShowDescEdit(!showDescEdit)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${showDescEdit ? 'bg-[var(--tab-popup-action-blue-bg)] text-[var(--tab-popup-action-blue-text)] hover:bg-[var(--tab-popup-action-blue-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={showDescEdit ? '修改描述（点击收起）' : '修改描述（点击展开）'}>
+                <button type="button" onClick={() => setShowDescEdit(!showDescEdit)} className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${showDescEdit ? 'bg-[var(--tab-popup-action-blue-bg)] text-[var(--tab-popup-action-blue-text)] hover:bg-[var(--tab-popup-action-blue-bg-hover)]' : 'bg-[var(--tab-popup-action-neutral-bg)] text-[var(--tab-popup-action-neutral-text)] hover:bg-[var(--tab-popup-action-neutral-bg-hover)]'}`} title={showDescEdit ? t('tooltip_edit_desc_collapse') : t('tooltip_edit_desc_expand')}>
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
                 </button>
               </div>
               <div className="mb-2.5 space-y-2">
                 {showTitleEdit && (
                   <div className="animate-in slide-in-from-top-2 fade-in flex gap-2 duration-200">
-                    <input type="text" value={titleOverride} onChange={(e) => setTitleOverride(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleApplyTitleOverride(); }} placeholder="输入自定义标题后回车或点击应用" className="flex-1 rounded-xl border border-[var(--tab-popup-input-border)] bg-[var(--tab-popup-input-bg)] px-3 py-2 text-sm text-[var(--tab-popup-input-text)] placeholder:text-[var(--tab-popup-input-placeholder)] focus:border-[var(--tab-popup-input-focus-border)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-popup-input-focus-ring)]" autoFocus />
-                    <button onClick={handleApplyTitleOverride} disabled={!titleOverride.trim() || !currentPage} className="rounded-xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-2 text-sm font-medium text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">应用</button>
+                    <input type="text" value={titleOverride} onChange={(e) => setTitleOverride(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleApplyTitleOverride(); }} placeholder={t('placeholder_custom_title')} className="flex-1 rounded-xl border border-[var(--tab-popup-input-border)] bg-[var(--tab-popup-input-bg)] px-3 py-2 text-sm text-[var(--tab-popup-input-text)] placeholder:text-[var(--tab-popup-input-placeholder)] focus:border-[var(--tab-popup-input-focus-border)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-popup-input-focus-ring)]" autoFocus />
+                    <button onClick={handleApplyTitleOverride} disabled={!titleOverride.trim() || !currentPage} className="rounded-xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-2 text-sm font-medium text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">{t('popup_apply')}</button>
                   </div>
                 )}
                 {showDescEdit && (
                   <div className="animate-in slide-in-from-top-2 fade-in flex gap-2 duration-200">
-                    <textarea value={descriptionOverride} onChange={(e) => setDescriptionOverride(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && e.ctrlKey) handleApplyDescriptionOverride(); }} placeholder="输入自定义描述后 Ctrl+Enter 或点击应用" rows={2} className="flex-1 resize-none rounded-xl border border-[var(--tab-popup-input-border)] bg-[var(--tab-popup-input-bg)] px-3 py-2 text-sm text-[var(--tab-popup-input-text)] placeholder:text-[var(--tab-popup-input-placeholder)] focus:border-[var(--tab-popup-input-focus-border)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-popup-input-focus-ring)]" autoFocus />
-                    <button onClick={handleApplyDescriptionOverride} disabled={!currentPage} className="rounded-xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-2 text-sm font-medium text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">应用</button>
+                    <textarea value={descriptionOverride} onChange={(e) => setDescriptionOverride(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && e.ctrlKey) handleApplyDescriptionOverride(); }} placeholder={t('placeholder_custom_desc')} rows={2} className="flex-1 resize-none rounded-xl border border-[var(--tab-popup-input-border)] bg-[var(--tab-popup-input-bg)] px-3 py-2 text-sm text-[var(--tab-popup-input-text)] placeholder:text-[var(--tab-popup-input-placeholder)] focus:border-[var(--tab-popup-input-focus-border)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-popup-input-focus-ring)]" autoFocus />
+                    <button onClick={handleApplyDescriptionOverride} disabled={!currentPage} className="rounded-xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-2 text-sm font-medium text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">{t('popup_apply')}</button>
                   </div>
                 )}
               </div>
@@ -459,8 +460,8 @@ export function Popup() {
             <section className="rounded-xl border border-[var(--tab-popup-section-purple-border)] bg-gradient-to-br from-[var(--tab-popup-section-purple-from)] to-[var(--tab-popup-section-purple-to)] p-3.5 shadow-lg">
               <div className="mb-2.5 flex items-center justify-between">
                 <div>
-                  <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--tab-popup-text)]">AI 推荐</h2>
-                  <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">根据页面内容实时生成，点击可快速选择。</p>
+                  <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--tab-popup-text)]">{t('ai_recommend_title')}</h2>
+                  <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">{t('ai_recommend_desc')}</p>
                 </div>
                 <span className="rounded-full bg-[var(--tab-popup-section-purple-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-purple-badge-text)]">{recommendedTags.length}</span>
               </div>
@@ -475,15 +476,15 @@ export function Popup() {
                 <div>
                   <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--tab-popup-text)]">
                     <svg className="h-4 w-4 text-[var(--tab-popup-section-emerald-icon)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                    标签库
+                    {t('tag_library')}
                   </h2>
-                  <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">与你的历史标签数据同步，点选即可加入。</p>
+                  <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">{t('tag_library_desc')}</p>
                 </div>
                 <span className="rounded-full bg-[var(--tab-popup-section-emerald-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-emerald-badge-text)]">{existingTags.length}</span>
               </div>
               <div className="scrollbar-thin scrollbar-thumb-[var(--tab-popup-border-strong)] scrollbar-track-transparent max-h-48 overflow-y-auto pr-1">
                 {existingTags.length === 0 ? (
-                  <div className="flex items-center justify-center py-6"><p className="text-xs text-[var(--tab-popup-text-muted)]">{isLoading ? '加载中...' : '暂无标签'}</p></div>
+                  <div className="flex items-center justify-center py-6"><p className="text-xs text-[var(--tab-popup-text-muted)]">{isLoading ? t('loading') : t('no_tags')}</p></div>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
                     {existingTags.sort((a, b) => b.count - a.count).map((tag) => {
@@ -505,7 +506,7 @@ export function Popup() {
           {/* Save Duration */}
           {lastSaveDurationMs !== null && (
             <section className="rounded-xl border border-[var(--tab-popup-section-gray-border)] bg-[var(--tab-popup-section-gray-bg)] p-2.5 text-xs text-[var(--tab-popup-text-muted)] shadow-sm">
-              最近一次保存耗时 {(lastSaveDurationMs / 1000).toFixed(2)}s
+              {t('last_save_duration', (lastSaveDurationMs / 1000).toFixed(2))}
             </section>
           )}
         </main>
@@ -515,8 +516,8 @@ export function Popup() {
           <footer className="fixed bottom-0 left-0 right-0 z-20 rounded-t-2xl border-t border-[var(--tab-popup-footer-border)] bg-[var(--tab-popup-footer-bg)] px-3 pt-2 pb-2.5 shadow-sm">
             <div className="flex items-center gap-2">
               <svg className="h-4 w-4 flex-shrink-0 text-[var(--tab-popup-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-              <input type="text" value={customTagInput} onChange={(e) => setCustomTagInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="输入标签名并回车添加" className="flex-1 rounded-xl border border-[var(--tab-popup-input-border)] bg-[var(--tab-popup-input-bg)] px-3 py-1.5 text-sm text-[var(--tab-popup-input-text)] placeholder:text-[var(--tab-popup-input-placeholder)] focus:border-[var(--tab-popup-input-focus-border)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-popup-input-focus-ring)]" />
-              <button onClick={handleAddCustomTag} disabled={!customTagInput.trim()} className="rounded-xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-1.5 text-sm font-medium text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">添加</button>
+              <input type="text" value={customTagInput} onChange={(e) => setCustomTagInput(e.target.value)} onKeyPress={handleKeyPress} placeholder={t('placeholder_add_tag')} className="flex-1 rounded-xl border border-[var(--tab-popup-input-border)] bg-[var(--tab-popup-input-bg)] px-3 py-1.5 text-sm text-[var(--tab-popup-input-text)] placeholder:text-[var(--tab-popup-input-placeholder)] focus:border-[var(--tab-popup-input-focus-border)] focus:outline-none focus:ring-2 focus:ring-[var(--tab-popup-input-focus-ring)]" />
+              <button onClick={handleAddCustomTag} disabled={!customTagInput.trim()} className="rounded-xl bg-gradient-to-r from-[var(--tab-popup-primary-from)] to-[var(--tab-popup-primary-via)] px-4 py-1.5 text-sm font-medium text-[var(--tab-popup-primary-text)] shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">{t('add_tag')}</button>
             </div>
           </footer>
         )}

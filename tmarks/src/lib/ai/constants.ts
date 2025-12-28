@@ -82,7 +82,7 @@ export const AI_PROVIDER_NAMES: Record<AIProvider, string> = {
   modelscope: 'ModelScope',
   siliconflow: 'SiliconFlow',
   iflow: 'iFlow',
-  custom: '自定义'
+  custom: 'Custom'
 }
 
 // 超时配置

@@ -2,6 +2,7 @@
  * 导航相关 Actions（文件夹导航、重排序等）
  */
 
+import { t } from '@/lib/i18n';
 import type { NewTabState } from '../types';
 import type { GridItem } from '../../../types';
 import { MAX_FOLDER_DEPTH, pruneEmptySecondLevelFolders, pruneEmptyFoldersCascade, generateId } from '../utils';
@@ -367,7 +368,7 @@ export function createNavigationActions(
       const targetParentId = item2.parentId ?? null;
       const targetPosition = item2.position;
 
-      const defaultFolderName = folderName || '新文件夹';
+      const defaultFolderName = folderName || t('default_new_folder');
       const folderId = generateId();
 
       const newFolder: GridItem = {

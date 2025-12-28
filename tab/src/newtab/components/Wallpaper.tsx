@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { RefreshCw, Info, X } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import type { WallpaperConfig, BingWallpaperInfo } from '../types';
 import { UNSPLASH_API } from '../constants';
 
@@ -201,7 +202,7 @@ export function Wallpaper({ config, onRefresh }: WallpaperProps) {
             <button
               onClick={() => setShowInfo(!showInfo)}
               className="p-2 rounded-full glass-light hover:bg-white/20 transition-all group"
-              title="图片信息"
+              title={t('newtab_image_info')}
             >
               <Info className="w-4 h-4 text-white/80 group-hover:text-white" />
             </button>
@@ -212,7 +213,7 @@ export function Wallpaper({ config, onRefresh }: WallpaperProps) {
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="p-2 rounded-full glass-light hover:bg-white/20 transition-all group disabled:opacity-50"
-            title="刷新壁纸"
+            title={t('newtab_refresh_wallpaper')}
           >
             <RefreshCw className={`w-4 h-4 text-white/80 group-hover:text-white ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
@@ -223,7 +224,7 @@ export function Wallpaper({ config, onRefresh }: WallpaperProps) {
       {config.type === 'bing' && config.showBingInfo && showInfo && bingInfo && (
         <div className="fixed bottom-20 right-24 z-50 w-80 glass-modal-dark rounded-xl p-4 animate-fadeIn">
           <div className="flex items-start justify-between mb-3">
-            <h3 className="text-sm font-medium text-white">图片信息</h3>
+            <h3 className="text-sm font-medium text-white">{t('newtab_image_info')}</h3>
             <button
               onClick={() => setShowInfo(false)}
               className="p-1 rounded-full hover:bg-white/10 transition-colors"
@@ -233,15 +234,15 @@ export function Wallpaper({ config, onRefresh }: WallpaperProps) {
           </div>
           <div className="space-y-2 text-xs">
             <div>
-              <div className="text-white/50 mb-1">标题</div>
+              <div className="text-white/50 mb-1">{t('label_title')}</div>
               <div className="text-white/90">{bingInfo.title}</div>
             </div>
             <div>
-              <div className="text-white/50 mb-1">版权信息</div>
+              <div className="text-white/50 mb-1">{t('wallpaper_copyright')}</div>
               <div className="text-white/90 leading-relaxed">{bingInfo.copyright}</div>
             </div>
             <div>
-              <div className="text-white/50 mb-1">日期</div>
+              <div className="text-white/50 mb-1">{t('wallpaper_date')}</div>
               <div className="text-white/90">
                 {bingInfo.date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')}
               </div>

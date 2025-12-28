@@ -2,18 +2,22 @@
  * 统一错误处理工具
  */
 
+import { t } from '@/lib/i18n';
 import { toast } from '../components/ui/Toast';
 
 // 错误类型
 export type ErrorType = 'network' | 'storage' | 'sync' | 'bookmark' | 'unknown';
 
-// 错误消息映射
-const ERROR_MESSAGES: Record<ErrorType, string> = {
-  network: '网络连接失败，请检查网络设置',
-  storage: '存储操作失败，请重试',
-  sync: '同步失败，请稍后重试',
-  bookmark: '书签操作失败',
-  unknown: '操作失败，请重试',
+// 获取错误消息
+const getErrorMessage = (type: ErrorType): string => {
+  const messages: Record<ErrorType, string> = {
+    network: t('error_network'),
+    storage: t('error_storage'),
+    sync: t('error_sync'),
+    bookmark: t('error_bookmark'),
+    unknown: t('error_unknown_operation'),
+  };
+  return messages[type];
 };
 
 // 错误日志
@@ -35,7 +39,7 @@ export function handleError(
   type: ErrorType = 'unknown',
   showToast = true
 ): string {
-  const message = error instanceof Error ? error.message : ERROR_MESSAGES[type];
+  const message = error instanceof Error ? error.message : getErrorMessage(type);
   
   // 记录错误日志
   errorLogs.push({

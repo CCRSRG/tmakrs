@@ -11,6 +11,7 @@ import { CollectionOptionsDialog, type CollectionOption } from '@/components/Col
 import { getCurrentWindowTabs, collectCurrentWindowTabs, closeTabs } from '@/lib/services/tab-collection';
 import { createTMarksClient } from '@/lib/api/tmarks';
 import { normalizeApiUrl } from '@/lib/constants/urls';
+import { t } from '@/lib/i18n';
 import type { BookmarkSiteConfig } from '@/types';
 import type { TMarksTabGroup } from '@/lib/api/tmarks/tab-groups';
 
@@ -59,11 +60,9 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
         }));
 
       setTabs(validTabs);
-
-      // Select all by default
       setSelectedTabIds(new Set(validTabs.map((tab) => tab.id)));
     } catch (err) {
-      setError('加载标签页失败');
+      setError(t('tab_collection_load_failed'));
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +77,7 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
       const allGroups = await client.tabGroups.getAllTabGroups();
       setGroups(allGroups);
     } catch (err) {
-      console.error('加载分组失败:', err);
+      console.error(t('tab_collection_load_groups_failed'), err);
       setGroups([]);
     }
   };
@@ -91,13 +90,10 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
       });
       const response = await client.tabGroups.createFolder(title);
       const newFolder = response.data.tab_group;
-      
-      // 更新本地分组列表
       setGroups([...groups, newFolder]);
-      
       return newFolder;
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : '创建文件夹失败');
+      throw new Error(err instanceof Error ? err.message : t('tab_collection_create_folder_failed'));
     }
   };
 
@@ -119,10 +115,9 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
     }
   };
 
-  // 快速收纳：直接创建新分组
   const handleQuickCollect = async () => {
     if (selectedTabIds.size === 0) {
-      setError('请至少选择一个标签页');
+      setError(t('tab_collection_select_at_least_one'));
       return;
     }
 
@@ -133,29 +128,27 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
       const result = await collectCurrentWindowTabs(config, selectedTabIds);
 
       if (result.success) {
-        setSuccessMessage(result.message || '收纳成功');
+        setSuccessMessage(result.message || t('tab_collection_success'));
         setCollectedTabIds(Array.from(selectedTabIds));
         setShowCloseConfirm(true);
       } else {
-        setError(result.error || '收纳失败');
+        setError(result.error || t('tab_collection_failed'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '收纳失败');
+      setError(err instanceof Error ? err.message : t('tab_collection_failed'));
     } finally {
       setIsCollecting(false);
     }
   };
 
-  // 显示选项对话框
   const handleShowOptions = () => {
     if (selectedTabIds.size === 0) {
-      setError('请至少选择一个标签页');
+      setError(t('tab_collection_select_at_least_one'));
       return;
     }
     setShowOptionsDialog(true);
   };
 
-  // 确认收纳（带选项）
   const handleConfirmCollection = async (option: CollectionOption) => {
     setShowOptionsDialog(false);
     setIsCollecting(true);
@@ -165,14 +158,14 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
       const result = await collectCurrentWindowTabs(config, selectedTabIds, option);
 
       if (result.success) {
-        setSuccessMessage(result.message || '收纳成功');
+        setSuccessMessage(result.message || t('tab_collection_success'));
         setCollectedTabIds(Array.from(selectedTabIds));
         setShowCloseConfirm(true);
       } else {
-        setError(result.error || '收纳失败');
+        setError(result.error || t('tab_collection_failed'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '收纳失败');
+      setError(err instanceof Error ? err.message : t('tab_collection_failed'));
     } finally {
       setIsCollecting(false);
     }
@@ -183,7 +176,7 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
       await closeTabs(collectedTabIds);
       window.close();
     } catch (err) {
-      setError('关闭标签页失败');
+      setError(t('tab_collection_close_tabs_failed'));
     }
   };
 
@@ -195,7 +188,6 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
 
   return (
     <div className="relative h-[80vh] min-h-[620px] w-[380px] overflow-hidden rounded-b-2xl bg-[color:var(--tab-popup-bg)] text-[var(--tab-text)] shadow-2xl">
-      {/* Collection Options Dialog */}
       {showOptionsDialog && (
         <CollectionOptionsDialog
           tabCount={selectedTabIds.size}
@@ -206,7 +198,6 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
         />
       )}
 
-      {/* Error/Success Messages - 固定在最顶部 */}
       <div className="pointer-events-none fixed top-0 left-0 right-0 z-50 px-4 pt-2 space-y-2">
         {error && (
           <div className="pointer-events-auto">
@@ -221,37 +212,36 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
       </div>
 
       <div className="relative flex h-full flex-col">
-        {/* Header - Fixed */}
         <header className="fixed top-0 left-0 right-0 z-20 px-3 pt-2 pb-2.5 bg-[color:var(--tab-surface)] border-b border-[color:var(--tab-border)] shadow-sm rounded-b-2xl">
           <div className="flex items-center gap-2">
             <button
               onClick={onBack}
               className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--tab-text-muted)] transition-all duration-200 hover:bg-[color:var(--tab-surface-muted)] active:scale-95"
-              title="返回"
+              title={t('popup_back')}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-[color:var(--tab-message-success-bg)] px-2 py-1 text-[10px] text-[var(--tab-message-success-icon)] font-medium">
-              共 {tabs.length} 个
+              {t('tab_collection_total', String(tabs.length))}
             </span>
             <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-[color:var(--tab-message-success-bg)] px-2 py-1 text-[10px] text-[var(--tab-message-success-icon)] font-medium">
-              已选 {selectedTabIds.size} 个
+              {t('tab_collection_selected', String(selectedTabIds.size))}
             </span>
             <div className="ml-auto flex gap-1.5">
               <button
                 onClick={onBack}
                 className="rounded-lg border border-[color:var(--tab-border-strong)] bg-[color:var(--tab-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--tab-text)] transition-all duration-200 hover:bg-[color:var(--tab-surface-muted)] active:scale-95"
               >
-                取消
+                {t('btn_cancel')}
               </button>
               <button
                 onClick={handleShowOptions}
                 disabled={isCollecting || selectedTabIds.size === 0}
                 className="rounded-lg border border-[color:var(--tab-border-strong)] bg-[color:var(--tab-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--tab-text)] transition-all duration-200 hover:bg-[color:var(--tab-surface-muted)] disabled:cursor-not-allowed disabled:opacity-40 active:scale-95"
               >
-                选项
+                {t('tab_collection_options')}
               </button>
               <button
                 onClick={handleQuickCollect}
@@ -268,17 +258,16 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    收纳中
+                    {t('tab_collection_collecting')}
                   </span>
                 ) : (
-                  '收纳'
+                  t('tab_collection_collect')
                 )}
               </button>
             </div>
           </div>
         </header>
 
-        {/* Close Confirm Dialog - Fixed at top */}
         {showCloseConfirm && (
           <div className="fixed top-[60px] left-0 right-0 z-40 px-4 pt-2 animate-in slide-in-from-top-5 fade-in duration-300">
             <section
@@ -294,9 +283,9 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-[var(--tab-text)]">收纳成功</h3>
+                  <h3 className="text-sm font-semibold text-[var(--tab-text)]">{t('tab_collection_success')}</h3>
                   <p className="mt-1 text-xs text-[var(--tab-text-muted)]">
-                    已成功收纳 {collectedTabIds.length} 个标签页。是否关闭这些标签页？
+                    {t('tab_collection_collected_count', String(collectedTabIds.length))}
                   </p>
                 </div>
               </div>
@@ -305,7 +294,7 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
                   onClick={handleKeepTabs}
                   className="flex-1 rounded-xl border border-[color:var(--tab-border-strong)] bg-[color:var(--tab-surface)] px-4 py-2 text-sm font-medium text-[var(--tab-text)] transition-all duration-200 hover:bg-[color:var(--tab-surface-muted)] active:scale-95"
                 >
-                  保留标签页
+                  {t('tab_collection_keep_tabs')}
                 </button>
                 <button
                   onClick={handleCloseTabs}
@@ -315,36 +304,33 @@ export function TabCollectionView({ config, onBack }: TabCollectionViewProps) {
                     color: 'var(--tab-popup-success-text)',
                   }}
                 >
-                  关闭标签页
+                  {t('tab_collection_close_tabs')}
                 </button>
               </div>
             </section>
           </div>
         )}
 
-        {/* Main Content */}
         <main className={`relative flex-1 space-y-3 overflow-y-auto px-4 pb-5 bg-[color:var(--tab-popup-bg)] ${showCloseConfirm ? 'pt-[180px]' : 'pt-[60px]'}`}>
           {isLoading ? (
             <section className="flex items-center gap-3 rounded-2xl border border-[color:var(--tab-border)] bg-[color:var(--tab-surface)] p-4 text-sm text-[var(--tab-text)] shadow-sm">
               <LoadingSpinner />
-              <p>正在加载标签页...</p>
+              <p>{t('tab_collection_loading')}</p>
             </section>
           ) : (
             <>
-              {/* Select All Button */}
               <section className="rounded-2xl border border-[color:var(--tab-border)] bg-[color:var(--tab-surface)] p-3 shadow-sm">
                 <button
                   onClick={toggleAll}
                   className="flex w-full items-center justify-between rounded-xl bg-[color:var(--tab-surface-muted)] px-4 py-2 text-sm font-medium text-[var(--tab-text)] transition-all duration-200 hover:opacity-90 active:scale-95"
                 >
-                  <span>{selectedTabIds.size === tabs.length ? '取消全选' : '全选'}</span>
+                  <span>{selectedTabIds.size === tabs.length ? t('tab_collection_deselect_all') : t('tab_collection_select_all')}</span>
                   <span className="text-xs text-[var(--tab-text-muted)]">
                     {selectedTabIds.size} / {tabs.length}
                   </span>
                 </button>
               </section>
 
-              {/* Tab List */}
               <section className="space-y-2">
                 {tabs.map((tab) => {
                   const isSelected = selectedTabIds.has(tab.id);

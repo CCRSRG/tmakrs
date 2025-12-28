@@ -5,8 +5,9 @@
  */
 
 import { create } from 'zustand';
+import { t } from '@/lib/i18n';
 import type { NewTabStorage } from '../types';
-import { DEFAULT_SETTINGS, STORAGE_KEY, DEFAULT_GROUPS } from '../constants';
+import { DEFAULT_SETTINGS, STORAGE_KEY, getDefaultGroups } from '../constants';
 
 import {
   type NewTabState,
@@ -176,12 +177,12 @@ export const useNewtabStore = create<NewTabState>((set, get) => {
       if (item.type === 'bookmarkFolder') {
         created = await chrome.bookmarks.create({
           parentId: parentBookmarkId,
-          title: item.bookmarkFolder?.title || '文件夹',
+          title: item.bookmarkFolder?.title || t('default_folder_name'),
         });
       } else if (item.type === 'shortcut') {
         created = await chrome.bookmarks.create({
           parentId: parentBookmarkId,
-          title: item.shortcut?.title || item.shortcut?.url || '快捷方式',
+          title: item.shortcut?.title || item.shortcut?.url || t('default_shortcut_name'),
           url: item.shortcut?.url,
         });
       }
@@ -222,7 +223,7 @@ export const useNewtabStore = create<NewTabState>((set, get) => {
   return {
     // 初始状态
     shortcuts: [],
-    shortcutGroups: DEFAULT_GROUPS,
+    shortcutGroups: getDefaultGroups(),
     shortcutFolders: [],
     activeGroupId: 'home',
     settings: DEFAULT_SETTINGS,
@@ -240,7 +241,7 @@ export const useNewtabStore = create<NewTabState>((set, get) => {
         const result = await chrome.storage.local.get(STORAGE_KEY);
         const data = result[STORAGE_KEY] as NewTabStorage | undefined;
 
-        const groups = data?.shortcutGroups?.length ? data.shortcutGroups : DEFAULT_GROUPS;
+        const groups = data?.shortcutGroups?.length ? data.shortcutGroups : getDefaultGroups();
 
         let activeGroupId = data?.activeGroupId;
         if (!activeGroupId || !groups.some((g) => g.id === activeGroupId)) {

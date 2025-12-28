@@ -2,6 +2,8 @@
  * 首次配置引导视图
  */
 
+import { t } from '@/lib/i18n';
+
 interface OnboardingViewProps {
   openOptions: () => void;
 }
@@ -34,8 +36,8 @@ function OnboardingHeader() {
           </div>
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--tab-popup-onboarding-label)]">Onboarding</p>
-            <h1 className="text-2xl font-semibold text-[var(--tab-popup-primary-text)]">欢迎使用 AI 书签助手</h1>
-            <p className="text-sm text-[color:var(--tab-popup-onboarding-desc)]">完成基础配置，即可为任意网页生成智能标签与分类建议。</p>
+            <h1 className="text-2xl font-semibold text-[var(--tab-popup-primary-text)]">{t('popup_welcome')}</h1>
+            <p className="text-sm text-[color:var(--tab-popup-onboarding-desc)]">{t('popup_welcome_desc')}</p>
           </div>
         </div>
       </div>
@@ -56,25 +58,25 @@ function RequiredInfoSection() {
   const steps = [
     {
       num: 1,
-      title: 'AI 服务 API Key',
-      desc: '用于生成智能标签的模型凭证，支持多个主流服务商。',
+      title: t('popup_config_ai_key'),
+      desc: t('onboarding_ai_key_desc'),
     },
     {
       num: 2,
-      title: '书签站点 API 地址',
-      desc: '指向你的书签服务端点，默认为 TMarks 官方地址。',
+      title: t('popup_config_site_url'),
+      desc: t('onboarding_site_url_desc'),
     },
     {
       num: 3,
-      title: '书签站点 API Key',
-      desc: '用于同步与保存书签数据，请在服务端控制台生成密钥。',
+      title: t('popup_config_site_key'),
+      desc: t('onboarding_site_key_desc'),
     },
   ];
 
   return (
     <section className="rounded-3xl border border-[color:var(--tab-popup-onboarding-card-border)] bg-[color:var(--tab-popup-onboarding-subtle-bg)] p-5 shadow-inner shadow-[color:var(--tab-popup-onboarding-shadow)] backdrop-blur-xl">
-      <h2 className="text-sm font-semibold text-[var(--tab-popup-primary-text)]">必备信息</h2>
-      <p className="mt-1 text-xs text-[color:var(--tab-popup-onboarding-label)]">准备以下三项配置，助手即可立即开始工作：</p>
+      <h2 className="text-sm font-semibold text-[var(--tab-popup-primary-text)]">{t('popup_required_info')}</h2>
+      <p className="mt-1 text-xs text-[color:var(--tab-popup-onboarding-label)]">{t('popup_required_info_desc')}</p>
       <ol className="mt-4 space-y-3 text-xs text-[color:var(--tab-popup-onboarding-desc)]">
         {steps.map((step) => (
           <li key={step.num} className="flex gap-3 rounded-2xl border border-[color:var(--tab-popup-onboarding-subtle-border)] bg-[color:var(--tab-popup-onboarding-subtle-bg)] p-3">
@@ -92,14 +94,14 @@ function RequiredInfoSection() {
 
 function TipsSection() {
   const tips = [
-    '可在设置页保存多个 API 与模型组合，一键切换场景。',
-    '支持自定义 Prompt，满足不同标签风格或语言需求。',
-    '配置完成后，助手会自动抓取当前标签页并生成推荐。',
+    t('onboarding_tip_1'),
+    t('onboarding_tip_2'),
+    t('onboarding_tip_3'),
   ];
 
   return (
     <section className="rounded-3xl border border-[color:var(--tab-popup-onboarding-card-border)] bg-gradient-to-br from-[color:var(--tab-popup-onboarding-tip-bg)] via-[color:var(--tab-popup-onboarding-tip-bg)] to-[color:var(--tab-popup-onboarding-tip-bg)] p-5 shadow-lg shadow-[color:var(--tab-popup-onboarding-shadow)] backdrop-blur-xl">
-      <h2 className="text-sm font-semibold text-[var(--tab-popup-primary-text)]">小贴士</h2>
+      <h2 className="text-sm font-semibold text-[var(--tab-popup-primary-text)]">{t('popup_tips')}</h2>
       <ul className="mt-3 list-disc space-y-2 pl-5 text-[11px] text-[color:var(--tab-popup-onboarding-desc)]">
         {tips.map((tip, idx) => (
           <li key={idx}>{tip}</li>
@@ -119,7 +121,7 @@ function OnboardingFooter({ openOptions }: { openOptions: () => void }) {
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
-        前往设置
+        {t('popup_go_settings')}
       </button>
     </footer>
   );

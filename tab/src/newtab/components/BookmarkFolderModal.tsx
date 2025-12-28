@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Edit2, Trash2, X } from 'lucide-react';
+import { t } from '@/lib/i18n';
 import { ActionSheet } from './ui/ActionSheet';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useDroppable } from '@dnd-kit/core';
@@ -97,7 +98,7 @@ export function BookmarkFolderModal({
 }: BookmarkFolderModalProps) {
   const { removeGridFolder, updateGridItem, browserBookmarksRootId, homeBrowserFolderId } = useNewtabStore();
   const [isVisible, setIsVisible] = useState(false);
-  const [title, setTitle] = useState(folder.bookmarkFolder?.title || '文件夹');
+  const [title, setTitle] = useState(folder.bookmarkFolder?.title || t('folder_default_name'));
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
@@ -133,7 +134,7 @@ export function BookmarkFolderModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setTitle(folder.bookmarkFolder?.title || '文件夹');
+    setTitle(folder.bookmarkFolder?.title || t('folder_default_name'));
     setIsEditingTitle(false);
   }, [folder.bookmarkFolder?.title, isOpen]);
 
@@ -204,10 +205,10 @@ export function BookmarkFolderModal({
   if (!isOpen) return null;
 
   const parentHint = effectiveParentId
-    ? '上一级'
+    ? t('folder_parent_hint_up')
     : folder.groupId && folder.groupId !== 'home'
-      ? '分组'
-      : '首页';
+      ? t('folder_parent_hint_group')
+      : t('folder_parent_hint_home');
 
   const handleDeleteFolder = () => {
     if (isBrowserSyncedFolder) return;
@@ -236,7 +237,7 @@ export function BookmarkFolderModal({
   const handleTitleSave = () => {
     setIsEditingTitle(false);
     const trimmed = title.trim();
-    const current = folder.bookmarkFolder?.title || '文件夹';
+    const current = folder.bookmarkFolder?.title || t('folder_default_name');
     if (trimmed && trimmed !== current) {
       updateGridItem(folder.id, { bookmarkFolder: { ...(folder.bookmarkFolder ?? {}), title: trimmed } });
     } else {
@@ -296,7 +297,7 @@ export function BookmarkFolderModal({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleTitleSave();
                   if (e.key === 'Escape') {
-                    setTitle(folder.bookmarkFolder?.title || '文件夹');
+                    setTitle(folder.bookmarkFolder?.title || t('folder_default_name'));
                     setIsEditingTitle(false);
                   }
                 }}
@@ -307,7 +308,7 @@ export function BookmarkFolderModal({
                 type="button"
                 onClick={() => setIsEditingTitle(true)}
                 className="text-lg font-medium text-white truncate flex items-center gap-2 hover:text-blue-300 transition-colors"
-                title="点击重命名"
+                title={t('folder_click_rename')}
               >
                 <span className="truncate">{title}</span>
                 <Edit2 className="w-4 h-4 opacity-60" />
@@ -320,8 +321,8 @@ export function BookmarkFolderModal({
                 type="button"
                 onClick={handleDeleteFolder}
                 className="p-2 rounded-full hover:bg-white/10 transition-colors text-red-400"
-                aria-label="删除文件夹"
-                title="删除文件夹"
+                aria-label={t('folder_delete')}
+                title={t('folder_delete')}
               >
                 <Trash2 className="w-5 h-5" />
               </button>
@@ -330,7 +331,7 @@ export function BookmarkFolderModal({
               type="button"
               onClick={handleClose}
               className="p-2 rounded-full hover:bg-white/10 transition-colors"
-              aria-label="关闭"
+              aria-label={t('options_close')}
             >
               <X className="w-5 h-5 text-white/70" />
             </button>
@@ -351,7 +352,7 @@ export function BookmarkFolderModal({
               >
                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-4 min-h-[140px]">
                   {items.length === 0 ? (
-                    <div className="col-span-full text-center py-10 text-white/50 text-sm">文件夹为空</div>
+                    <div className="col-span-full text-center py-10 text-white/50 text-sm">{t('folder_empty')}</div>
                   ) : (
                     items.map((item) => (
                       <SortableModalItem
@@ -381,9 +382,9 @@ export function BookmarkFolderModal({
               className={`rounded-2xl px-4 py-3 text-sm text-white/70 border border-dashed transition-colors ${
                 isOverUndockParent ? 'bg-white/10 border-white/40' : 'bg-white/5 border-white/20'
               }`}
-              title={(folder.parentId ?? null) ? '移到上一级文件夹' : '移到首页'}
+              title={(folder.parentId ?? null) ? t('folder_parent_hint_up') : t('folder_parent_hint_home')}
             >
-              移到上一级（{parentHint}）
+              {t('folder_move_up', parentHint)}
             </div>
           </div>
         </div>
@@ -392,11 +393,11 @@ export function BookmarkFolderModal({
       {/* 删除文件夹操作表 */}
       <ActionSheet
         isOpen={showDeleteSheet}
-        title="删除文件夹"
-        message="选择删除方式"
+        title={t('folder_delete_title')}
+        message={t('folder_delete_message')}
         actions={[
-          { label: '保留内容（移出文件夹）', onClick: handleDeleteKeep },
-          { label: '删除文件夹及全部内容', onClick: handleDeleteAll, variant: 'danger' },
+          { label: t('folder_delete_keep'), onClick: handleDeleteKeep },
+          { label: t('folder_delete_all'), onClick: handleDeleteAll, variant: 'danger' },
         ]}
         onCancel={() => setShowDeleteSheet(false)}
       />
@@ -404,10 +405,10 @@ export function BookmarkFolderModal({
       {/* 删除全部确认弹窗 */}
       <ConfirmModal
         isOpen={showDeleteAllConfirm}
-        title="确认删除"
-        message="确定删除文件夹及全部内容吗？此操作不可恢复。"
-        confirmText="删除"
-        cancelText="取消"
+        title={t('folder_delete_confirm_title')}
+        message={t('folder_delete_confirm_message')}
+        confirmText={t('ui_delete')}
+        cancelText={t('btn_cancel')}
         confirmVariant="danger"
         onConfirm={confirmDeleteAll}
         onCancel={() => setShowDeleteAllConfirm(false)}

@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { t } from '@/lib/i18n';
 import type { AIProvider } from '@/types';
 
 interface ModelSelectorProps {
@@ -18,14 +19,14 @@ interface ModelSelectorProps {
 }
 
 const modelPlaceholders: Record<AIProvider, string> = {
-  openai: 'gpt-4o-mini (推荐) 或 gpt-4o',
-  claude: 'claude-3-5-sonnet-20241022 (推荐)',
+  openai: 'gpt-4o-mini (recommended) or gpt-4o',
+  claude: 'claude-3-5-sonnet-20241022 (recommended)',
   deepseek: 'deepseek-chat',
-  zhipu: 'glm-4-flash (推荐) 或 glm-4-plus',
-  modelscope: 'qwen-plus 或 qwen-turbo',
+  zhipu: 'glm-4-flash (recommended) or glm-4-plus',
+  modelscope: 'qwen-plus or qwen-turbo',
   siliconflow: 'Qwen/Qwen2.5-7B-Instruct',
-  iflow: 'spark-lite 或 spark-pro',
-  custom: '请输入模型名称',
+  iflow: 'spark-lite or spark-pro',
+  custom: 'Enter model name',
 };
 
 export function ModelSelector({
@@ -70,7 +71,7 @@ export function ModelSelector({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <label className="block text-sm font-medium text-[var(--tab-options-text)]">模型</label>
+        <label className="block text-sm font-medium text-[var(--tab-options-text)]">{t('options_model')}</label>
         <button
           type="button"
           onClick={onRefreshModels}
@@ -81,7 +82,7 @@ export function ModelSelector({
               : 'bg-[var(--tab-options-button-primary-bg)] text-[var(--tab-options-button-primary-text)] hover:bg-[var(--tab-options-button-primary-hover)]'
           }`}
         >
-          {isFetchingModels ? '获取中...' : '刷新模型'}
+          {isFetchingModels ? t('options_fetching_models') : t('options_refresh_models')}
         </button>
       </div>
 
@@ -100,7 +101,7 @@ export function ModelSelector({
               onClick={() => setDropdownOpen((open) => !open)}
               className="px-3 py-2 rounded-lg bg-[var(--tab-options-button-hover-bg)] text-[var(--tab-options-button-text)] hover:bg-[color:var(--tab-options-button-border)] transition-colors flex items-center gap-1"
             >
-              <span className="text-sm font-medium">选择模型</span>
+              <span className="text-sm font-medium">{t('options_select_model')}</span>
               <span className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>▾</span>
             </button>
           )}
@@ -131,17 +132,17 @@ export function ModelSelector({
 
       {hasModelOptions && (
         <p className="mt-2 text-xs text-[var(--tab-options-pill-text)]">
-          已获取 {availableModels.length} 个模型，可直接选择或手动输入。
+          {t('options_models_loaded', [availableModels.length.toString()])}
         </p>
       )}
       {modelFetchError && (
         <p className="mt-2 text-xs text-[var(--tab-options-danger-text)]">
-          模型列表加载失败：{modelFetchError}
+          {t('options_model_load_failed')}: {modelFetchError}
         </p>
       )}
       {!hasModelOptions && modelFetchSupported && !modelFetchError && !isFetchingModels && (
         <p className="mt-2 text-xs text-[var(--tab-options-text-muted)]">
-          输入 API 地址与 Key 后可刷新获取可用模型列表。
+          {t('options_model_fetch_hint')}
         </p>
       )}
     </div>

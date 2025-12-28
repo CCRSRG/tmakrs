@@ -4,6 +4,7 @@
 
 import { TagList } from '@/components/TagList';
 import { getExistingTagClass, getSelectedTagClass, type TagTheme } from '@/lib/utils/tagStyles';
+import { t } from '@/lib/i18n';
 
 interface SelectedTagsSectionProps {
   selectedTags: string[];
@@ -18,8 +19,8 @@ export function SelectedTagsSection({ selectedTags, onToggleTag, tagTheme }: Sel
     <section className="rounded-xl border border-[var(--tab-popup-section-blue-border)] bg-gradient-to-br from-[var(--tab-popup-section-blue-from)] to-[var(--tab-popup-section-blue-to)] p-3.5 shadow-lg">
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-[var(--tab-popup-text)]">已选择标签</p>
-          <span className="text-[10px] text-[var(--tab-popup-text-muted)]">点击标签可取消选择。</span>
+          <p className="text-sm font-semibold text-[var(--tab-popup-text)]">{t('popup_selected_tags')}</p>
+          <span className="text-[10px] text-[var(--tab-popup-text-muted)]">{t('popup_click_to_remove')}</span>
         </div>
         <span className="rounded-full bg-[var(--tab-popup-section-blue-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-blue-badge-text)]">
           {selectedTags.length}
@@ -30,7 +31,7 @@ export function SelectedTagsSection({ selectedTags, onToggleTag, tagTheme }: Sel
           <button
             key={tag}
             onClick={() => onToggleTag(tag)}
-            title="点击移除标签"
+            title={t('popup_click_to_remove')}
             className={getSelectedTagClass(tagTheme)}
           >
             <span className="truncate max-w-[120px]">{tag}</span>
@@ -61,9 +62,9 @@ export function RecommendedTagsSection({
       <div className="mb-2.5 flex items-center justify-between">
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--tab-popup-text)]">
-            AI 推荐
+            {t('ai_recommend_title')}
           </h2>
-          <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">根据页面内容实时生成，点击可快速选择。</p>
+          <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">{t('ai_recommend_desc')}</p>
         </div>
         <span className="rounded-full bg-[var(--tab-popup-section-purple-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-purple-badge-text)]">
           {recommendedTags.length}
@@ -104,9 +105,9 @@ export function ExistingTagsSection({
             <svg className="h-4 w-4 text-[var(--tab-popup-section-emerald-icon)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
-            标签库
+            {t('tag_library')}
           </h2>
-          <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">与你的历史标签数据同步，点选即可加入。</p>
+          <p className="mt-1 text-xs text-[var(--tab-popup-text-muted)]">{t('tag_library_desc')}</p>
         </div>
         <span className="rounded-full bg-[var(--tab-popup-section-emerald-badge-bg)] px-2 py-0.5 text-xs font-medium text-[var(--tab-popup-section-emerald-badge-text)]">
           {existingTags.length}
@@ -116,7 +117,7 @@ export function ExistingTagsSection({
         {existingTags.length === 0 ? (
           <div className="flex items-center justify-center py-6">
             <p className="text-xs text-[var(--tab-popup-text-muted)]">
-              {isLoading ? '加载中...' : '暂无标签'}
+              {isLoading ? t('loading') : t('no_tags')}
             </p>
           </div>
         ) : (
@@ -163,8 +164,8 @@ export function AIDisabledNotice({}: AIDisabledNoticeProps) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
-          <p className="text-sm font-medium text-[var(--tab-popup-section-amber-title)]">AI 推荐已关闭</p>
-          <p className="mt-1 text-xs text-[var(--tab-popup-section-amber-text)]">请从下方标签库中选择标签，或在设置中启用 AI 推荐。</p>
+          <p className="text-sm font-medium text-[var(--tab-popup-section-amber-title)]">{t('popup_ai_disabled_title')}</p>
+          <p className="mt-1 text-xs text-[var(--tab-popup-section-amber-text)]">{t('popup_ai_disabled_desc')}</p>
         </div>
       </div>
     </section>

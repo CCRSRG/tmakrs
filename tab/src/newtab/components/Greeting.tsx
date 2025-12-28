@@ -3,6 +3,7 @@
  */
 
 import { useMemo } from 'react';
+import { t } from '@/lib/i18n';
 
 interface GreetingProps {
   userName?: string;
@@ -13,15 +14,15 @@ export function Greeting({ userName }: GreetingProps) {
     const hour = new Date().getHours();
     
     if (hour >= 5 && hour < 12) {
-      return { text: '早上好', icon: '🌅' };
+      return { text: t('greeting_morning'), icon: '🌅' };
     } else if (hour >= 12 && hour < 14) {
-      return { text: '中午好', icon: '☀️' };
+      return { text: t('greeting_noon'), icon: '☀️' };
     } else if (hour >= 14 && hour < 18) {
-      return { text: '下午好', icon: '🌤️' };
+      return { text: t('greeting_afternoon'), icon: '🌤️' };
     } else if (hour >= 18 && hour < 22) {
-      return { text: '晚上好', icon: '🌆' };
+      return { text: t('greeting_evening'), icon: '🌆' };
     } else {
-      return { text: '夜深了', icon: '🌙' };
+      return { text: t('greeting_night'), icon: '🌙' };
     }
   }, []);
 
