@@ -43,6 +43,18 @@ export async function importToTMarks(
     
     console.log(`[Import] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(bookmarks.length / BATCH_SIZE)}`)
 
+    const requestBody = {
+      bookmarks: batch.map(bookmark => ({
+        title: bookmark.title,
+        url: bookmark.url,
+        description: bookmark.description || '',
+        tags: bookmark.tags || []
+      }))
+    }
+    
+    console.log('[Import] Request body:', JSON.stringify(requestBody).substring(0, 200) + '...')
+    console.log('[Import] Bookmarks count in request:', requestBody.bookmarks.length)
+
     try {
       const response = await fetch(batchApiUrl, {
         method: 'POST',
@@ -50,22 +62,24 @@ export async function importToTMarks(
           'Content-Type': 'application/json',
           'X-API-Key': accessToken
         },
-        body: JSON.stringify({
-          bookmarks: batch.map(bookmark => ({
-            title: bookmark.title,
-            url: bookmark.url,
-            description: bookmark.description || '',
-            tags: bookmark.tags || []
-          }))
-        })
+        body: JSON.stringify(requestBody)
       })
 
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('API Key 认证失败，请检查「设置 → 同步设置」中的 API Key 是否正确')
         }
-        const error = await response.json().catch(() => ({ message: 'Failed to create bookmarks' }))
-        throw new Error(error.message || `批量创建失败 (${response.status})`)
+        const errorText = await response.text()
+        console.error('[Import] Error response:', errorText)
+        let errorMessage = `批量创建失败 (${response.status})`
+        try {
+          const error = JSON.parse(errorText)
+          errorMessage = error.message || error.error?.message || errorMessage
+          console.error('[Import] Parsed error:', error)
+        } catch (e) {
+          console.error('[Import] Could not parse error response')
+        }
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
